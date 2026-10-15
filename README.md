@@ -7,14 +7,14 @@ Clickable prototype for the TNGA coolant round. Prepared by Ideal Technology Sol
 - `Coolant Data Capture.dc.html` — the prototype
 - `Coolant Data Capture - Functional Overview.dc.html` — walkthrough with screenshots
 - `Coolant Data Capture - Requirements Sign-off.dc.html` — sign-off sheet
-- `support.js`, `doc-page.js`, `_ds/`, `screenshots/` — required, keep them next to the pages
+- `support.js`, `doc-page.js`, `vendor/`, `assets/`, `screenshots/` — required, keep them next to the pages
 
 ## Publish on GitHub Pages
 1. Upload **every file and folder above**, including the hidden `.nojekyll` file, to the repository root.
 2. Settings → Pages → Source: *Deploy from a branch* → `main` / root.
 3. Open `https://<user>.github.io/<repo>/`.
 
-`.nojekyll` matters: without it GitHub Pages skips folders starting with `_`, and `_ds/` (styles) would not load.
+No file or folder the pages need starts with `_`, so GitHub Pages serves everything even without `.nojekyll` (it is included anyway).
 
 ## Notes
 - Needs an internet connection: React, fonts and icons load from public CDNs (unpkg.com, fonts.googleapis.com).
