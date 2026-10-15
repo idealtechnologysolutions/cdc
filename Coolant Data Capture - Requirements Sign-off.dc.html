@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/broadsheet-eded96bf-f87d-42a4-a6ab-aff3dd21e7fd/styles.css">
+<script src="_ds/broadsheet-eded96bf-f87d-42a4-a6ab-aff3dd21e7fd/_ds_bundle.js"></script>
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+.keep{break-inside:avoid}
+</style>
+</helmet>
+<doc-page size="letter" margin="0.55in">
+  <div style="font-family:var(--font-body);color:var(--color-text);font-size:13.5px;line-height:1.55">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px">
+      <img src="assets/ideal-logo.png" alt="Ideal Technology Solutions, LLC" style="height:40px;width:auto;display:block">
+      <span style="font-size:12px;color:var(--color-neutral-700);text-align:right">Prepared by Ideal Technology Solutions</span>
+    </div>
+    <h1 style="margin:0 0 2px;font-size:28px;line-height:1.15">Coolant Data Capture — Requirements Sign-off</h1>
+    <p style="margin:0 0 10px;font-size:13px;color:var(--color-neutral-700)">TNGA machining area · Follows prototype approval · Version 1.0 · October 2026</p>
+    <p style="margin:0 0 4px">The prototype has been approved for look and flow. This sheet lists the rules, data and technical needs that the prototype assumed or left out. Please tick <strong>Confirm</strong> or write the correction for each item, then sign at the end. Development starts once every item is answered.</p>
+    <p style="margin:0 0 12px;font-size:12px;color:var(--color-neutral-700)">☐ Confirm = the prototype behaviour is correct · Correction = write what it should be</p>
+
+    <h2 style="font-size:19px;margin:0 0 8px">A. Business rules</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:120px">Item</th><th style="padding:6px">Prototype assumption</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Correction</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A1</td><td style="padding:8px 6px;vertical-align:top"><strong>Concentration</strong></td><td style="padding:8px 6px;vertical-align:top">Conc. % = Brix × product refractive factor. Out of range if outside low–high by more than 0.05.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A2</td><td style="padding:8px 6px;vertical-align:top"><strong>Dosing amount</strong></td><td style="padding:8px 6px;vertical-align:top">Add (L) = (target − reading) ÷ 100 × sump litres. Prompted only when below the low limit.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A3</td><td style="padding:8px 6px;vertical-align:top"><strong>Comment rule</strong></td><td style="padding:8px 6px;vertical-align:top">A reading still out of range after dosing cannot be saved without a comment.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A4</td><td style="padding:8px 6px;vertical-align:top"><strong>Washer drops</strong></td><td style="padding:8px 6px;vertical-align:top">Fewer drops than the washer's limit = too weak, so the row is flagged.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A5</td><td style="padding:8px 6px;vertical-align:top"><strong>Mix tank</strong></td><td style="padding:8px 6px;vertical-align:top">Mix conc. = Brix × 1.29. Flagged amber if more than 0.5 points from the raw-to-water ratio.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A6</td><td style="padding:8px 6px;vertical-align:top"><strong>Bug limits</strong></td><td style="padding:8px 6px;vertical-align:top">Bacteria 3 or more and fungus 2 or more need treatment. Same limits on every system.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A7</td><td style="padding:8px 6px;vertical-align:top"><strong>pH range</strong></td><td style="padding:8px 6px;vertical-align:top">8.9–9.6 for every system and washer. Low pH prompts LA-33.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A8</td><td style="padding:8px 6px;vertical-align:top"><strong>Chemical units</strong></td><td style="padding:8px 6px;vertical-align:top">Grotan, LA-33 and WR-90 recorded in litres. The tech enters the dose; the app doesn't suggest one.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A9</td><td style="padding:8px 6px;vertical-align:top"><strong>Schedule groups</strong></td><td style="padding:8px 6px;vertical-align:top">Pits daily · MWTH Mon/Wed/Thu · TF Tue/Fri · Washers weekly.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A10</td><td style="padding:8px 6px;vertical-align:top"><strong>Bug test groups</strong></td><td style="padding:8px 6px;vertical-align:top">Group A and B alternate by week. Weekly (W) systems are tested every week. Slides dipped Monday, read Wednesday.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A11</td><td style="padding:8px 6px;vertical-align:top"><strong>Holidays</strong></td><td style="padding:8px 6px;vertical-align:top">Nothing is due on a holiday. A Monday holiday moves MWTH to Tuesday. No rule yet for Wednesday or Friday holidays.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A12</td><td style="padding:8px 6px;vertical-align:top"><strong>Saving</strong></td><td style="padding:8px 6px;vertical-align:top">Pick one for all screens: ☐ Save button &nbsp; ☐ Save as you type</td><td style="padding:8px 6px;vertical-align:top">—</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:19px;margin:0 0 8px">B. Roles and permissions</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:120px">Item</th><th style="padding:6px">Prototype assumption</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Correction</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B1</td><td style="padding:8px 6px;vertical-align:top"><strong>Internal Tech</strong></td><td style="padding:8px 6px;vertical-align:top">Edits and deletes own shift only. Other shift and the Leadec log are read only.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B2</td><td style="padding:8px 6px;vertical-align:top"><strong>Shift cover</strong></td><td style="padding:8px 6px;vertical-align:top">Not supported: an internal tech can't cover the other shift.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B3</td><td style="padding:8px 6px;vertical-align:top"><strong>External Tech</strong></td><td style="padding:8px 6px;vertical-align:top">Edits only own entries for 5 days. Cannot delete.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B4</td><td style="padding:8px 6px;vertical-align:top"><strong>Manager</strong></td><td style="padding:8px 6px;vertical-align:top">Full access, including Reports, Master Data and deleting any entry.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B5</td><td style="padding:8px 6px;vertical-align:top"><strong>Master Data owner</strong></td><td style="padding:8px 6px;vertical-align:top">Managers maintain systems, products, lists, holidays and users.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:19px;margin:0 0 8px">C. Reports and distribution</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:120px">Item</th><th style="padding:6px">Prototype assumption</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Correction</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C1</td><td style="padding:8px 6px;vertical-align:top"><strong>Weekly Status layout</strong></td><td style="padding:8px 6px;vertical-align:top">One page per line: daily conc. cells, virgin/recycled gallons, bacteria, fungus, action, pH, comments.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C2</td><td style="padding:8px 6px;vertical-align:top"><strong>Sending</strong></td><td style="padding:8px 6px;vertical-align:top">Sent by hand by a manager after the review checklist. Not automatic.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C3</td><td style="padding:8px 6px;vertical-align:top"><strong>Distribution</strong></td><td style="padding:8px 6px;vertical-align:top">One set of lists for the Weekly Status. Other reports are exported, not emailed.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C4</td><td style="padding:8px 6px;vertical-align:top"><strong>Report list</strong></td><td style="padding:8px 6px;vertical-align:top">Weekly Status, Washer, Regrind Parts Washer, Assembly Washer, Chemical Use, Bug and pH, Leadec Weekly, Dust/Mist, Trend Charts. Nothing else needed.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C5</td><td style="padding:8px 6px;vertical-align:top"><strong>Export formats</strong></td><td style="padding:8px 6px;vertical-align:top">PDF and Excel for every report.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:19px;margin:0 0 8px">D. Data to supply</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px">Data</th><th style="padding:6px;width:130px">Supplied by</th><th style="padding:6px;width:100px">Due date</th><th style="padding:6px;width:60px">Received</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D1</td><td style="padding:8px 6px">System list: line, OP #, machine #, sump volume, product, low/high/target, schedule group, shift, bug group</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D2</td><td style="padding:8px 6px">Refractive factor per product, confirmed by the supplier</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D3</td><td style="padding:8px 6px">Washer drop limits</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D4</td><td style="padding:8px 6px">Leadec scope list (machines cleaned and recharged)</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D5</td><td style="padding:8px 6px">Users with role and shift, and the distribution lists with names and emails</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D6</td><td style="padding:8px 6px">Standard comments and the plant holiday calendar</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0">D7</td><td style="padding:8px 6px">Past readings to import: ☐ None &nbsp; ☐ From ______ (current spreadsheets)</td><td></td><td></td><td style="padding:8px 6px">☐</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:19px;margin:0 0 8px">E. Technical requirements</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:140px">Item</th><th style="padding:6px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E1</td><td style="padding:10px 6px;vertical-align:top"><strong>Sign-in</strong></td><td style="padding:10px 6px">☐ Company accounts (SSO) &nbsp; ☐ App logins &nbsp; Other: ________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E2</td><td style="padding:10px 6px;vertical-align:top"><strong>Hosting</strong></td><td style="padding:10px 6px">☐ Plant servers &nbsp; ☐ Cloud &nbsp; IT/security approver: ________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E3</td><td style="padding:10px 6px;vertical-align:top"><strong>Devices</strong></td><td style="padding:10px 6px">☐ Tablets &nbsp; ☐ Phones &nbsp; ☐ Desktop &nbsp; Model / browser: ________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E4</td><td style="padding:10px 6px;vertical-align:top"><strong>Offline</strong></td><td style="padding:10px 6px">Longest expected time without Wi-Fi: ________ &nbsp; Two edits to the same row: ☐ Latest wins &nbsp; ☐ Ask the manager</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E5</td><td style="padding:10px 6px;vertical-align:top"><strong>Data retention</strong></td><td style="padding:10px 6px">Keep readings and audit history for: ________ years</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">E6</td><td style="padding:10px 6px;vertical-align:top"><strong>Email</strong></td><td style="padding:10px 6px">Send reports from: ☐ Company mail server &nbsp; ☐ App service &nbsp; Sender address: ________</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:19px;margin:0 0 8px">F. Scope and delivery</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 22px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:140px">Item</th><th style="padding:6px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">F1</td><td style="padding:10px 6px;vertical-align:top"><strong>Not needed in release 1</strong></td><td style="padding:10px 6px">________________________________________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">F2</td><td style="padding:10px 6px;vertical-align:top"><strong>Missing from the prototype</strong></td><td style="padding:10px 6px">________________________________________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">F3</td><td style="padding:10px 6px;vertical-align:top"><strong>Rollout</strong></td><td style="padding:10px 6px">☐ All lines at once &nbsp; ☐ Pilot on one line first: ________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">F4</td><td style="padding:10px 6px;vertical-align:top"><strong>User testing</strong></td><td style="padding:10px 6px">Testers: ________ &nbsp; Length: ________ &nbsp; Pass criteria: ________</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:10px 6px 10px 0;vertical-align:top">F5</td><td style="padding:10px 6px;vertical-align:top"><strong>Target go-live</strong></td><td style="padding:10px 6px">________</td></tr>
+      </tbody>
+    </table>
+
+    <div class="keep" style="padding-top:10px">
+      <h2 style="font-size:19px;margin:0 0 6px">Sign-off</h2>
+      <p style="margin:0 0 22px">By signing, the client confirms the answers above are the requirements for the production build. Changes after sign-off go through change control.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:34px 40px;font-size:12.5px">
+        <div style="display:flex;flex-direction:column;gap:4px"><span style="border-bottom:1px solid var(--color-text);height:30px"></span><span><strong>Jeff Davis</strong> — Client approver</span></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><span style="border-bottom:1px solid var(--color-text);height:30px"></span><span>Signature and date</span></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><span style="border-bottom:1px solid var(--color-text);height:30px"></span><span><strong>Michael Collins</strong> — CEO, Ideal Technology Solutions</span></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><span style="border-bottom:1px solid var(--color-text);height:30px"></span><span>Signature and date</span></div>
+      </div>
+    </div>
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>
