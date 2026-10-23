@@ -1,10 +1,12 @@
 # Coolant Data Capture — Prototype
 
-Clickable prototype for the TNGA coolant round. Prepared by Ideal Technology Solutions.
+Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, V6T and 24T to follow). Prepared by Ideal Technology Solutions.
 
 ## Files
 - `index.html` — start page with links
-- `Coolant Data Capture.dc.html` — the prototype
+- `Coolant Data Capture.dc.html` — the prototype (Sprint / TRUQ2 by default)
+- `Coolant Data Capture (TNGA).dc.html` — earlier TNGA version
+- `Sprint Pilot - Questions for Jeff.dc.html` — open questions for the pilot
 - `Coolant Data Capture - Functional Overview.dc.html` — walkthrough with screenshots
 - `Coolant Data Capture - Requirements Sign-off.dc.html` — sign-off sheet
 - `support.js`, `doc-page.js`, `vendor/`, `assets/`, `screenshots/` — required, keep them next to the pages

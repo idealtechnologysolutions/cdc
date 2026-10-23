@@ -1,0 +1,1902 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="vendor/broadsheet/styles.css">
+<script src="vendor/broadsheet/ds-bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
+<style>
+body{margin:0;background:var(--color-bg)}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+input:disabled,select:disabled{opacity:0.6;cursor:not-allowed}
+button:disabled{cursor:default}
+</style>
+</helmet>
+<div style="display:flex;flex-direction:column;min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+  <datalist id="cmt-std"><sc-for list="{{ commentsStd }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
+  <datalist id="cmt-pit"><sc-for list="{{ commentsPit }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
+
+  <header style="position:sticky;top:0;z-index:20;background:var(--color-bg);box-shadow:var(--shadow-sm);padding:14px 24px 0;display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
+      <div style="display:flex;align-items:baseline;gap:14px;margin-right:auto;flex-wrap:wrap">
+        <span style="font-family:var(--font-heading);font-weight:600;font-size:23px;letter-spacing:-0.015em">Coolant Data Capture</span>
+        <span style="font-size:14px;color:var(--color-neutral-700)">CMIS · TMMAL · {{ todayShort }} · Week {{ weekNo }}</span>
+        <div class="seg" title="Plant area">
+          <sc-for list="{{ areas }}" as="ar" hint-placeholder-count="4">
+            <label class="seg-opt" style="min-height:36px;padding:0 12px;font-size:14px;white-space:nowrap"><input type="radio" name="area" checked="{{ ar.on }}" onChange="{{ ar.pick }}">{{ ar.k }}</label>
+          </sc-for>
+        </div>
+      </div>
+      <button onClick="{{ toggleOnline }}" title="Simulate going offline / back online" style="display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid var(--color-divider);border-radius:var(--radius-md);background:{{ net.bg }};color:{{ net.fg }};font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;flex:none" style-hover="border-color:var(--color-neutral-600)">
+        <i class="ph-duotone {{ net.icon }}" style="font-size:20px"></i>
+        <span style="font-weight:600">{{ net.label }}</span>
+        <sc-if value="{{ net.showBadge }}" hint-placeholder-val="{{ false }}"><span style="background:var(--color-neutral-900);color:var(--color-bg);padding:2px 8px;border-radius:var(--radius-md);font-size:12px">{{ net.badge }}</span></sc-if>
+        <span style="font-size:12px;color:var(--color-neutral-700)">{{ net.hint }}</span>
+      </button>
+      <button class="btn btn-secondary" onClick="{{ fb.onOpen }}" style="min-height:44px;font-size:14px;white-space:nowrap;flex:none"><i class="ph-duotone ph-chat-centered-text" style="font-size:20px"></i>Feedback {{ fb.countLabel }}</button>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-neutral-700)">
+        <i class="ph-duotone ph-user-switch" style="font-size:20px"></i>Demo role
+        <select class="input" value="{{ role }}" onChange="{{ onRole }}" style="width:auto;min-height:44px;font-size:14px;color:var(--color-text)">
+          <option value="manager">Manager · Dana Alvarez</option>
+          <option value="internal">Internal Tech · Jordan Reyes</option>
+          <option value="external">External Tech (Leadec) · Kim Moore</option>
+        </select>
+      </label>
+    </div>
+    <nav style="display:flex;gap:2px;overflow-x:auto;scrollbar-width:none">
+      <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="7">
+        <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:8px;min-height:48px;padding:0 14px;border:0;background:{{ n.bg }};color:{{ n.fg }};box-shadow:{{ n.bar }};font:inherit;font-size:15px;font-weight:{{ n.weight }};white-space:nowrap;cursor:pointer;border-radius:var(--radius-md) var(--radius-md) 0 0" style-hover="background:var(--color-accent-100)">
+          <i class="ph-duotone {{ n.icon }}" style="font-size:20px"></i>{{ n.label }}
+        </button>
+      </sc-for>
+    </nav>
+  </header>
+
+  <main style="flex:1;padding:28px 24px 40px;display:flex;flex-direction:column;gap:24px;min-width:0">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--color-neutral-800)">
+      <span class="tag tag-accent-2">Prototype</span>
+      <span style="text-wrap:pretty">Workflow review build. Exports and emails are simulated. The production build adds Power BI reporting and plant-specific setup under CMIS.</span>
+      <button class="btn btn-ghost" onClick="{{ fb.onOpen }}" style="min-height:40px;font-size:14px;white-space:nowrap;flex:none"><i class="ph-duotone ph-chat-centered-text" style="font-size:18px"></i>Tell us what to change</button>
+    </div>
+    <sc-if value="{{ notTNGA }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--color-accent-100);color:var(--color-accent-900);border-radius:var(--radius-md);font-size:15px">
+        <i class="ph-duotone ph-factory" style="font-size:24px;flex:none"></i>
+        <span style="text-wrap:pretty"><strong>{{ areaName }} is not set up yet.</strong> {{ areaNote }} The screens below show TNGA sample data.</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isRound }}" hint-placeholder-val="{{ true }}">
+      <section data-screen-label="Daily Round" style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-right:auto">
+            <h1 style="margin:0;font-size:38px">Daily Round</h1>
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:15px">
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-calendar-blank" style="font-size:20px"></i>{{ round.dateLabel }}</span>
+              <div class="seg">
+                <label class="seg-opt" style="min-height:42px;padding:0 16px;font-size:14px;white-space:nowrap"><input type="radio" name="shift" checked="{{ round.s1 }}" onChange="{{ round.onS1 }}">Shift 1</label>
+                <label class="seg-opt" style="min-height:42px;padding:0 16px;font-size:14px;white-space:nowrap"><input type="radio" name="shift" checked="{{ round.s2 }}" onChange="{{ round.onS2 }}">Shift 2</label>
+              </div>
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-user" style="font-size:20px"></i>{{ userLine }}</span>
+              <label style="display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer"><input type="checkbox" checked="{{ round.showAlt }}" onChange="{{ round.onAlt }}" style="width:20px;height:20px;accent-color:var(--color-accent)"><span>Show {{ round.altLabel }} systems ({{ round.altCount }})</span></label>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;width:280px">
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span><strong style="font-size:20px">{{ round.done }}</strong> of {{ round.due }} recorded</span><span style="color:var(--color-neutral-700)">{{ round.pctLabel }}</span></div>
+            <div style="height:10px;background:var(--color-neutral-300);border-radius:var(--radius-md);overflow:hidden"><div style="height:100%;width:{{ round.barW }};background:var(--color-accent)"></div></div>
+          </div>
+          <button class="btn btn-primary" disabled="{{ round.noDirty }}" onClick="{{ round.saveAll }}" style="min-height:50px;font-size:16px;padding:0 22px;white-space:nowrap;flex:none"><i class="ph-duotone ph-floppy-disk" style="font-size:20px"></i>{{ round.saveLabel }}</button>
+        </div>
+
+        <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800)">
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-check-circle" style="font-size:18px;color:oklch(0.42 0.1 150)"></i>In range / corrected</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-x-circle" style="font-size:18px;color:oklch(0.47 0.17 25)"></i>Out of range (red row)</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-warning" style="font-size:18px;color:oklch(0.45 0.1 70)"></i>Needs a comment</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-minus-circle" style="font-size:18px;color:var(--color-neutral-700)"></i>Not entered</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-lock" style="font-size:18px;color:var(--color-neutral-700)"></i>Locked for your role</span>
+        </div>
+
+        <sc-if value="{{ round.hasLockNote }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ round.lockNote }}</div>
+        </sc-if>
+
+        <div style="overflow-x:auto">
+          <div style="min-width:1240px;display:flex;flex-direction:column;gap:30px">
+            <sc-for list="{{ round.groups }}" as="g" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column">
+                <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
+                  <h3 style="margin:0;font-size:25px">{{ g.line }}</h3>
+                  <sc-if value="{{ g.alt }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent-2">Alternate day · {{ g.altSched }}</span></sc-if>
+                  <span style="font-size:14px;color:var(--color-neutral-700)">{{ g.done }} of {{ g.due }} recorded</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(96px,1.1fr) 70px 70px 62px 76px 62px 74px 84px 86px 82px 84px 70px minmax(140px,1.6fr) 72px 122px;gap:4px;align-items:end;padding:6px 8px;font-size:11px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                  <span>OP # / Machine</span><span>Product</span><span>Sump (L)</span><span>Range</span><span>Initial Refrac (Brix)</span><span>Initial RI %</span><span>Tank level</span><span>Skimmer</span><span>To add</span><span>Added (L)</span><span>Type V / R</span><span>Recycled (L)</span><span>Comment</span><span>Final RI %</span><span>Status</span>
+                </div>
+                <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+                  <div style="background:{{ r.rowBg }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 9%, transparent)">
+                    <div style="display:grid;grid-template-columns:minmax(96px,1.1fr) 70px 70px 62px 76px 62px 74px 84px 86px 82px 84px 70px minmax(140px,1.6fr) 72px 122px;gap:4px;align-items:center;padding:8px">
+                      <div style="display:flex;flex-direction:column;line-height:1.2">
+                        <span style="font-family:var(--font-heading);font-weight:600;font-size:18px;display:flex;align-items:center;gap:5px">{{ r.op }}<sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone ph-lock" title="{{ r.lockWhy }}" style="font-size:16px;color:var(--color-neutral-700)"></i></sc-if></span>
+                        <span style="font-size:12px;color:var(--color-neutral-700)">{{ r.mach }}</span>
+                      </div>
+                      <span style="font-size:13px">{{ r.product }}</span>
+                      <div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:14px">{{ r.sumpL }}</span><span style="font-size:11px;color:var(--color-neutral-700)">{{ r.gal }}</span></div>
+                      <div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:14px">{{ r.range }}</span><span style="font-size:11px;color:var(--color-neutral-700)">{{ r.target }}</span></div>
+                      <input class="input" value="{{ r.brix }}" onChange="{{ r.onBrix }}" disabled="{{ r.locked }}" placeholder="Brix" style="min-height:46px;font-size:17px;padding:6px 8px;font-weight:600">
+                      <span style="font-size:17px;font-weight:600;color:{{ r.pctFg }}">{{ r.pctText }}</span>
+                      <select class="input" value="{{ r.tank }}" onChange="{{ r.onTank }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 6px;font-size:14px">
+                        <option value="OK">OK</option><option value="Low">Low</option><option value="High">High</option>
+                      </select>
+                      <select class="input" value="{{ r.skimmer }}" onChange="{{ r.onSkim }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 6px;font-size:14px">
+                        <option value="OK">OK</option><option value="Not working">Not working</option><option value="N/A">N/A</option>
+                      </select>
+                      <div style="display:flex;flex-direction:column;line-height:1.2;color:{{ r.addFg }}"><span style="font-size:15px;font-weight:600">{{ r.addL }}</span><span style="font-size:12px">{{ r.addG }}</span></div>
+                      <input class="input" value="{{ r.added }}" onChange="{{ r.onAdded }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                      <div class="seg" style="width:100%">
+                        <label class="seg-opt" title="Virgin" style="flex:1;justify-content:center;min-height:44px;padding:0;font-size:14px"><input type="radio" name="{{ r.typeName }}" checked="{{ r.isV }}" onChange="{{ r.onV }}" disabled="{{ r.locked }}">V</label>
+                        <label class="seg-opt" title="Recycled" style="flex:1;justify-content:center;min-height:44px;padding:0;font-size:14px"><input type="radio" name="{{ r.typeName }}" checked="{{ r.isR }}" onChange="{{ r.onR }}" disabled="{{ r.locked }}">R</label>
+                      </div>
+                      <input class="input" value="{{ r.recycled }}" onChange="{{ r.onRec }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                      <input class="input" list="{{ r.listId }}" value="{{ r.comment }}" onChange="{{ r.onComment }}" disabled="{{ r.locked }}" placeholder="{{ r.cmtPh }}" style="min-height:46px;font-size:13px;padding:6px 8px;border-color:{{ r.cmtBorder }}">
+                      <input class="input" value="{{ r.final }}" onChange="{{ r.onFinal }}" disabled="{{ r.locked }}" placeholder="%" style="min-height:46px;font-size:15px;padding:6px 8px;font-weight:600;color:{{ r.finalFg }}">
+                      <div style="display:flex;flex-direction:column;gap:4px;align-items:stretch">
+                        <sc-if value="{{ r.showSave }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ r.onSave }}" style="min-height:44px;font-size:15px">Save</button></sc-if>
+                        <sc-if value="{{ r.showPill }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:4px;font-size:12px;padding:3px 6px;border-radius:var(--radius-md);background:{{ r.st.bg }};color:{{ r.st.fg }}"><i class="ph-duotone {{ r.st.icon }}" style="font-size:16px"></i>{{ r.st.label }}</span></sc-if>
+                        <sc-if value="{{ r.showTodo }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;gap:4px;font-size:12px;color:var(--color-neutral-700)"><i class="ph-duotone ph-minus-circle" style="font-size:16px"></i>Not entered</span></sc-if>
+                        <sc-if value="{{ r.showMeta }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onAudit }}" title="Audit history" style="display:flex;align-items:center;gap:4px;border:0;background:transparent;padding:2px 0;font:inherit;font-size:12px;color:var(--color-accent-700);cursor:pointer;text-align:left" style-hover="text-decoration:underline"><i class="ph-duotone ph-clock-counter-clockwise" style="font-size:15px"></i>{{ r.meta }}</button></sc-if>
+                      </div>
+                    </div>
+                    <sc-if value="{{ r.showPrompt }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:0 8px 10px;font-size:15px;color:oklch(0.42 0.16 25)">
+                        <i class="ph-duotone {{ r.promptIcon }}" style="font-size:22px"></i>
+                        <strong style="font-size:17px">{{ r.promptMain }}</strong>
+                        <span style="color:var(--color-text)">{{ r.promptSub }}</span>
+                      </div>
+                    </sc-if>
+                    <sc-if value="{{ r.showErr }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;align-items:center;gap:10px;margin:0 8px 10px;padding:10px 14px;background:oklch(0.93 0.08 85);color:oklch(0.36 0.08 65);font-size:14px;border-radius:var(--radius-md)">
+                        <i class="ph-duotone ph-warning" style="font-size:20px"></i><strong>Save blocked.</strong>{{ r.err }}
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+            <sc-if value="{{ round.empty }}" hint-placeholder-val="{{ false }}">
+              <p style="font-size:17px">No systems are due for this shift today.</p>
+            </sc-if>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isDash }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Dashboard" style="display:flex;flex-direction:column;gap:32px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:38px">Dashboard</h1>
+          <span style="font-size:15px;color:var(--color-neutral-700)">{{ round.dateLabel }} · Week {{ weekNo }} · both shifts</span>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:28px">
+          <sc-for list="{{ dash.tiles }}" as="t" hint-placeholder-count="4">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:68px;line-height:1;letter-spacing:-0.02em">{{ t.value }}</span>
+              <span style="display:flex;align-items:center;gap:6px;font-size:16px;font-weight:600;color:{{ t.fg }}"><i class="ph-duotone {{ t.icon }}" style="font-size:22px"></i>{{ t.label }}</span>
+              <span style="font-size:13px;color:var(--color-neutral-700)">{{ t.sub }}</span>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;flex-wrap:wrap;gap:40px;align-items:flex-start">
+          <div style="display:flex;flex-direction:column;gap:14px;min-width:0;flex:1 1 760px">
+            <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+              <h2 style="margin:0 auto 0 0;font-size:26px;flex:1 1 100%">Latest reading per system</h2>
+              <label class="field"><label>Line</label>
+                <select class="input" value="{{ dash.fLine }}" onChange="{{ dash.onLine }}" style="min-height:44px;width:auto">
+                  <option value="All">All lines</option><option value="Block">Block</option><option value="Head">Head</option><option value="Crank">Crank</option><option value="Cam">Cam</option><option value="Conrod">Conrod</option>
+                </select>
+              </label>
+              <label class="field"><label>Shift</label>
+                <select class="input" value="{{ dash.fShift }}" onChange="{{ dash.onShift }}" style="min-height:44px;width:auto">
+                  <option value="All">Both</option><option value="1">Shift 1</option><option value="2">Shift 2</option>
+                </select>
+              </label>
+              <label class="field"><label>Schedule group</label>
+                <select class="input" value="{{ dash.fGroup }}" onChange="{{ dash.onGroup }}" style="min-height:44px;width:auto">
+                  <option value="All">All groups</option><option value="MWTH">MWTH</option><option value="TF">TF</option><option value="ALL">ALL (pits)</option>
+                </select>
+              </label>
+            </div>
+            <div style="display:flex;flex-direction:column;overflow-x:auto">
+              <div style="display:grid;grid-template-columns:minmax(120px,1.4fr) 74px 62px 118px 62px 62px 84px 40px 126px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);min-width:820px">
+                <span>Line · OP #</span><span>Product</span><span>Range</span><span>Last reading</span><span>Conc.</span><span>Final</span><span>Added</span><span>By</span><span>Status</span>
+              </div>
+              <sc-for list="{{ dash.latest }}" as="l" hint-placeholder-count="8">
+                <button onClick="{{ l.onClick }}" style="display:grid;grid-template-columns:minmax(120px,1.4fr) 74px 62px 118px 62px 62px 84px 40px 126px;gap:8px;align-items:center;padding:10px 8px;min-height:52px;min-width:820px;border:0;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);background:transparent;font:inherit;font-size:14px;color:inherit;text-align:left;cursor:pointer" style-hover="background:color-mix(in srgb, var(--color-text) 4%, transparent)">
+                  <span style="display:flex;flex-direction:column;line-height:1.2"><strong>{{ l.name }}</strong><span style="font-size:12px;color:var(--color-neutral-700)">{{ l.mach }} · {{ l.group }} · S{{ l.shift }}</span></span>
+                  <span style="font-size:13px">{{ l.product }}</span>
+                  <span>{{ l.range }}</span>
+                  <span style="display:flex;flex-direction:column;line-height:1.2"><span>{{ l.when }}</span><span style="font-size:12px;color:{{ l.dueFg }}">{{ l.dueNote }}</span></span>
+                  <span style="font-weight:600;color:{{ l.pctFg }}">{{ l.pct }}</span>
+                  <span style="font-weight:600;color:{{ l.finFg }}">{{ l.fin }}</span>
+                  <span>{{ l.added }}</span>
+                  <span>{{ l.by }}</span>
+                  <span style="display:flex;align-items:center;gap:4px;font-size:12px;padding:3px 6px;border-radius:var(--radius-md);background:{{ l.st.bg }};color:{{ l.st.fg }};width:fit-content"><i class="ph-duotone {{ l.st.icon }}" style="font-size:16px"></i>{{ l.st.label }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:14px;flex:1 1 320px;max-width:520px">
+            <h2 style="margin:0;font-size:26px">Today’s warnings</h2>
+            <span style="font-size:14px;color:var(--color-neutral-700)">{{ dash.warnSummary }}</span>
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <sc-for list="{{ dash.warnings }}" as="w" hint-placeholder-count="4">
+                <div style="display:flex;align-items:center;gap:12px;padding:10px 12px;background:{{ w.bg }};border-radius:var(--radius-md)">
+                  <i class="ph-duotone {{ w.icon }}" style="font-size:22px;color:{{ w.fg }}"></i>
+                  <div style="flex:1;display:flex;flex-direction:column;line-height:1.3;min-width:0">
+                    <strong style="font-size:15px">{{ w.title }}</strong>
+                    <span style="font-size:13px">{{ w.text }}</span>
+                  </div>
+                  <button class="btn btn-secondary" onClick="{{ w.onClick }}" style="min-height:44px;font-size:13px;background:var(--color-bg);white-space:nowrap;flex:none">{{ w.action }}</button>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Reports" style="display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-neutral-800)"><i class="ph-duotone ph-chart-bar" style="font-size:20px;color:var(--color-accent-700)"></i><span style="text-wrap:pretty">These reports preview in the app. In production they also publish to Power BI.</span></div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <sc-for list="{{ rep.list }}" as="rp" hint-placeholder-count="9">
+            <button onClick="{{ rp.onClick }}" style="display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid {{ rp.border }};border-radius:var(--radius-md);background:{{ rp.bg }};color:{{ rp.fg }};font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;flex:none" style-hover="border-color:var(--color-accent)">{{ rp.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ rep.isWeekly }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto">
+                <h1 style="margin:0;font-size:38px">Weekly Status</h1>
+                <span style="font-size:15px;color:var(--color-neutral-700)">Week {{ weekNo }} · {{ wk.range }} · {{ wk.daysWorked }}</span>
+              </div>
+              <button class="btn btn-secondary" onClick="{{ wk.onPdf }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-pdf" style="font-size:20px"></i>Export PDF</button>
+              <button class="btn btn-secondary" onClick="{{ wk.onXls }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Export Excel</button>
+              <button class="btn btn-primary" onClick="{{ wk.onSend }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:20px"></i>Send to distribution list</button>
+            </div>
+            <sc-if value="{{ wk.hasSent }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.1 150)"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>{{ wk.sentLog }}</div>
+            </sc-if>
+
+            <div style="display:flex;flex-direction:column;gap:14px;padding:18px 20px;background:{{ wk.chkBg }};border-radius:var(--radius-md)">
+              <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
+                <i class="ph-duotone {{ wk.chkIcon }}" style="font-size:24px;color:{{ wk.chkFg }}"></i>
+                <strong style="font-size:18px">Review before sending</strong>
+                <span style="font-size:15px">{{ wk.chkSummary }}</span>
+                <button class="btn btn-ghost" onClick="{{ wk.toggleChk }}" style="margin-left:auto;min-height:44px">{{ wk.chkToggle }}</button>
+              </div>
+              <sc-if value="{{ wk.chkOpen }}" hint-placeholder-val="{{ true }}">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:18px 32px">
+                  <sc-for list="{{ wk.checklist }}" as="c" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:4px">
+                      <span style="display:flex;align-items:center;gap:6px;font-weight:600;font-size:15px"><i class="ph-duotone {{ c.icon }}" style="font-size:18px;color:{{ c.fg }}"></i>{{ c.title }} ({{ c.count }})</span>
+                      <sc-for list="{{ c.items }}" as="it" hint-placeholder-count="2"><span style="font-size:13px;padding-left:24px">{{ it }}</span></sc-for>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+
+            <sc-for list="{{ wk.pages }}" as="p" hint-placeholder-count="2">
+              <article data-screen-label="Weekly Status page" style="display:flex;flex-direction:column;gap:16px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);padding:30px 34px 22px;overflow-x:auto">
+                <div style="display:flex;align-items:flex-end;gap:20px">
+                  <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
+                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">TNGA · Weekly coolant status · Week {{ weekNo }}</span>
+                    <h2 style="margin:0;font-size:30px">{{ p.line }}</h2>
+                  </div>
+                  <span style="font-size:13px;color:var(--color-neutral-700);text-align:right">{{ wk.range }}<br>{{ p.pageLabel }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;min-width:1100px">
+                  <div style="display:grid;grid-template-columns:{{ wk.cols }};gap:4px;padding:6px 4px;font-size:10px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);align-items:end">
+                    <span>OP #</span><span>Machine #</span><span>Product</span><span>Target range</span>
+                    <sc-for list="{{ wk.dayHdrs }}" as="dh" hint-placeholder-count="5"><span style="text-align:center">{{ dh }}</span></sc-for>
+                    <span>Virgin added (gal)</span><span>Recycled added (gal)</span><span>Bacteria</span><span>Fungus</span><span>Action</span><span>pH 8.9–9.6</span><span>Comment</span>
+                  </div>
+                  <sc-for list="{{ p.rows }}" as="w" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:{{ wk.cols }};gap:4px;padding:5px 4px;align-items:center;font-size:12.5px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                      <strong>{{ w.op }}</strong><span>{{ w.mach }}</span><span>{{ w.product }}</span><span>{{ w.range }}</span>
+                      <sc-for list="{{ w.cells }}" as="c" hint-placeholder-count="5">
+                        <span style="display:flex;align-items:center;justify-content:center;gap:2px;min-height:26px;font-weight:600;font-size:12px;background:{{ c.bg }};color:{{ c.fg }};border-radius:var(--radius-sm)"><sc-if value="{{ c.hasIcon }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ c.icon }}" style="font-size:13px"></i></sc-if>{{ c.text }}</span>
+                      </sc-for>
+                      <span>{{ w.virgin }}</span><span>{{ w.recycled }}</span>
+                      <span style="display:flex;align-items:center;justify-content:center;gap:2px;min-height:26px;font-size:12px;background:{{ w.bact.bg }};color:{{ w.bact.fg }};border-radius:var(--radius-sm)"><sc-if value="{{ w.bact.hasIcon }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ w.bact.icon }}" style="font-size:13px"></i></sc-if>{{ w.bact.text }}</span>
+                      <span style="display:flex;align-items:center;justify-content:center;gap:2px;min-height:26px;font-size:12px;background:{{ w.fun.bg }};color:{{ w.fun.fg }};border-radius:var(--radius-sm)"><sc-if value="{{ w.fun.hasIcon }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ w.fun.icon }}" style="font-size:13px"></i></sc-if>{{ w.fun.text }}</span>
+                      <span style="font-size:12px">{{ w.action }}</span>
+                      <span style="display:flex;align-items:center;justify-content:center;gap:2px;min-height:26px;font-size:12px;background:{{ w.ph.bg }};color:{{ w.ph.fg }};border-radius:var(--radius-sm)"><sc-if value="{{ w.ph.hasIcon }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ w.ph.icon }}" style="font-size:13px"></i></sc-if>{{ w.ph.text }}</span>
+                      <span style="font-size:11.5px;line-height:1.3">{{ w.comment }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--color-neutral-700);padding-top:6px">
+                  <span>Prepared by Ideal Technology Solutions</span><span>Conc. % = Brix × refractive factor · Red cells marked ▲/▼ are out of range</span>
+                </div>
+              </article>
+            </sc-for>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ rep.isTrend }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <div style="display:flex;align-items:flex-end;gap:16px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto">
+                <h1 style="margin:0;font-size:38px">Trend chart</h1>
+                <span style="font-size:15px;color:var(--color-neutral-700)">{{ tr.sub }}</span>
+              </div>
+              <div class="field"><label>System</label>{{ tr.select }}</div>
+            </div>
+            <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:22px;height:12px;background:oklch(0.93 0.05 150)"></span>Range {{ tr.range }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-text)"></span>In-range reading</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:oklch(0.55 0.19 25)"></span>Out of range (square)</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:2px;height:14px;background:var(--color-accent-2)"></span>Leadec clean &amp; recharge</span>
+            </div>
+            <div style="background:var(--color-neutral-100);padding:20px 16px 8px;box-shadow:var(--shadow-sm)">{{ tr.chart }}</div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ rep.isGen }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto">
+                <h1 style="margin:0;font-size:38px">{{ gen.title }}</h1>
+                <span style="font-size:15px;color:var(--color-neutral-700)">{{ gen.sub }}</span>
+              </div>
+              <button class="btn btn-secondary" onClick="{{ gen.onPdf }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-pdf" style="font-size:20px"></i>Export PDF</button>
+              <button class="btn btn-secondary" onClick="{{ gen.onXls }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Export Excel</button>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px">
+              <sc-for list="{{ gen.figs }}" as="f" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:600;font-size:52px;line-height:1;letter-spacing:-0.02em;color:{{ f.fg }}">{{ f.value }}</span>
+                  <span style="font-size:16px;font-weight:600">{{ f.label }}</span>
+                  <span style="font-size:13px;color:var(--color-neutral-700)">{{ f.sub }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <sc-for list="{{ gen.sections }}" as="sec" hint-placeholder-count="2">
+              <article data-screen-label="Report page" style="display:flex;flex-direction:column;gap:14px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);padding:28px 32px 20px;overflow-x:auto">
+                <div style="display:flex;align-items:flex-end;gap:20px">
+                  <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
+                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">TNGA · {{ gen.title }} · Week {{ weekNo }}</span>
+                    <h2 style="margin:0;font-size:28px">{{ sec.title }}</h2>
+                  </div>
+                  <span style="font-size:13px;color:var(--color-neutral-700);text-align:right">{{ sec.sub }}</span>
+                </div>
+                <div style="display:flex;flex-direction:column;min-width:{{ sec.minW }}">
+                  <div style="display:grid;grid-template-columns:{{ sec.cols }};gap:4px;padding:6px 4px;font-size:10px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);align-items:end">
+                    <sc-for list="{{ sec.hdrs }}" as="h" hint-placeholder-count="8"><span>{{ h }}</span></sc-for>
+                  </div>
+                  <sc-for list="{{ sec.rows }}" as="r" hint-placeholder-count="4">
+                    <div style="display:grid;grid-template-columns:{{ sec.cols }};gap:4px;padding:4px;align-items:center;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                      <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="8">
+                        <span style="display:flex;align-items:center;gap:3px;min-height:28px;padding:0 4px;font-size:12.5px;line-height:1.3;font-weight:{{ c.weight }};background:{{ c.bg }};color:{{ c.fg }};border-radius:var(--radius-sm)"><sc-if value="{{ c.hasIcon }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ c.icon }}" style="font-size:13px"></i></sc-if>{{ c.text }}</span>
+                      </sc-for>
+                    </div>
+                  </sc-for>
+                  <sc-if value="{{ sec.hasFoot }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:grid;grid-template-columns:{{ sec.cols }};gap:4px;padding:6px 4px;align-items:center;border-top:1px solid var(--color-divider)">
+                      <sc-for list="{{ sec.foot.cells }}" as="c" hint-placeholder-count="6"><span style="padding:0 4px;font-size:13px;font-weight:600">{{ c.text }}</span></sc-for>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ sec.empty }}" hint-placeholder-val="{{ false }}"><span style="padding:12px 4px;font-size:14px;color:var(--color-neutral-700)">{{ sec.emptyText }}</span></sc-if>
+                </div>
+                <div style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:11px;color:var(--color-neutral-700);padding-top:6px">
+                  <span>Prepared by Ideal Technology Solutions</span><span>{{ gen.note }}</span>
+                </div>
+              </article>
+            </sc-for>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isBug }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Bug and pH" style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-right:auto">
+            <h1 style="margin:0;font-size:38px">Bug &amp; pH</h1>
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:15px">
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-calendar-blank" style="font-size:20px"></i>Week {{ weekNo }} · Group {{ bug.group }} + weekly systems</span>
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-test-tube" style="font-size:20px"></i>{{ bug.slides }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-user" style="font-size:20px"></i>{{ userLine }}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;width:280px">
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span><strong style="font-size:20px">{{ bug.done }}</strong> of {{ bug.due }} complete</span><span style="color:var(--color-neutral-700)">{{ bug.pctLabel }}</span></div>
+            <div style="height:10px;background:var(--color-neutral-300);border-radius:var(--radius-md);overflow:hidden"><div style="height:100%;width:{{ bug.barW }};background:var(--color-accent)"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800)">
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-bug" style="font-size:18px"></i>Limits: bacteria 3 or more · fungus 2 or more · pH 8.9–9.6</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-floppy-disk" style="font-size:18px"></i>Changes save as you enter them</span>
+        </div>
+        <sc-if value="{{ bug.hasLock }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ bug.lockNote }}</div>
+        </sc-if>
+        <div style="overflow-x:auto">
+          <div style="min-width:1160px;display:flex;flex-direction:column;gap:30px">
+            <sc-for list="{{ bug.groups }}" as="g" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column">
+                <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px;flex-wrap:wrap">
+                  <h3 style="margin:0;font-size:25px">{{ g.line }}</h3>
+                  <span style="font-size:14px;color:var(--color-neutral-700)">{{ g.tot }}</span>
+                </div>
+                <div style="display:grid;grid-template-columns:minmax(110px,1.2fr) 74px 70px 72px 72px 150px 76px 76px 80px 80px 80px 132px;gap:6px;align-items:end;padding:6px 8px;font-size:11px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                  <span>OP # / Machine</span><span>Product</span><span>Sump (L)</span><span>Bacteria</span><span>Fungus</span><span>Action</span><span>Initial pH</span><span>Final pH</span><span>Grotan (L)</span><span>LA-33 (L)</span><span>WR-90 (L)</span><span>Status</span>
+                </div>
+                <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+                  <div style="background:{{ r.rowBg }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 9%, transparent)">
+                    <div style="display:grid;grid-template-columns:minmax(110px,1.2fr) 74px 70px 72px 72px 150px 76px 76px 80px 80px 80px 132px;gap:6px;align-items:center;padding:8px">
+                      <div style="display:flex;flex-direction:column;line-height:1.2">
+                        <span style="font-family:var(--font-heading);font-weight:600;font-size:18px;display:flex;align-items:center;gap:5px">{{ r.op }}<sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone ph-lock" title="{{ r.lockWhy }}" style="font-size:16px;color:var(--color-neutral-700)"></i></sc-if></span>
+                        <span style="font-size:12px;color:var(--color-neutral-700)">{{ r.mach }}</span>
+                      </div>
+                      <span style="font-size:13px">{{ r.product }}</span>
+                      <span style="font-size:14px">{{ r.sump }}</span>
+                      <select class="input" value="{{ r.bac }}" onChange="{{ r.onBac }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 8px;font-size:17px;font-weight:600;color:{{ r.bacFg }}"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+                      <select class="input" value="{{ r.fun }}" onChange="{{ r.onFun }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 8px;font-size:17px;font-weight:600;color:{{ r.funFg }}"><option value="">—</option><option value="0">0</option><option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option></select>
+                      <select class="input" value="{{ r.action }}" onChange="{{ r.onAction }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 8px;font-size:14px"><option value="Not Treated">Not Treated</option><option value="Treated Bacteria">Treated Bacteria</option><option value="Treated Fungus">Treated Fungus</option><option value="Treated">Treated (both)</option></select>
+                      <input class="input" value="{{ r.phi }}" onChange="{{ r.onPhi }}" disabled="{{ r.locked }}" placeholder="pH" style="min-height:46px;font-size:17px;padding:6px 8px;font-weight:600;color:{{ r.phFg }}">
+                      <input class="input" value="{{ r.phf }}" onChange="{{ r.onPhf }}" disabled="{{ r.locked }}" placeholder="same" style="min-height:46px;font-size:17px;padding:6px 8px;font-weight:600;color:{{ r.phFg }}">
+                      <input class="input" value="{{ r.grotan }}" onChange="{{ r.onGro }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                      <input class="input" value="{{ r.la33 }}" onChange="{{ r.onLa }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                      <input class="input" value="{{ r.wr90 }}" onChange="{{ r.onWr }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                      <div style="display:flex;flex-direction:column;gap:4px">
+                        <span style="display:flex;align-items:center;gap:4px;font-size:12px;padding:3px 6px;border-radius:var(--radius-md);background:{{ r.st.bg }};color:{{ r.st.fg }};width:fit-content"><i class="ph-duotone {{ r.st.icon }}" style="font-size:16px"></i>{{ r.st.label }}</span>
+                        <sc-if value="{{ r.hasMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.meta }}</span></sc-if>
+                      </div>
+                    </div>
+                    <sc-if value="{{ r.hasIssues }}" hint-placeholder-val="{{ false }}">
+                      <div style="display:flex;flex-direction:column;gap:4px;padding:0 8px 10px">
+                        <sc-for list="{{ r.issues }}" as="m" hint-placeholder-count="1">
+                          <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;color:oklch(0.42 0.16 25)"><i class="ph-duotone {{ m.icon }}" style="font-size:22px"></i><strong style="font-size:16px">{{ m.main }}</strong><span style="color:var(--color-text)">{{ m.sub }}</span></div>
+                        </sc-for>
+                      </div>
+                    </sc-if>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">
+          <h2 style="margin:0;font-size:26px">Chemical use this week · TNGA area</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
+            <sc-for list="{{ bug.chem }}" as="c" hint-placeholder-count="3">
+              <div style="display:flex;flex-direction:column;gap:6px">
+                <span style="font-family:var(--font-heading);font-weight:600;font-size:56px;line-height:1;letter-spacing:-0.02em">{{ c.value }}</span>
+                <span style="font-size:16px;font-weight:600">{{ c.label }}</span>
+                <span style="font-size:13px;color:var(--color-neutral-700)">{{ c.sub }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isWash }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Washers" style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:10px;margin-right:auto">
+            <h1 style="margin:0;font-size:38px">Washers</h1>
+            <div style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;font-size:15px">
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-calendar-blank" style="font-size:20px"></i>{{ wash.week }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-user" style="font-size:20px"></i>{{ userLine }}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px;width:280px">
+            <div style="display:flex;justify-content:space-between;font-size:14px"><span><strong style="font-size:20px">{{ wash.done }}</strong> of {{ wash.due }} titrated</span><span style="color:var(--color-neutral-700)">{{ wash.pctLabel }}</span></div>
+            <div style="height:10px;background:var(--color-neutral-300);border-radius:var(--radius-md);overflow:hidden"><div style="height:100%;width:{{ wash.barW }};background:var(--color-accent)"></div></div>
+          </div>
+        </div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800)">
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-eyedropper" style="font-size:18px"></i>Drops below the washer’s limit are flagged</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-drop" style="font-size:18px"></i>RI % = Brix × product factor, dosed to target</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-floppy-disk" style="font-size:18px"></i>Changes save as you enter them</span>
+        </div>
+        <sc-if value="{{ wash.hasLock }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ wash.lockNote }}</div>
+        </sc-if>
+        <div style="overflow-x:auto">
+          <div style="min-width:1240px;display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:minmax(110px,1.1fr) 76px 66px 62px 56px 70px 64px 64px 82px 72px 100px 64px minmax(130px,1.4fr) 124px;gap:6px;align-items:end;padding:6px 8px;font-size:11px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+              <span>Washer / Machine</span><span>Product</span><span>Sump (L)</span><span># Drops</span><span>Drop limit</span><span>Refrac (Brix)</span><span>RI %</span><span>pH</span><span>Free oil</span><span>Tank</span><span>Skimmer</span><span>WR-90 (L)</span><span>Comment</span><span>Status</span>
+            </div>
+            <sc-for list="{{ wash.rows }}" as="r" hint-placeholder-count="6">
+              <div style="background:{{ r.rowBg }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 9%, transparent)">
+                <div style="display:grid;grid-template-columns:minmax(110px,1.1fr) 76px 66px 62px 56px 70px 64px 64px 82px 72px 100px 64px minmax(130px,1.4fr) 124px;gap:6px;align-items:center;padding:8px">
+                  <div style="display:flex;flex-direction:column;line-height:1.2">
+                    <span style="font-family:var(--font-heading);font-weight:600;font-size:18px;display:flex;align-items:center;gap:5px">{{ r.name }}<sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone ph-lock" title="{{ r.lockWhy }}" style="font-size:16px;color:var(--color-neutral-700)"></i></sc-if></span>
+                    <span style="font-size:12px;color:var(--color-neutral-700)">{{ r.mach }}</span>
+                  </div>
+                  <div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:13px">{{ r.product }}</span><span style="font-size:11px;color:var(--color-neutral-700)">{{ r.range }}</span></div>
+                  <span style="font-size:14px">{{ r.sump }}</span>
+                  <input class="input" value="{{ r.drops }}" onChange="{{ r.onDrops }}" disabled="{{ r.locked }}" placeholder="#" style="min-height:46px;font-size:17px;padding:6px 8px;font-weight:600;color:{{ r.dropFg }}">
+                  <span style="font-size:14px;color:var(--color-neutral-700)">{{ r.limit }}</span>
+                  <input class="input" value="{{ r.brix }}" onChange="{{ r.onBrix }}" disabled="{{ r.locked }}" placeholder="Brix" style="min-height:46px;font-size:17px;padding:6px 8px;font-weight:600">
+                  <span style="font-size:17px;font-weight:600;color:{{ r.pctFg }}">{{ r.pct }}</span>
+                  <input class="input" value="{{ r.ph }}" onChange="{{ r.onPh }}" disabled="{{ r.locked }}" placeholder="pH" style="min-height:46px;font-size:16px;padding:6px 8px;color:{{ r.phFg }}">
+                  <select class="input" value="{{ r.oil }}" onChange="{{ r.onOil }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 6px;font-size:14px;color:{{ r.oilFg }}"><option value="None">None</option><option value="Light">Light</option><option value="Heavy">Heavy</option></select>
+                  <select class="input" value="{{ r.tank }}" onChange="{{ r.onTank }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 6px;font-size:14px"><option value="OK">OK</option><option value="Low">Low</option><option value="High">High</option></select>
+                  <select class="input" value="{{ r.skimmer }}" onChange="{{ r.onSkim }}" disabled="{{ r.locked }}" style="min-height:46px;padding:4px 6px;font-size:14px"><option value="OK">OK</option><option value="Not working">Not working</option><option value="N/A">N/A</option></select>
+                  <input class="input" value="{{ r.wr90 }}" onChange="{{ r.onWr }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:46px;font-size:15px;padding:6px 8px">
+                  <input class="input" list="cmt-std" value="{{ r.comment }}" onChange="{{ r.onCmt }}" disabled="{{ r.locked }}" placeholder="Pick or type" style="min-height:46px;font-size:13px;padding:6px 8px">
+                  <div style="display:flex;flex-direction:column;gap:4px">
+                    <span style="display:flex;align-items:center;gap:4px;font-size:12px;padding:3px 6px;border-radius:var(--radius-md);background:{{ r.st.bg }};color:{{ r.st.fg }};width:fit-content"><i class="ph-duotone {{ r.st.icon }}" style="font-size:16px"></i>{{ r.st.label }}</span>
+                    <sc-if value="{{ r.hasMeta }}" hint-placeholder-val="{{ false }}"><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.meta }}</span></sc-if>
+                  </div>
+                </div>
+                <sc-if value="{{ r.hasIssues }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:flex;flex-direction:column;gap:4px;padding:0 8px 10px">
+                    <sc-for list="{{ r.issues }}" as="m" hint-placeholder-count="1">
+                      <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;font-size:15px;color:oklch(0.42 0.16 25)"><i class="ph-duotone {{ m.icon }}" style="font-size:22px"></i><strong style="font-size:16px">{{ m.main }}</strong><span style="color:var(--color-text)">{{ m.sub }}</span></div>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isMix }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Mix Tank" style="display:flex;flex-direction:column;gap:28px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:38px">Mix Tank</h1>
+          <span style="font-size:15px;color:var(--color-neutral-700)">Central mix · GTS-120 · Mix concentration = Initial RI (Brix) × 1.29</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:20px;max-width:1040px">
+          <h2 style="margin:0;font-size:26px">Today · {{ mix.todayLabel }}</h2>
+          <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:18px 20px;align-items:end">
+            <div class="field"><label>Raw to mix (L)</label><input class="input" value="{{ mix.raw }}" onChange="{{ mix.onRaw }}" placeholder="0" style="min-height:48px;font-size:17px;font-weight:600"></div>
+            <div class="field"><label>Water (L)</label><input class="input" value="{{ mix.water }}" onChange="{{ mix.onWater }}" placeholder="0" style="min-height:48px;font-size:17px;font-weight:600"></div>
+            <div class="field"><label>Mix to line (L)</label><input class="input" value="{{ mix.toLine }}" onChange="{{ mix.onToLine }}" placeholder="0" style="min-height:48px;font-size:17px;font-weight:600"></div>
+            <div class="field"><label>Mix #1 Refrac (Brix)</label><input class="input" value="{{ mix.m1 }}" onChange="{{ mix.onM1 }}" placeholder="Brix" style="min-height:48px;font-size:17px;font-weight:600"></div>
+            <div class="field"><label>Mix #2 Refrac (Brix)</label><input class="input" value="{{ mix.m2 }}" onChange="{{ mix.onM2 }}" placeholder="Brix" style="min-height:48px;font-size:17px;font-weight:600"></div>
+          </div>
+          <div style="display:flex;gap:48px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:6px;max-width:260px">
+              <span style="font-size:13px;color:var(--color-neutral-700)">Ratio (raw ÷ total)</span>
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:48px;line-height:1">{{ mix.exp }}</span>
+              <span style="font-size:13px">{{ mix.expSub }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;max-width:260px">
+              <span style="font-size:13px;color:var(--color-neutral-700)">Mix #1 concentration</span>
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:48px;line-height:1;color:{{ mix.p1Fg }}">{{ mix.p1 }}</span>
+              <span style="font-size:13px">{{ mix.p1Sub }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:6px;max-width:260px">
+              <span style="font-size:13px;color:var(--color-neutral-700)">Mix #2 concentration</span>
+              <span style="font-family:var(--font-heading);font-weight:600;font-size:48px;line-height:1;color:{{ mix.p2Fg }}">{{ mix.p2 }}</span>
+              <span style="font-size:13px">{{ mix.p2Sub }}</span>
+            </div>
+          </div>
+          <sc-if value="{{ mix.hasErr }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:oklch(0.93 0.08 85);color:oklch(0.36 0.08 65);font-size:14px;border-radius:var(--radius-md);width:fit-content"><i class="ph-duotone ph-warning" style="font-size:20px"></i><strong>Save blocked.</strong>{{ mix.err }}</div>
+          </sc-if>
+          <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap">
+            <button class="btn btn-primary" disabled="{{ mix.noDirty }}" onClick="{{ mix.save }}" style="min-height:50px;font-size:16px;padding:0 22px"><i class="ph-duotone ph-floppy-disk" style="font-size:20px"></i>{{ mix.saveLabel }}</button>
+            <span style="font-size:14px;color:var(--color-neutral-700)">{{ mix.meta }}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:12px;max-width:1040px">
+          <h2 style="margin:0;font-size:26px">This week</h2>
+          <div style="overflow-x:auto">
+            <div style="min-width:820px;display:flex;flex-direction:column">
+              <div style="display:grid;grid-template-columns:100px 100px 100px 90px 130px 130px 100px 1fr;gap:8px;padding:8px;font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                <span>Day</span><span>Raw to mix (L)</span><span>Water (L)</span><span>Ratio</span><span>Mix #1 Brix → %</span><span>Mix #2 Brix → %</span><span>To line (L)</span><span>By</span>
+              </div>
+              <sc-for list="{{ mix.rows }}" as="m" hint-placeholder-count="3">
+                <div style="display:grid;grid-template-columns:100px 100px 100px 90px 130px 130px 100px 1fr;gap:8px;padding:10px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                  <strong>{{ m.day }}</strong><span>{{ m.raw }}</span><span>{{ m.water }}</span><span>{{ m.exp }}</span><span style="font-weight:600;color:{{ m.m1Fg }}">{{ m.m1 }}</span><span style="font-weight:600;color:{{ m.m2Fg }}">{{ m.m2 }}</span><span>{{ m.toLine }}</span><span>{{ m.by }}</span>
+                </div>
+              </sc-for>
+              <div style="display:grid;grid-template-columns:100px 100px 100px 90px 130px 130px 100px 1fr;gap:8px;padding:10px 8px;font-size:15px;font-weight:600">
+                <span>Week total</span><span>{{ mix.totRaw }}</span><span>{{ mix.totWater }}</span><span></span><span></span><span></span><span>{{ mix.totLine }}</span><span></span>
+              </div>
+            </div>
+          </div>
+          <span style="font-size:13px;color:var(--color-neutral-700)">Amber readings are more than 0.5 points off the raw-to-water ratio — re-check the refractometer or the volumes.</span>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isDust }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Dust/Mist and Skimmer" style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-right:auto">
+            <h1 style="margin:0;font-size:38px">Dust/Mist &amp; Skimmer Checks</h1>
+            <span style="font-size:15px;color:var(--color-neutral-700)">{{ chk.month }} · workdays · {{ chk.summary }}</span>
+          </div>
+          <div class="seg">
+            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isDust }}" onChange="{{ chk.onDust }}">Dust/Mist</label>
+            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isSkim }}" onChange="{{ chk.onSkim }}">Skimmer</label>
+          </div>
+        </div>
+        <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800);align-items:center">
+          <span>Tap a cell: blank → O → X → blank. Your initials are added.</span>
+          <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.05 150);color:oklch(0.38 0.1 150);border-radius:var(--radius-sm)">O</strong>OK</span>
+          <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.92 0.045 25);color:oklch(0.44 0.17 25);border-radius:var(--radius-sm)">X</strong>Problem</span>
+          <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.08 85);color:oklch(0.38 0.08 65);border-radius:var(--radius-sm)">–</strong>Missed</span>
+          <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:var(--color-accent-100);color:var(--color-accent-800);border-radius:var(--radius-sm)">+</strong>Today, not yet checked</span>
+        </div>
+        <h2 style="margin:0;font-size:26px">{{ chk.title }}</h2>
+        <div style="overflow-x:auto">
+          <div style="display:flex;flex-direction:column;gap:4px;width:max-content">
+            <div style="display:grid;grid-template-columns:{{ chk.cols }};gap:4px;align-items:end;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:4px">
+              <span>Line</span>
+              <sc-for list="{{ chk.hdrs }}" as="h" hint-placeholder-count="20">
+                <span style="display:flex;flex-direction:column;align-items:center;padding:4px 0;border-radius:var(--radius-sm);background:{{ h.bg }};color:{{ h.fg }}"><span>{{ h.w }}</span><strong style="font-size:15px;letter-spacing:0">{{ h.n }}</strong></span>
+              </sc-for>
+              <span style="text-align:center">X</span><span style="text-align:center">Missed</span>
+            </div>
+            <sc-for list="{{ chk.rows }}" as="r" hint-placeholder-count="6">
+              <div style="display:grid;grid-template-columns:{{ chk.cols }};gap:4px;align-items:center">
+                <strong style="font-family:var(--font-heading);font-size:18px">{{ r.line }}</strong>
+                <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="20">
+                  <button onClick="{{ c.onClick }}" disabled="{{ c.disabled }}" title="{{ c.title }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:50px;padding:0;border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent);border-radius:var(--radius-sm);background:{{ c.bg }};color:{{ c.fg }};font:inherit;cursor:pointer" style-hover="border-color:var(--color-accent)"><strong style="font-size:17px;line-height:1">{{ c.v }}</strong><span style="font-size:10px;line-height:1.3">{{ c.by }}</span></button>
+                </sc-for>
+                <span style="text-align:center;font-weight:600;font-size:16px;color:{{ r.xsFg }}">{{ r.xs }}</span>
+                <span style="text-align:center;font-weight:600;font-size:16px;color:{{ r.missFg }}">{{ r.miss }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isLeadec }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Leadec Cleaning Log" style="display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;gap:6px;margin-right:auto">
+            <h1 style="margin:0;font-size:38px">Leadec Cleaning Log</h1>
+            <span style="font-size:15px;color:var(--color-neutral-700)">{{ ldc.month }} · Leadec scope list · tick each clean and recharge</span>
+          </div>
+          <div style="display:flex;align-items:baseline;gap:10px">
+            <span style="font-family:var(--font-heading);font-weight:600;font-size:48px;line-height:1">{{ ldc.done }}</span>
+            <span style="font-size:15px">of {{ ldc.total }} machines cleaned this month</span>
+          </div>
+        </div>
+        <sc-if value="{{ ldc.hasLock }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ ldc.lockNote }}</div>
+        </sc-if>
+        <div style="overflow-x:auto">
+          <div style="min-width:960px;display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 84px 90px repeat(5, minmax(100px,1fr));gap:6px;align-items:end;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+              <span>Line · OP # / Machine</span><span>Product</span><span>Type</span>
+              <sc-for list="{{ ldc.weeks }}" as="w" hint-placeholder-count="5">
+                <span style="display:flex;flex-direction:column;color:{{ w.fg }}"><strong>{{ w.label }}</strong><span style="letter-spacing:0;text-transform:none;font-size:12px">{{ w.sub }}</span></span>
+              </sc-for>
+            </div>
+            <sc-for list="{{ ldc.rows }}" as="r" hint-placeholder-count="8">
+              <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 84px 90px repeat(5, minmax(100px,1fr));gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                <div style="display:flex;flex-direction:column;line-height:1.2"><strong style="font-size:16px">{{ r.name }}</strong><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.mach }}</span></div>
+                <span style="font-size:13px">{{ r.product }}</span>
+                <span style="font-size:13px">{{ r.type }}</span>
+                <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
+                  <label style="display:flex;align-items:center;gap:8px;min-height:48px;padding:0 8px;border-radius:var(--radius-md);background:{{ c.bg }};cursor:{{ c.cursor }}">
+                    <input type="checkbox" checked="{{ c.on }}" disabled="{{ c.disabled }}" onChange="{{ c.toggle }}" style="width:22px;height:22px;accent-color:var(--color-accent);flex:none">
+                    <span style="display:flex;flex-direction:column;line-height:1.2;font-size:12px;color:var(--color-neutral-800)"><strong>{{ c.by }}</strong><span>{{ c.d }}</span></span>
+                  </label>
+                </sc-for>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isMaster }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Master Data" style="display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:38px">Master Data</h1>
+          <span style="font-size:15px;color:var(--color-neutral-700)">Changes apply straight away to the round, dashboard and reports.</span>
+        </div>
+        <div style="display:flex;gap:4px;flex-wrap:wrap">
+          <sc-for list="{{ mst.tabs }}" as="t" hint-placeholder-count="6">
+            <button onClick="{{ t.onClick }}" style="display:flex;align-items:center;min-height:44px;padding:0 14px;border:1px solid {{ t.border }};border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.fg }};font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;flex:none" style-hover="border-color:var(--color-accent)">{{ t.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ mst.isSys }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:22px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:28px">
+              <sc-for list="{{ mst.load }}" as="l" hint-placeholder-count="4">
+                <div style="display:flex;flex-direction:column;gap:6px">
+                  <span style="font-family:var(--font-heading);font-weight:600;font-size:52px;line-height:1;letter-spacing:-0.02em">{{ l.value }}</span>
+                  <span style="font-size:16px;font-weight:600">{{ l.label }}</span>
+                  <span style="font-size:13px;color:var(--color-neutral-700)">{{ l.sub }}</span>
+                </div>
+              </sc-for>
+            </div>
+            <p style="margin:0;font-size:15px;max-width:720px;text-wrap:pretty">Move a machining system between MWTH and TF to balance each day’s round. Pits are checked every workday; washers once a week.</p>
+            <div style="overflow-x:auto">
+              <div style="min-width:900px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:70px 64px 118px 84px 80px 70px 64px 56px 120px 50px 40px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                  <span>Line</span><span>OP #</span><span>Machine #</span><span>Type</span><span>Product</span><span>Sump (gal)</span><span>Range</span><span>Target</span><span>Schedule</span><span>Shift</span><span>Bug</span>
+                </div>
+                <sc-for list="{{ mst.systems }}" as="s" hint-placeholder-count="10">
+                  <div style="display:grid;grid-template-columns:70px 64px 118px 84px 80px 70px 64px 56px 120px 50px 40px;gap:8px;align-items:center;padding:6px 8px;min-height:52px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <span>{{ s.line }}</span><strong>{{ s.op }}</strong><span style="font-size:13px">{{ s.mach }}</span><span>{{ s.type }}</span><span style="font-size:13px">{{ s.product }}</span><span>{{ s.gal }}</span><span>{{ s.range }}</span><span>{{ s.target }}</span>
+                    <sc-if value="{{ s.canMove }}" hint-placeholder-val="{{ false }}">
+                      <select class="input" value="{{ s.group }}" onChange="{{ s.onGroup }}" style="min-height:44px;padding:4px 8px;font-size:14px"><option value="MWTH">MWTH</option><option value="TF">TF</option></select>
+                    </sc-if>
+                    <sc-if value="{{ s.fixed }}" hint-placeholder-val="{{ true }}"><span style="color:var(--color-neutral-700)">{{ s.groupLabel }}</span></sc-if>
+                    <span>{{ s.shift }}</span><span>{{ s.bug }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mst.isProd }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
+            <p style="margin:0;font-size:15px">Concentration % = Initial Refrac (Brix) × the product’s refractive factor.</p>
+            <div style="overflow-x:auto">
+              <div style="min-width:640px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                  <span>Product</span><span>Refractive factor</span><span>Example</span><span>Used on</span><span>Systems</span>
+                </div>
+                <sc-for list="{{ mst.products }}" as="p" hint-placeholder-count="6">
+                  <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px;gap:8px;align-items:center;padding:12px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <strong>{{ p.p }}</strong><span>× {{ p.f }}</span><span style="color:var(--color-neutral-700)">{{ p.ex }}</span><span>{{ p.uses }}</span><span>{{ p.n }}</span>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mst.isPick }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+            <div style="display:flex;flex-direction:column;gap:12px;flex:1 1 380px;max-width:560px">
+              <h2 style="margin:0;font-size:26px">Standard comments</h2>
+              <span style="font-size:14px;color:var(--color-neutral-700)">Offered in every Comment field — round, washers and the audit drawer.</span>
+              <div style="display:flex;flex-direction:column">
+                <sc-for list="{{ mst.pick }}" as="p" hint-placeholder-count="8">
+                  <div style="display:flex;align-items:center;gap:10px;min-height:48px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <span style="flex:1;font-size:15px">{{ p.c }}</span>
+                    <button class="btn btn-ghost btn-icon" onClick="{{ p.onRemove }}" title="Remove" style="width:44px;height:44px"><i class="ph-duotone ph-trash" style="font-size:18px"></i></button>
+                  </div>
+                </sc-for>
+              </div>
+              <div style="display:flex;gap:8px">
+                <input class="input" value="{{ mst.newCmt }}" onChange="{{ mst.onNewCmt }}" placeholder="New comment" style="min-height:46px">
+                <button class="btn btn-primary" onClick="{{ mst.addCmt }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-plus" style="font-size:18px"></i>Add</button>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:12px;flex:1 1 320px;max-width:460px">
+              <h2 style="margin:0;font-size:26px">Pit water additions</h2>
+              <span style="font-size:14px;color:var(--color-neutral-700)">{{ mst.pitNote }}</span>
+              <div style="display:flex;flex-wrap:wrap;gap:6px">
+                <sc-for list="{{ mst.pit }}" as="w" hint-placeholder-count="15"><span class="tag tag-neutral">{{ w }}</span></sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mst.isDist }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
+            <p style="margin:0;font-size:15px">Lists offered when sending the Weekly Status. Nothing is sent without confirming in the send dialog.</p>
+            <div style="display:flex;flex-direction:column">
+              <div style="display:grid;grid-template-columns:minmax(180px,1fr) 80px minmax(200px,1.4fr);gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                <span>List</span><span>People</span><span>Who</span>
+              </div>
+              <sc-for list="{{ mst.dist }}" as="d" hint-placeholder-count="5">
+                <div style="display:grid;grid-template-columns:minmax(180px,1fr) 80px minmax(200px,1.4fr);gap:8px;align-items:center;padding:12px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                  <strong>{{ d.name }}</strong><span>{{ d.count }}</span><span>{{ d.ex }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mst.isHol }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:680px">
+            <p style="margin:0;font-size:15px;text-wrap:pretty">No readings are due on a holiday. When a Monday is a holiday, MWTH systems start on Tuesday and the Weekly Status shows only the days worked.</p>
+            <div style="display:flex;flex-direction:column">
+              <sc-for list="{{ mst.hol }}" as="h" hint-placeholder-count="5">
+                <div style="display:flex;align-items:center;gap:12px;min-height:52px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                  <strong style="flex:1;font-size:15px">{{ h.label }}</strong>
+                  <span style="font-size:13px;color:var(--color-neutral-700)">{{ h.note }}</span>
+                  <sc-if value="{{ h.canRemove }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost btn-icon" onClick="{{ h.onRemove }}" title="Remove" style="width:44px;height:44px"><i class="ph-duotone ph-trash" style="font-size:18px"></i></button></sc-if>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <input class="input" type="date" value="{{ mst.newHol }}" onChange="{{ mst.onNewHol }}" style="min-height:46px;width:auto">
+              <button class="btn btn-primary" onClick="{{ mst.addHol }}" style="min-height:46px"><i class="ph-duotone ph-plus" style="font-size:18px"></i>Add holiday</button>
+            </div>
+            <sc-if value="{{ mst.hasHolErr }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px;color:oklch(0.38 0.08 65)">{{ mst.holErr }}</span></sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ mst.isUsers }}" hint-placeholder-val="{{ false }}">
+          <div style="overflow-x:auto">
+            <div style="min-width:760px;max-width:1100px;display:flex;flex-direction:column">
+              <div style="display:grid;grid-template-columns:minmax(150px,1fr) 60px 180px 80px minmax(260px,2fr);gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                <span>Name</span><span>Initials</span><span>Role</span><span>Shift</span><span>Can do</span>
+              </div>
+              <sc-for list="{{ mst.users }}" as="u" hint-placeholder-count="4">
+                <div style="display:grid;grid-template-columns:minmax(150px,1fr) 60px 180px 80px minmax(260px,2fr);gap:8px;align-items:center;padding:12px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                  <strong>{{ u.name }}</strong><span>{{ u.id }}</span><span>{{ u.role }}</span><span>{{ u.shift }}</span><span style="font-size:14px">{{ u.perm }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-if>
+      </section>
+    </sc-if>
+
+  </main>
+
+  <footer style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 24px;font-size:13px;color:var(--color-neutral-700)">
+    <span>Prepared by Ideal Technology Solutions</span>
+    <span>Coolant Data Capture · prototype · data held in memory</span>
+  </footer>
+
+  <sc-if value="{{ drawer.open }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ drawer.onClose }}" style="position:fixed;inset:0;z-index:40;background:color-mix(in srgb, var(--color-neutral-900) 35%, transparent)"></div>
+    <aside style="position:fixed;top:0;right:0;bottom:0;z-index:41;width:min(440px,100%);overflow-y:auto;background:var(--color-surface);box-shadow:var(--shadow-lg);padding:26px;display:flex;flex-direction:column;gap:22px">
+      <div style="display:flex;align-items:flex-start;gap:12px">
+        <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
+          <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Entry &amp; audit history</span>
+          <h2 style="margin:0;font-size:28px">{{ drawer.title }}</h2>
+          <span style="font-size:14px;color:var(--color-neutral-700)">{{ drawer.sub }}</span>
+        </div>
+        <button class="btn btn-secondary btn-icon" onClick="{{ drawer.onClose }}" title="Close" style="width:44px;height:44px"><i class="ph-duotone ph-x" style="font-size:20px"></i></button>
+      </div>
+      <span style="font-size:14px">{{ drawer.enteredBy }}</span>
+      <div style="display:grid;grid-template-columns:130px 1fr;gap:6px 12px;font-size:14px">
+        <sc-for list="{{ drawer.fields }}" as="f" hint-placeholder-count="6">
+          <span style="color:var(--color-neutral-700)">{{ f.k }}</span><span>{{ f.v }}</span>
+        </sc-for>
+      </div>
+      <sc-if value="{{ drawer.canEdit }}" hint-placeholder-val="{{ false }}">
+        <div class="field">
+          <label>Comment</label>
+          <div style="display:flex;gap:8px">
+            <input class="input" list="{{ drawer.listId }}" value="{{ drawer.cmt }}" onChange="{{ drawer.onCmt }}" placeholder="Pick or type" style="min-height:46px">
+            <button class="btn btn-primary" onClick="{{ drawer.saveCmt }}" style="min-height:46px">Save</button>
+          </div>
+        </div>
+      </sc-if>
+      <sc-if value="{{ drawer.locked }}" hint-placeholder-val="{{ false }}">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;padding:10px 12px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ drawer.lockWhy }}</div>
+      </sc-if>
+      <div style="display:flex;flex-direction:column;gap:12px">
+        <h4 style="margin:0">History</h4>
+        <sc-for list="{{ drawer.hist }}" as="h" hint-placeholder-count="2">
+          <div style="display:flex;gap:10px">
+            <i class="ph-duotone {{ h.icon }}" style="font-size:20px;color:var(--color-accent-700)"></i>
+            <div style="display:flex;flex-direction:column;line-height:1.35;font-size:14px">
+              <span><strong>{{ h.action }}</strong> by {{ h.who }}</span>
+              <span style="font-size:13px;color:var(--color-neutral-700)">{{ h.when }}</span>
+              <sc-if value="{{ h.hasChanges }}" hint-placeholder-val="{{ false }}"><span style="font-size:13px">{{ h.changes }}</span></sc-if>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+        <sc-if value="{{ drawer.canDelete }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ drawer.confirmDel }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:14px">Delete this entry? The reading is removed from the round and reports.</span>
+            <div style="display:flex;gap:8px">
+              <button class="btn btn-secondary" onClick="{{ drawer.cancelDel }}" style="min-height:44px">Keep it</button>
+              <button class="btn" onClick="{{ drawer.doDel }}" style="min-height:44px;background:oklch(0.5 0.18 25);color:var(--color-bg)">Delete entry</button>
+            </div>
+          </sc-if>
+          <sc-if value="{{ drawer.showDelBtn }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-secondary" onClick="{{ drawer.askDel }}" style="min-height:44px;width:fit-content"><i class="ph-duotone ph-trash" style="font-size:18px"></i>Delete entry</button>
+          </sc-if>
+        </sc-if>
+        <sc-if value="{{ drawer.noDelete }}" hint-placeholder-val="{{ false }}">
+          <span style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-neutral-700)"><i class="ph-duotone ph-prohibit" style="font-size:18px"></i>{{ drawer.deleteNote }}</span>
+        </sc-if>
+      </div>
+    </aside>
+  </sc-if>
+
+  <sc-if value="{{ dlg.open }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" onClick="{{ dlg.onClose }}" style="z-index:50">
+      <div class="dialog" onClick="{{ dlg.stop }}" style="width:min(540px,100%)">
+        <div class="dialog-title">Send Weekly Status · Week {{ weekNo }}</div>
+        <div class="dialog-body" style="display:flex;flex-direction:column;gap:6px;opacity:1">
+          <p style="margin:0 0 6px">Nothing is sent until you confirm. The PDF goes to the lists you tick:</p>
+          <sc-for list="{{ dlg.recips }}" as="rc" hint-placeholder-count="5">
+            <label style="display:flex;align-items:center;gap:12px;min-height:48px;cursor:pointer">
+              <input type="checkbox" checked="{{ rc.on }}" onChange="{{ rc.toggle }}" style="width:22px;height:22px;accent-color:var(--color-accent)">
+              <span style="display:flex;flex-direction:column;line-height:1.3"><strong>{{ rc.name }}</strong><span style="font-size:13px;color:var(--color-neutral-700)">{{ rc.detail }}</span></span>
+            </label>
+          </sc-for>
+          <sc-if value="{{ dlg.hasOpen }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:8px;padding:10px 12px;margin-top:6px;background:oklch(0.93 0.08 85);color:oklch(0.36 0.08 65);border-radius:var(--radius-md);font-size:14px"><i class="ph-duotone ph-warning" style="font-size:20px"></i>{{ dlg.openNote }}</div>
+          </sc-if>
+        </div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ dlg.onClose }}" style="min-height:46px">Cancel</button>
+          <button class="btn btn-primary" onClick="{{ dlg.onSend }}" disabled="{{ dlg.none }}" style="min-height:46px"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:18px"></i>{{ dlg.sendLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ fb.open }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" onClick="{{ fb.onClose }}" style="z-index:50">
+      <div class="dialog" onClick="{{ fb.stop }}" style="width:min(600px,100%);max-height:88vh;overflow:auto">
+        <div class="dialog-title">Feedback · {{ fb.screen }}</div>
+        <div class="dialog-body" style="display:flex;flex-direction:column;gap:14px;opacity:1">
+          <p style="margin:0">Tell us what works and what doesn’t on this screen. Your role and the screen name are saved with it.</p>
+          <div class="seg" style="flex-wrap:wrap">
+            <sc-for list="{{ fb.types }}" as="ft" hint-placeholder-count="4">
+              <label class="seg-opt" style="min-height:42px;padding:0 14px;font-size:14px;white-space:nowrap"><input type="radio" name="fbtype" checked="{{ ft.on }}" onChange="{{ ft.pick }}">{{ ft.t }}</label>
+            </sc-for>
+          </div>
+          <div class="field">
+            <label>Details</label>
+            <textarea class="input" rows="4" value="{{ fb.text }}" onChange="{{ fb.onText }}" placeholder="e.g. Put pH before concentration, that’s the order we walk the line" style="min-height:110px;font-size:15px;resize:vertical"></textarea>
+          </div>
+          <sc-if value="{{ fb.hasItems }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">{{ fb.listLabel }}</div>
+              <sc-for list="{{ fb.items }}" as="it" hint-placeholder-count="0">
+                <div style="display:flex;flex-direction:column;gap:2px;font-size:14px">
+                  <span><strong>{{ it.screen }}</strong> · {{ it.type }}</span>
+                  <span style="text-wrap:pretty">{{ it.text }}</span>
+                  <span style="font-size:12px;color:var(--color-neutral-700)">{{ it.by }} · {{ it.at }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div class="dialog-actions">
+          <sc-if value="{{ fb.hasItems }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-ghost" onClick="{{ fb.onDownload }}" style="min-height:46px;margin-right:auto"><i class="ph-duotone ph-download-simple" style="font-size:18px"></i>Download all</button>
+          </sc-if>
+          <button class="btn btn-secondary" onClick="{{ fb.onClose }}" style="min-height:46px">Close</button>
+          <button class="btn btn-primary" onClick="{{ fb.onSubmit }}" disabled="{{ fb.empty }}" style="min-height:46px">Add feedback</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+    <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--color-neutral-900);color:var(--color-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:15px"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>{{ toast }}</div>
+  </sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;internal&quot;,&quot;external&quot;,&quot;manager&quot;],&quot;default&quot;:&quot;internal&quot;,&quot;tsType&quot;:&quot;'internal'|'external'|'manager'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;round&quot;,&quot;dash&quot;,&quot;bug&quot;,&quot;washer&quot;,&quot;mix&quot;,&quot;dust&quot;,&quot;leadec&quot;,&quot;reports&quot;,&quot;master&quot;],&quot;default&quot;:&quot;round&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;holidayMonday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Schedule rules&quot;}}">
+const TODAY = '2026-10-15';
+const GAL = 0.264172, LPG = 3.785;
+const FACT = { 'GTS-120': 1.29, 'FGS-690': 1.384, 'AQ-YB': 2.0, 'PCW-553': 2.45, 'WSW-87': 3.7, 'G-2200TU': 1.89 };
+const LINES = ['Block', 'Head', 'Crank', 'Cam', 'Conrod', 'Assembly'];
+const RAW = [
+  'Block|PIT|NDMZY-00002|32678|GTS-120|5|7|6|ALL|1|W|', 'Block|10-A|UAMSP-00012|210|GTS-120|5|7|6|MWTH|1|A|',
+  'Block|20-A|NDMSP-00133|210|GTS-120|5|7|6|MWTH|1|B|', 'Block|30-1A|NDMSP-00137|210|GTS-120|5|7|6|MWTH|2|A|',
+  'Block|30-3A|NDMSP-00130|210|GTS-120|5|7|6|TF|1|B|', 'Block|40-1A|UAMSP-00013|210|GTS-120|5|7|6|TF|2|A|',
+  'Block|50-1A|NDMSP-00139|210|GTS-120|5|7|6|TF|1|B|', 'Block|180|PDMBR-00004|435|GTS-120|5|7|6|MWTH|2|A|',
+  'Block|190|PDMGR-00002|335|GTS-120|5|7|6|MWTH|1|B|', 'Block|120|NAMWB-00016|1090|GTS-120|3|5|4|WASHER|1|W|9',
+  'Block|200|NDMWB-00021|955|PCW-553|2|4|3|WASHER|1|W|6',
+  'Head|PIT|NDMZY-00001|29984|GTS-120|5|7|6|ALL|1|W|', 'Head|1A|NDMSP-00223|150|GTS-120|5|7|6|MWTH|1|A|',
+  'Head|2A|NDMSP-00224|150|GTS-120|5|7|6|MWTH|2|B|', 'Head|70B|NDMSP-00164|290|GTS-120|5|7|6|TF|1|A|',
+  'Head|210A|NLMSP-00325|150|GTS-120|7|9|8|TF|1|B|', 'Head|3A|NDMWB-00030|500|G-2200TU|1|1.3|1.2|WASHER|2|W|',
+  'Crank|10|NDMTS-00040|150|GTS-120|5|7|6|TF|1|B|', 'Crank|170B|NDMLA-00008|98|GTS-120|3|5|4|MWTH|1|A|',
+  'Cam|30-A|NDMIH-00007|365|AQ-YB|9|11|10|MWTH|2|A|', 'Cam|50-A|NDMSP-00252|147|GTS-120|7|9|8|MWTH|1|B|',
+  'Cam|100-A|NDMGR-00037|174|GTS-120|3|5|4|TF|1|A|',
+  'Conrod|10A|NDMSP-00230|150|GTS-120|4|6|5|TF|1|B|', 'Conrod|60|CKMGR-00058|580|GTS-120|4|6|5|MWTH|1|A|',
+  'Conrod|100|AMWB-00042|130|PCW-553|2|4|3|WASHER|1|W|',
+  'Assembly|WB-35|NDMWB-00035|105|PCW-553|5|7|6|WASHER|2|W|', 'Assembly|WB-11|LAMWB-00011|500|PCW-553|2|4|3|WASHER|1|W|',
+  'Regrind|PW-1|RGMWB-00003|80|PCW-553|2|4|3|WASHER|1|W|5'
+];
+const SYS = RAW.map(r => {
+  const [line, op, mach, gal, product, low, high, target, group, shift, bug, drop] = r.split('|');
+  const type = group === 'ALL' ? 'Pit' : group === 'WASHER' ? 'Washer' : 'Machining';
+  return { id: line + '-' + op, area: 'TNGA', line, op, mach, gal: +gal, sumpL: +gal * LPG, product, low: +low, high: +high, target: +target, group, shift: +shift, bug, drop: drop ? +drop : null, type, active: true };
+});
+const SYSM = Object.fromEntries(SYS.map(s => [s.id, s]));
+const ROUND = SYS.filter(s => s.type === 'Machining' || s.type === 'Pit');
+const BASE_HOL = ['2026-09-07', '2026-11-26', '2026-11-27', '2026-12-24', '2026-12-25'];
+let HOL = new Set(BASE_HOL);
+const USERS = {
+  DA: { id: 'DA', name: 'Dana Alvarez', role: 'manager', roleLabel: 'Manager', shift: 1 },
+  JR: { id: 'JR', name: 'Jordan Reyes', role: 'internal', roleLabel: 'Internal Tech', shift: 1 },
+  TS: { id: 'TS', name: 'Terrell Smith', role: 'internal', roleLabel: 'Internal Tech', shift: 2 },
+  KM: { id: 'KM', name: 'Kim Moore', role: 'external', roleLabel: 'External Tech · Leadec', shift: 1 }
+};
+const ROLE_USER = { manager: 'DA', internal: 'JR', external: 'KM' };
+const COMMENTS = ['SYSTEM NOT RUNNING', 'SYSTEM DOWN ALL WEEK', 'SYSTEM OBSTRUCTED, COULD NOT ACCESS', 'NO PRODUCT AVAILABLE TO ADD', 'SYSTEM OVERFLOWING', "ADDED COOLANT PER YUSHIRO'S DATA", '+WR90', 'NO WR90 AVAILABLE'];
+const PIT_WATER = Array.from({ length: 15 }, (_, i) => `+${((i + 1) * 1000).toLocaleString('en-US')} L WATER`);
+const DIST = [
+  { name: 'Manufacturing Managers', count: 4, ex: 'TNGA manufacturing managers' },
+  { name: 'Group Leads', count: 9, ex: 'Block, Head, Crank, Cam, Conrod, Assembly' },
+  { name: 'Process Engineers', count: 5, ex: 'Machining process engineering' },
+  { name: 'All Fluid Techs', count: 7, ex: 'Internal and Leadec fluid techs' },
+  { name: 'TMMAL Rep', count: 1, ex: 'Toyota plant representative' }
+];
+const AREAS = [
+  ['TNGA', 'TNGA', ''],
+  ['V6T', 'V6 Turbo', 'Same rounds and reports as TNGA with its own line names. Lines, machines and products load after the plant walk.'],
+  ['24T', '24T (2.4L turbo)', 'Same rounds and reports as TNGA with its own line names. Lines, machines and products load after the plant walk.'],
+  ['Sprint', 'Sprint (differentials)', 'Different machining (differential cases, carriers, axles), so its round and reports get their own template after the plant walk.']
+];
+const FB_TYPES = ['Works well', 'Change needed', 'Missing', 'Problem'];
+const REPORTS = [['weekly', 'Weekly Status'], ['washer', 'Washer Report'], ['regrind', 'Regrind Parts Washer'], ['asm', 'Assembly Washer'], ['chem', 'Chemical Use'], ['bug', 'Bug and pH'], ['leadec', 'Leadec Weekly'], ['dust', 'Dust/Mist'], ['trend', 'Trend Charts']];
+const ST = {
+  ok: { bg: 'oklch(0.93 0.05 150)', fg: 'oklch(0.38 0.1 150)', icon: 'ph-check-circle' },
+  bad: { bg: 'oklch(0.92 0.045 25)', fg: 'oklch(0.44 0.17 25)', icon: 'ph-x-circle' },
+  warn: { bg: 'oklch(0.93 0.08 85)', fg: 'oklch(0.38 0.08 65)', icon: 'ph-warning' },
+  skip: { bg: 'var(--color-neutral-200)', fg: 'var(--color-neutral-700)', icon: 'ph-minus-circle' }
+};
+const r1 = x => Math.round(x * 10) / 10;
+const fx = (x, d = 1) => Number(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d });
+const hash = s => { let h = 2166136261; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 16777619); } return h >>> 0; };
+const pD = s => { const [y, m, d] = s.slice(0, 10).split('-').map(Number); return new Date(Date.UTC(y, m - 1, d)); };
+const iso = dt => dt.toISOString().slice(0, 10);
+const addD = (s, n) => { const d = pD(s); d.setUTCDate(d.getUTCDate() + n); return iso(d); };
+const dow = s => pD(s).getUTCDay();
+const DAYN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+const DAYL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+const md = s => `${+s.slice(5, 7)}/${+s.slice(8, 10)}`;
+const hhmm = at => at.slice(11, 16);
+const mondayOf = s => addD(s, -((dow(s) + 6) % 7));
+const MON = mondayOf(TODAY);
+const WEEK = [0, 1, 2, 3, 4].map(i => addD(MON, i));
+const worked = () => WEEK.filter(d => !HOL.has(d));
+const isDue = (s, d) => {
+  if (HOL.has(d)) return false;
+  const w = dow(d), monHol = HOL.has(mondayOf(d));
+  if (s.group === 'ALL') return w >= 1 && w <= 5;
+  if (s.group === 'MWTH') return w === 1 || w === 3 || w === 4 || (w === 2 && monHol);
+  if (s.group === 'TF') return w === 2 || w === 5;
+  return false;
+};
+const conc = (s, b) => b * FACT[s.product];
+const inRange = (s, p) => p >= s.low - 0.055 && p <= s.high + 0.055;
+const toAdd = (s, p) => p < s.low - 0.055 ? Math.max(0, (s.target - r1(p)) / 100 * s.sumpL) : 0;
+const isoWeek = s => { const d = pD(s); d.setUTCDate(d.getUTCDate() - ((d.getUTCDay() + 6) % 7) + 3); const fy = new Date(Date.UTC(d.getUTCFullYear(), 0, 4)); return 1 + Math.round(((d - fy) / 864e5 - 3 + ((fy.getUTCDay() + 6) % 7)) / 7); };
+const WEEKNO = isoWeek(TODAY);
+const PARITY = Math.round((pD(MON) - pD('2024-01-01')) / 864e5 / 7) % 2;
+const BUG_GROUP = PARITY ? 'B' : 'A';
+const BUG_TESTED = [BUG_GROUP, 'W'];
+const WASH = SYS.filter(s => s.type === 'Washer');
+const MIX_F = 1.29;
+const CHK_LINES = ['Block', 'Head', 'Crank', 'Cam', 'Rod', 'Regrind'];
+const MONTH0 = TODAY.slice(0, 8) + '01';
+const monthDays = () => { const out = []; for (let d = MONTH0; d.slice(0, 7) === TODAY.slice(0, 7); d = addD(d, 1)) { const w = dow(d); if (w >= 1 && w <= 5 && !HOL.has(d)) out.push(d); } return out; };
+const LWEEKS = [0, 1, 2, 3, 4].map(i => addD(mondayOf(MONTH0), i * 7));
+const CUR_LW = LWEEKS.indexOf(MON);
+const LSCOPE = SYS.filter(s => s.type !== 'Pit');
+const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
+const sv = v => v == null ? '' : String(v);
+const PERM = { manager: 'All screens, reports and master data. Edit and delete any entry. Sends the Weekly Status.', internal: 'Enter and edit own shift’s readings. Cannot delete. Other shift and Leadec log read only.', external: 'Enter readings and the Leadec log. Edit own entries for 5 days. Cannot delete.' };
+const longDate = s => `${DAYL[dow(s)]} ${+s.slice(8, 10)} ${MONTHS[+s.slice(5, 7) - 1]} ${s.slice(0, 4)}`;
+const nowStamp = () => { const n = new Date(); return `${TODAY}T${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`; };
+const FIELDS = { brix: 'Initial Refrac', tank: 'Tank level', skimmer: 'Skimmer', added: 'Product added (L)', type: 'Coolant type', recycled: 'Recycled added (L)', comment: 'Comment', final: 'Final RI %' };
+const fv = (k, v) => typeof v === 'number' ? String(r1(v)) : (v || '');
+
+function seedEntries() {
+  const EX = {
+    'Block-190|2026-10-12': { brix: 3.6 },
+    'Block-30-3A|2026-10-13': { brix: 3.4, added: 0, comment: 'NO PRODUCT AVAILABLE TO ADD', edit: true },
+    'Conrod-60|2026-10-14': { brix: 2.6, added: 0, by: 'KM' },
+    'Cam-30-A|2026-10-14': { brix: 5.8, comment: 'SYSTEM OVERFLOWING' },
+    'Block-PIT|2026-10-14': { brix: 3.7, comment: "ADDED COOLANT PER YUSHIRO'S DATA" },
+    'Head-PIT|2026-10-15': { brix: 3.6, by: 'KM', time: '06:58' },
+    'Block-PIT|2026-10-12': { recycled: 400 },
+    'Head-PIT|2026-10-13': { recycled: 600 },
+    'Head-PIT|2026-10-12': { comment: '+3,000 L WATER (10/12)' },
+    'Block-180|2026-10-14': { brix: 3.7, type: 'Recycled' }
+  };
+  const SKIP = new Set(['Head-70B|2026-10-13']);
+  const DONE = new Set(['Block-PIT', 'Block-20-A', 'Head-PIT', 'Head-1A', 'Crank-170B', 'Conrod-60']);
+  const out = []; let n = 1;
+  for (const s of ROUND) for (const d of worked()) {
+    if (d > TODAY || !isDue(s, d)) continue;
+    if (d === TODAY && !DONE.has(s.id)) continue;
+    const key = s.id + '|' + d; if (SKIP.has(key)) continue;
+    const o = EX[key] || {}; const h = hash(key);
+    const brix = o.brix ?? r1((s.target + ((h % 11) - 5) / 10) / FACT[s.product]);
+    const pct = conc(s, brix);
+    const added = o.added ?? r1(toAdd(s, pct));
+    const by = o.by || (s.shift === 2 ? 'TS' : (h % 4 === 0 ? 'KM' : 'JR'));
+    const mins = (s.shift === 1 ? 390 : 930) + (h % 150);
+    const at = `${d}T${o.time || `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`}`;
+    const hist = [{ at, by, action: 'Created', changes: [] }];
+    if (o.edit) hist.push({ at: `${d}T13:20`, by: 'JR', action: 'Edited', changes: ['Comment: (blank) → NO PRODUCT AVAILABLE TO ADD'] });
+    out.push({ id: 'E' + (n++), sys: s.id, date: d, shift: s.shift, brix, pct, tank: h % 9 === 0 ? 'Low' : 'OK', skimmer: 'OK', added, type: o.type || 'Virgin', recycled: o.recycled || 0, comment: o.comment || '', final: pct + added / s.sumpL * 100, by, at, hist });
+  }
+  return out;
+}
+function seedBugs() {
+  const EX = { 'Block-190': { bac: 3, action: 'Treated Bacteria', grotan: 1.9 }, 'Head-2A': { fun: 2, action: 'Treated Fungus', grotan: 0.9 }, 'Head-PIT': { bac: 3, fun: 2, action: 'Treated', grotan: 170 }, 'Block-50-1A': { phi: 8.7, phf: 9.1, la33: 2.4 }, 'Cam-50-A': { phi: 8.8, phf: 9.0, la33: 1.1 }, 'Block-20-A': { bac: 3 } };
+  const NOBUG = new Set(['Head-210A']), NOPH = new Set(['Crank-10']);
+  const out = {}, rd = addD(MON, 2);
+  for (const s of ROUND) if (BUG_TESTED.includes(s.bug)) {
+    const h = hash(s.id + 'bug'), o = EX[s.id] || {}, nb = NOBUG.has(s.id);
+    out[s.id] = { bac: nb ? null : (o.bac ?? (h % 2)), fun: nb ? null : (o.fun ?? ((h >> 3) % 2)), action: o.action || 'Not Treated', phi: NOPH.has(s.id) ? null : (o.phi ?? r1(9.0 + (h % 5) / 10)), phf: o.phf ?? null, grotan: o.grotan || 0, la33: o.la33 || 0, wr90: 0, by: s.shift === 2 ? 'TS' : 'JR', at: `${rd}T${s.shift === 2 ? '15' : '07'}:${String(10 + (h % 45)).padStart(2, '0')}` };
+  }
+  return out;
+}
+function seedWashers() {
+  const y = addD(TODAY, -1);
+  return {
+    'Block-120': { drops: '10', brix: '2.8', ph: '9.3', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T07:40` },
+    'Block-200': { drops: '5', brix: '1.0', ph: '9.1', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'KM', at: `${y}T08:05` },
+    'Conrod-100': { drops: '', brix: '0.7', ph: '8.7', oil: 'Heavy', tank: 'Low', skimmer: 'Not working', wr90: '', comment: '', by: 'JR', at: `${TODAY}T07:15` },
+    'Regrind-PW-1': { drops: '4', brix: '0.9', ph: '9.0', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T09:20` },
+    'Assembly-WB-35': { drops: '', brix: '2.5', ph: '9.2', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '2', comment: '+WR90', by: 'TS', at: `${y}T15:50` }
+  };
+}
+function seedMix() {
+  return worked().filter(d => d < TODAY).map((d, i) => {
+    const h = hash(d + 'mix'), raw = 180 + (h % 5) * 10, water = 3600 - (h % 3) * 100, exp = raw / (raw + water) * 100;
+    return { date: d, raw, water, toLine: 3200 + (h % 4) * 100, m1: r1((exp + ((h % 5) - 2) / 10) / MIX_F), m2: i === 1 ? r1((exp + 0.9) / MIX_F) : r1((exp + (((h >> 3) % 5) - 2) / 10) / MIX_F), by: i % 2 ? 'TS' : 'JR', at: `${d}T06:${String(10 + (h % 40)).padStart(2, '0')}` };
+  });
+}
+function seedChecks() {
+  const out = { dust: {}, skim: {} };
+  for (const k of ['dust', 'skim']) for (const l of CHK_LINES) {
+    out[k][l] = {};
+    for (const d of monthDays()) {
+      if (d > TODAY) continue;
+      const h = hash(k + l + d);
+      if ((d === TODAY && h % 3) || h % 23 === 1) continue;
+      out[k][l][d] = { v: h % 17 === 0 ? 'X' : 'O', by: h % 2 ? 'JR' : 'KM' };
+    }
+  }
+  return out;
+}
+function seedLeadec() {
+  const out = {};
+  LSCOPE.forEach(s => { const h = hash(s.id + 'ldc'), wk = h % 4, w = {}; if (wk < 3 && wk <= CUR_LW) w[wk] = { by: 'KM', d: addD(LWEEKS[wk], 1 + (h % 3)) }; out[s.id] = w; });
+  return out;
+}
+function trendSeries(s, entries) {
+  const h0 = hash(s.id);
+  const cleans = [addD(mondayOf(addD(MON, -49)), 1 + (h0 % 3)), addD(mondayOf(addD(MON, -21)), 1 + ((h0 >> 2) % 3))];
+  const pts = [];
+  for (let d = addD(MON, -77); d < MON; d = addD(d, 1)) {
+    if (!isDue(s, d)) continue;
+    let p = s.target + 0.4 * Math.sin(pts.length / 2.2) + ((hash(s.id + d) % 7) - 3) / 12;
+    for (const c of cleans) { const gap = (pD(c) - pD(d)) / 864e5; if (gap > 0 && gap <= 8) p -= 0.9 + (8 - gap) * 0.12; if (gap <= 0 && gap > -3) p = s.target + 0.15; }
+    pts.push({ d, p });
+  }
+  entries.filter(e => e.sys === s.id).sort((a, b) => a.date < b.date ? -1 : 1).forEach(e => pts.push({ d: e.date, p: e.pct }));
+  return { pts, cleans };
+}
+
+class Component extends DCLogic {
+  state = {
+    role: this.props.startRole ?? 'internal', screen: this.props.startScreen ?? 'round',
+    online: true, pending: 0, syncing: false, shift: 1,
+    entries: seedEntries(), bugs: seedBugs(), drafts: {}, errors: {},
+    washers: seedWashers(), mix: seedMix(), mixDraft: {}, mixErr: null, checks: seedChecks(), checkKind: 'dust', leadec: seedLeadec(),
+    mdTab: 'sys', comStd: [...COMMENTS], newCmt: '', newHol: '', holErr: null, ver: 0,
+    auditId: null, confirmDel: false, drawerCmt: null,
+    fLine: 'All', fShift: 'All', fGroup: 'All', report: 'weekly', chkOpen: true,
+    sendOpen: false, sendSel: DIST.map(() => true), sentLog: null, trendSys: 'Block-10-A', toast: null, area: 'TNGA', showAlt: false, fbOpen: false, fbText: '', fbType: 'Change needed', fbList: []
+  };
+  componentDidMount() { this.applyHoliday(); }
+  componentDidUpdate(pp) { if (pp.holidayMonday !== this.props.holidayMonday) this.applyHoliday(true); }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._s); }
+  applyHoliday(force) {
+    const want = !!this.props.holidayMonday;
+    const has = HOL.has(MON);
+    if (want === has && !force) return;
+    HOL = new Set(want ? [...BASE_HOL, MON] : BASE_HOL);
+    this.setState({ entries: seedEntries(), bugs: seedBugs(), mix: seedMix(), drafts: {}, errors: {} });
+  }
+  get user() { return USERS[ROLE_USER[this.state.role]]; }
+  entryFor(id, d) { return this.state.entries.find(e => e.sys === id && e.date === d); }
+  say(text) { clearTimeout(this._t); this.setState({ toast: text }); this._t = setTimeout(() => this.setState({ toast: null }), 3400); }
+  canEnter(s) { const u = this.user; return u.role !== 'internal' || s.shift === u.shift; }
+  canEdit(e) { const u = this.user; if (u.role === 'manager') return true; if (u.role === 'internal') return e.shift === u.shift; return e.by === u.id && (pD(TODAY) - pD(e.date)) / 864e5 <= 5; }
+  canDelete(e) { return this.user.role === 'manager'; }
+  lockWhy(e, s) {
+    const u = this.user;
+    if (u.role === 'internal') return `Shift ${(e || s).shift} system — read only for Shift ${u.shift} techs`;
+    if (e && e.by !== u.id) return `Entered by ${USERS[e.by].name}. External techs can edit only their own entries.`;
+    return 'More than 5 days old — locked for external techs';
+  }
+  setDraft(id, patch) {
+    this.setState(st => ({ drafts: { ...st.drafts, [id]: { ...(st.drafts[id] || {}), ...patch } }, errors: st.errors[id] ? { ...st.errors, [id]: null } : st.errors }));
+  }
+  calc(s) {
+    const e = this.entryFor(s.id, TODAY), d = this.state.drafts[s.id] || {};
+    const base = e
+      ? { brix: String(e.brix), tank: e.tank, skimmer: e.skimmer, added: e.added ? String(r1(e.added)) : '', type: e.type, recycled: e.recycled ? String(e.recycled) : '', comment: e.comment, final: String(r1(e.final)) }
+      : { brix: '', tank: 'OK', skimmer: 'OK', added: undefined, type: 'Virgin', recycled: '', comment: '', final: undefined };
+    const v = { ...base, ...d };
+    const bx = parseFloat(v.brix), has = !isNaN(bx);
+    const pct = has ? conc(s, bx) : null, prompt = has ? toAdd(s, pct) : 0;
+    const addedStr = v.added !== undefined ? v.added : (prompt > 0 ? String(r1(prompt)) : '');
+    const addedL = parseFloat(addedStr) || 0;
+    const est = has ? pct + addedL / s.sumpL * 100 : null;
+    const finalStr = v.final !== undefined ? v.final : (has ? String(r1(est)) : '');
+    const fin = parseFloat(finalStr);
+    return { e, v, bx, has, pct, prompt, addedStr, addedL, finalStr, fin, initOk: has && inRange(s, pct), finOk: !isNaN(fin) && inRange(s, fin), dirty: Object.keys(d).length > 0 };
+  }
+  saveRows(ids) {
+    const u = this.user, st = this.state;
+    let entries = [...st.entries]; const drafts = { ...st.drafts }, errors = { ...st.errors };
+    let saved = 0, blocked = 0;
+    for (const id of ids) {
+      const s = SYSM[id], c = this.calc(s);
+      if (!c.has) { errors[id] = ' Enter the Initial Refrac (Brix) reading first.'; blocked++; continue; }
+      if (!c.finOk && !(c.v.comment || '').trim()) { errors[id] = ` Final RI ${fx(isNaN(c.fin) ? c.pct : c.fin)}% is still outside ${s.low}–${s.high}%. Pick or type a comment, then save.`; blocked++; continue; }
+      const rec = { brix: c.bx, pct: c.pct, tank: c.v.tank, skimmer: c.v.skimmer, added: c.addedL, type: c.v.type, recycled: parseFloat(c.v.recycled) || 0, comment: (c.v.comment || '').trim(), final: isNaN(c.fin) ? c.pct : c.fin };
+      const at = nowStamp();
+      if (c.e) {
+        const changes = Object.keys(FIELDS).filter(k => fv(k, c.e[k]) !== fv(k, rec[k])).map(k => `${FIELDS[k]}: ${fv(k, c.e[k]) || '(blank)'} → ${fv(k, rec[k]) || '(blank)'}`);
+        if (changes.length) entries = entries.map(x => x.id === c.e.id ? { ...x, ...rec, hist: [...x.hist, { at, by: u.id, action: 'Edited', changes }] } : x);
+      } else {
+        entries.push({ id: 'N' + Date.now() + id, sys: id, date: TODAY, shift: s.shift, ...rec, by: u.id, at, hist: [{ at, by: u.id, action: 'Created', changes: [] }] });
+      }
+      delete drafts[id]; errors[id] = null; saved++;
+    }
+    this.setState({ entries, drafts, errors, pending: st.online ? st.pending : st.pending + saved });
+    const parts = [];
+    if (saved) parts.push(`Saved ${saved} ${saved === 1 ? 'reading' : 'readings'}${st.online ? '' : ' — queued until back online'}`);
+    if (blocked) parts.push(`${blocked} ${blocked === 1 ? 'row needs' : 'rows need'} attention`);
+    this.say(parts.join(' · '));
+  }
+  toggleOnline = () => {
+    const st = this.state;
+    if (st.online) { this.setState({ online: false, pending: Math.max(st.pending, 3) }); return; }
+    const n = st.pending;
+    this.setState({ online: true, syncing: true });
+    clearTimeout(this._s);
+    this._s = setTimeout(() => { this._q = new Set(); this.setState({ syncing: false, pending: 0 }); this.say(`Back online — synced ${n} ${n === 1 ? 'entry' : 'entries'}`); }, 1600);
+  };
+
+  vRow(s) {
+    const c = this.calc(s), st = this.state;
+    const locked = c.e ? !this.canEdit(c.e) : !this.canEnter(s);
+    let k, label;
+    if (!c.has) { k = 'skip'; label = 'Not entered'; }
+    else if (c.initOk) { k = 'ok'; label = 'In range'; }
+    else if (c.finOk) { k = 'ok'; label = 'Corrected'; }
+    else if ((c.v.comment || '').trim()) { k = 'bad'; label = 'Out · noted'; }
+    else { k = 'warn'; label = 'Needs comment'; }
+    const low = c.has && c.pct < s.low - 0.055, high = c.has && c.pct > s.high + 0.055;
+    const err = st.errors[s.id], isPit = s.type === 'Pit';
+    return {
+      id: s.id, op: s.op, mach: s.mach, product: s.product, sumpL: fx(s.sumpL), gal: `${fx(s.gal, 0)} gal`, range: `${s.low}–${s.high}%`, target: `target ${s.target}%`,
+      brix: c.v.brix, pctText: c.has ? fx(c.pct) + '%' : '—', pctFg: !c.has ? 'var(--color-neutral-600)' : c.initOk ? ST.ok.fg : ST.bad.fg,
+      tank: c.v.tank, skimmer: c.v.skimmer,
+      addL: c.prompt > 0 ? fx(c.prompt) + ' L' : '—', addG: c.prompt > 0 ? fx(c.prompt * GAL) + ' gal' : (c.has ? 'none' : ''), addFg: c.prompt > 0 ? ST.bad.fg : 'var(--color-neutral-700)',
+      added: c.addedStr, isV: c.v.type === 'Virgin', isR: c.v.type === 'Recycled', typeName: 'type-' + s.id,
+      recycled: c.v.recycled, comment: c.v.comment, listId: isPit ? 'cmt-pit' : 'cmt-std', cmtPh: isPit ? 'Water add or note' : 'Pick or type',
+      final: c.finalStr, finalFg: !c.has || isNaN(c.fin) ? 'var(--color-text)' : c.finOk ? ST.ok.fg : ST.bad.fg,
+      locked, lockWhy: locked ? this.lockWhy(c.e, s) : '',
+      rowBg: c.has && !c.initOk ? 'oklch(0.955 0.03 25)' : 'transparent',
+      showPrompt: low || high, promptIcon: low ? 'ph-drop' : 'ph-arrow-up',
+      promptMain: low ? `Add ${fx(c.prompt)} L (${fx(c.prompt * GAL)} gal) of ${s.product}` : `Above range at ${fx(c.pct)}%`,
+      promptSub: low ? `Reading ${fx(c.pct)}% is below the ${s.low}% low limit — this brings it to the ${s.target}% target.` : `High limit is ${s.high}%. Don't add product — record the reason in Comment.`,
+      showErr: !!err, err: err || '', cmtBorder: err ? 'oklch(0.7 0.15 75)' : 'var(--color-divider)',
+      st: { ...ST[k], label }, showPill: c.has, showTodo: !c.has, showSave: c.dirty && !locked, showMeta: !!c.e && !c.dirty,
+      meta: c.e ? `${c.e.by} · ${hhmm(c.e.at)}${c.e.hist.length > 1 ? ' · edited' : ''}` : '',
+      onAudit: () => c.e && this.setState({ auditId: c.e.id, confirmDel: false, drawerCmt: null }),
+      onBrix: ev => this.setDraft(s.id, { brix: ev.target.value, added: undefined, final: undefined }),
+      onTank: ev => this.setDraft(s.id, { tank: ev.target.value }),
+      onSkim: ev => this.setDraft(s.id, { skimmer: ev.target.value }),
+      onAdded: ev => this.setDraft(s.id, { added: ev.target.value, final: undefined }),
+      onV: () => this.setDraft(s.id, { type: 'Virgin' }), onR: () => this.setDraft(s.id, { type: 'Recycled' }),
+      onRec: ev => this.setDraft(s.id, { recycled: ev.target.value }),
+      onComment: ev => { let v = ev.target.value; if (isPit && /^\+[\d,]+ L WATER$/.test(v)) v = `${v} (${md(TODAY)})`; this.setDraft(s.id, { comment: v }); },
+      onFinal: ev => this.setDraft(s.id, { final: ev.target.value }),
+      onSave: () => this.saveRows([s.id])
+    };
+  }
+  vRound() {
+    const st = this.state, u = this.user;
+    const due = ROUND.filter(s => s.shift === st.shift && isDue(s, TODAY));
+    const w = dow(TODAY), altGrp = (w === 2 || w === 5) ? 'MWTH' : 'TF';
+    const altSys = ROUND.filter(s => s.shift === st.shift && s.group === altGrp && !isDue(s, TODAY));
+    const mk = (sys, line, alt) => { const rows = sys.map(s => this.vRow(s)); return { line, rows, alt, altSched: altGrp === 'TF' ? 'normally Tue, Fri' : 'normally Mon, Wed, Thu', due: rows.length, done: sys.filter(s => this.entryFor(s.id, TODAY)).length }; };
+    const groups = LINES.flatMap(line => {
+      const out = [], sys = due.filter(s => s.line === line), alt = st.showAlt ? altSys.filter(s => s.line === line) : [];
+      if (sys.length) out.push(mk(sys, line, false));
+      if (alt.length) out.push(mk(alt, line, true));
+      return out;
+    });
+    const shown = st.showAlt ? due.concat(altSys) : due;
+    const done = due.filter(s => this.entryFor(s.id, TODAY)).length;
+    const dirty = shown.filter(s => st.drafts[s.id] && Object.keys(st.drafts[s.id]).length).map(s => s.id);
+    const lockNote = u.role === 'internal' && st.shift !== u.shift ? `You're viewing Shift ${st.shift}. Shift ${u.shift} techs can see these systems but not edit them.`
+      : u.role === 'external' ? 'External techs can edit only their own entries, for 5 days after saving, and cannot delete. Rows with a lock were entered by someone else.' : '';
+    return {
+      dateLabel: longDate(TODAY), s1: st.shift === 1, s2: st.shift === 2,
+      onS1: () => this.setState({ shift: 1 }), onS2: () => this.setState({ shift: 2 }),
+      done, due: due.length, barW: `${due.length ? Math.round(done / due.length * 100) : 0}%`, pctLabel: `${due.length ? Math.round(done / due.length * 100) : 0}%`,
+      groups, empty: !groups.length, noDirty: !dirty.length,
+      saveLabel: dirty.length ? `Save ${dirty.length} changed ${dirty.length === 1 ? 'row' : 'rows'}` : 'All saved',
+      saveAll: () => this.saveRows(dirty), lockNote, hasLockNote: !!lockNote,
+      showAlt: !!st.showAlt, altLabel: altGrp, altCount: altSys.length, onAlt: ev => this.setState({ showAlt: ev.target.checked })
+    };
+  }
+  vDash() {
+    const st = this.state, E = st.entries;
+    const dueT = ROUND.filter(s => isDue(s, TODAY));
+    const todayE = E.filter(e => e.date === TODAY);
+    const doneT = dueT.filter(s => todayE.some(e => e.sys === s.id));
+    const oor = todayE.filter(e => !inRange(SYSM[e.sys], e.pct));
+    const weekE = E.filter(e => WEEK.includes(e.date));
+    const noCmt = weekE.filter(e => !inRange(SYSM[e.sys], e.final) && !e.comment);
+    const tiles = [
+      { value: dueT.length, label: 'Systems due today', icon: 'ph-calendar-check', fg: 'var(--color-text)', sub: `Shift 1: ${dueT.filter(s => s.shift === 1).length} · Shift 2: ${dueT.filter(s => s.shift === 2).length}` },
+      { value: doneT.length, label: 'Completed', icon: ST.ok.icon, fg: ST.ok.fg, sub: `${dueT.length - doneT.length} still to record` },
+      { value: oor.length, label: 'Out of range today', icon: ST.bad.icon, fg: ST.bad.fg, sub: oor.length ? `${oor.filter(e => inRange(SYSM[e.sys], e.final)).length} corrected after dosing` : 'None so far' },
+      { value: noCmt.length, label: 'Missing comments', icon: ST.warn.icon, fg: ST.warn.fg, sub: 'Out of range this week, no comment' }
+    ];
+    const list = ROUND.filter(s => (st.fLine === 'All' || s.line === st.fLine) && (st.fShift === 'All' || String(s.shift) === st.fShift) && (st.fGroup === 'All' || s.group === st.fGroup));
+    const latest = list.map(s => {
+      const e = E.filter(x => x.sys === s.id).sort((a, b) => a.at < b.at ? 1 : -1)[0];
+      const dueToday = isDue(s, TODAY), doneToday = todayE.some(x => x.sys === s.id);
+      let k = 'skip', label = 'No reading';
+      if (e) {
+        if (!inRange(s, e.final) && !e.comment) { k = 'warn'; label = 'No comment'; }
+        else if (!inRange(s, e.final)) { k = 'bad'; label = 'Out · noted'; }
+        else if (!inRange(s, e.pct)) { k = 'ok'; label = 'Corrected'; }
+        else { k = 'ok'; label = 'In range'; }
+      }
+      return {
+        name: `${s.line} ${s.op}`, mach: s.mach, group: s.group, shift: s.shift, product: s.product, range: `${s.low}–${s.high}%`,
+        when: e ? `${DAYN[dow(e.date)]} ${md(e.date)} · ${hhmm(e.at)}` : '—',
+        dueNote: dueToday ? (doneToday ? 'Done today' : 'Due today — not recorded') : 'Not due today', dueFg: dueToday && !doneToday ? ST.warn.fg : 'var(--color-neutral-700)',
+        pct: e ? fx(e.pct) + '%' : '—', pctFg: e && !inRange(s, e.pct) ? ST.bad.fg : 'var(--color-text)',
+        fin: e ? fx(e.final) + '%' : '—', finFg: e && !inRange(s, e.final) ? ST.bad.fg : 'var(--color-text)',
+        added: e && e.added ? `${fx(e.added)} L` : '—', by: e ? e.by : '—', st: { ...ST[k], label },
+        onClick: () => e ? this.setState({ auditId: e.id, confirmDel: false, drawerCmt: null }) : this.setState({ screen: 'round', shift: s.shift })
+      };
+    });
+    const missing = dueT.filter(s => !todayE.some(e => e.sys === s.id));
+    const warnings = [
+      ...noCmt.map(e => { const s = SYSM[e.sys]; return { icon: ST.bad.icon, fg: ST.bad.fg, bg: ST.bad.bg, title: `${s.line} ${s.op} — no comment`, text: `${fx(e.final)}% on ${DAYN[dow(e.date)]} ${md(e.date)} (range ${s.low}–${s.high}%) · ${USERS[e.by].name}`, action: 'Open entry', onClick: () => this.setState({ auditId: e.id, confirmDel: false, drawerCmt: null }) }; }),
+      ...missing.map(s => ({ icon: ST.warn.icon, fg: ST.warn.fg, bg: ST.warn.bg, title: `${s.line} ${s.op} — missing`, text: `No reading yet · Shift ${s.shift} · ${s.group}`, action: 'Open round', onClick: () => this.setState({ screen: 'round', shift: s.shift }) }))
+    ];
+    return {
+      tiles, latest, warnings, warnSummary: `${missing.length} missing readings · ${noCmt.length} out of range without a comment`,
+      fLine: st.fLine, fShift: st.fShift, fGroup: st.fGroup,
+      onLine: ev => this.setState({ fLine: ev.target.value }), onShift: ev => this.setState({ fShift: ev.target.value }), onGroup: ev => this.setState({ fGroup: ev.target.value })
+    };
+  }
+  cellBug(tested, val, limit, missing) {
+    if (!tested) return { text: 'SKIP', bg: ST.skip.bg, fg: ST.skip.fg, hasIcon: false };
+    if (missing) return { text: 'Missing', bg: ST.warn.bg, fg: ST.warn.fg, hasIcon: true, icon: 'ph-warning' };
+    const bad = val >= limit;
+    return { text: String(val), bg: bad ? ST.bad.bg : ST.ok.bg, fg: bad ? ST.bad.fg : ST.ok.fg, hasIcon: bad, icon: 'ph-arrow-up' };
+  }
+  vWeekly() {
+    const st = this.state, E = st.entries, B = st.bugs, days = worked();
+    const missing = [], noCmt = [], bugMiss = [], phMiss = [];
+    const pagesRaw = LINES.map(line => {
+      const sys = ROUND.filter(s => s.line === line); if (!sys.length) return null;
+      const rows = sys.map(s => {
+        const es = E.filter(e => e.sys === s.id && WEEK.includes(e.date));
+        const cells = days.map(d => {
+          const e = es.find(x => x.date === d), due = isDue(s, d);
+          if (e) { const ok = inRange(s, e.pct); return { text: fx(e.pct), bg: ok ? ST.ok.bg : ST.bad.bg, fg: ok ? ST.ok.fg : ST.bad.fg, hasIcon: !ok, icon: e.pct < s.low ? 'ph-arrow-down' : 'ph-arrow-up' }; }
+          if (due && d < TODAY) { missing.push(`${s.line} ${s.op} — ${DAYN[dow(d)]} ${md(d)}`); return { text: 'MISSING', bg: ST.warn.bg, fg: ST.warn.fg, hasIcon: true, icon: 'ph-warning' }; }
+          if (due) return { text: 'due', bg: 'transparent', fg: 'var(--color-neutral-700)', hasIcon: false };
+          return { text: '', bg: 'var(--color-neutral-200)', fg: 'var(--color-neutral-700)', hasIcon: false };
+        });
+        es.filter(e => !inRange(s, e.final) && !e.comment).forEach(e => noCmt.push(`${s.line} ${s.op} — ${fx(e.final)}% on ${DAYN[dow(e.date)]} ${md(e.date)}`));
+        const virgin = es.reduce((a, e) => a + (e.type === 'Virgin' ? e.added : 0), 0) * GAL;
+        const recycled = es.reduce((a, e) => a + e.recycled + (e.type === 'Recycled' ? e.added : 0), 0) * GAL;
+        const tested = BUG_TESTED.includes(s.bug), b = B[s.id] || {};
+        if (tested && b.bac == null) bugMiss.push(`${s.line} ${s.op} — slide not read`);
+        if (tested && b.phi == null) phMiss.push(`${s.line} ${s.op} — no initial pH`);
+        let ph;
+        if (!tested) ph = { text: 'SKIP', bg: ST.skip.bg, fg: ST.skip.fg, hasIcon: false };
+        else if (b.phi == null) ph = { text: 'Missing', bg: ST.warn.bg, fg: ST.warn.fg, hasIcon: true, icon: 'ph-warning' };
+        else { const pf = b.phf ?? b.phi, ok = pf >= 8.9 && pf <= 9.6; ph = { text: b.phi === pf ? fx(b.phi) : `${fx(b.phi)}→${fx(pf)}`, bg: ok ? ST.ok.bg : ST.bad.bg, fg: ok ? ST.ok.fg : ST.bad.fg, hasIcon: !ok, icon: 'ph-arrow-down' }; }
+        return {
+          op: s.op, mach: s.mach, product: s.product, range: `${s.low}–${s.high}%`, cells,
+          virgin: virgin ? fx(virgin) : '0.0', recycled: recycled ? fx(recycled) : '0.0',
+          bact: this.cellBug(tested, b.bac, 3, b.bac == null), fun: this.cellBug(tested, b.fun, 2, b.fun == null),
+          action: !tested ? 'SKIP' : b.bac != null ? b.action : '—', ph,
+          comment: es.filter(e => e.comment).map(e => `${DAYN[dow(e.date)]}: ${e.comment}`).join('; ')
+        };
+      });
+      return { line, rows };
+    }).filter(Boolean);
+    const pages = pagesRaw.map((p, i) => ({ ...p, pageLabel: `Page ${i + 1} of ${pagesRaw.length}` }));
+    const checklist = [
+      { title: 'Missing readings', items: missing, icon: ST.warn.icon, fg: ST.warn.fg },
+      { title: 'Out of range, no comment', items: noCmt, icon: ST.bad.icon, fg: ST.bad.fg },
+      { title: 'Bug slides not read', items: bugMiss, icon: ST.warn.icon, fg: ST.warn.fg },
+      { title: 'pH not recorded', items: phMiss, icon: ST.warn.icon, fg: ST.warn.fg }
+    ].filter(c => c.items.length).map(c => ({ ...c, count: c.items.length }));
+    const open = checklist.reduce((a, c) => a + c.count, 0);
+    this._open = open;
+    return {
+      range: `${+WEEK[0].slice(8)}–${+WEEK[4].slice(8)} ${MONTHS[+MON.slice(5, 7) - 1]} ${MON.slice(0, 4)}`,
+      daysWorked: `Days worked: ${days.map(d => DAYN[dow(d)]).join(', ')}`,
+      dayHdrs: days.map(d => `${DAYN[dow(d)]} ${md(d)}`),
+      cols: `56px 100px 66px 58px ${days.map(() => '60px').join(' ')} 62px 62px 56px 56px 96px 76px minmax(150px,1fr)`,
+      pages, checklist, chkOpen: st.chkOpen && open > 0, chkToggle: open ? (st.chkOpen ? 'Hide items' : 'Show items') : '',
+      chkSummary: open ? `${open} open items — fix them or send with notes` : 'Nothing missing. Ready to send.',
+      chkBg: open ? ST.warn.bg : ST.ok.bg, chkFg: open ? ST.warn.fg : ST.ok.fg, chkIcon: open ? 'ph-clipboard-text' : 'ph-check-circle',
+      toggleChk: () => this.setState({ chkOpen: !st.chkOpen }),
+      onPdf: () => this.say(`Preview only: Weekly_Status_Wk${WEEKNO}.pdf (${pages.length} pages) exports in the production build`),
+      onXls: () => this.say(`Preview only: Weekly_Status_Wk${WEEKNO}.xlsx exports in the production build`),
+      onSend: () => this.setState({ sendOpen: true }),
+      hasSent: !!st.sentLog, sentLog: st.sentLog || ''
+    };
+  }
+  buildChart(s) {
+    const e = React.createElement, { pts, cleans } = trendSeries(s, this.state.entries);
+    const W = 980, H = 340, L = 48, R = 16, T = 22, B = 34;
+    const t0 = pD(pts[0].d).getTime(), t1 = pD(TODAY).getTime() + 2 * 864e5;
+    const X = d => L + (pD(d).getTime() - t0) / (t1 - t0) * (W - L - R);
+    const vals = pts.map(p => p.p);
+    const ymin = Math.floor(Math.min(s.low - 1, ...vals)), ymax = Math.ceil(Math.max(s.high + 1, ...vals));
+    const Y = v => T + (ymax - v) / (ymax - ymin) * (H - T - B);
+    const k = [];
+    k.push(e('rect', { key: 'wk', x: X(MON), y: T, width: W - R - X(MON), height: H - T - B, style: { fill: 'var(--color-accent-100)' } }));
+    k.push(e('text', { key: 'wkl', x: X(MON) + 4, y: T - 6, style: { fontSize: 12, fill: 'var(--color-accent-800)' } }, 'This week'));
+    k.push(e('rect', { key: 'band', x: L, y: Y(s.high), width: W - L - R, height: Y(s.low) - Y(s.high), style: { fill: ST.ok.bg, opacity: 0.85 } }));
+    for (let v = ymin; v <= ymax; v++) k.push(e('g', { key: 'y' + v }, e('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), style: { stroke: 'var(--color-divider)' } }), e('text', { x: L - 8, y: Y(v) + 4, textAnchor: 'end', style: { fontSize: 12, fill: 'var(--color-neutral-700)' } }, v + '%')));
+    k.push(e('line', { key: 'tgt', x1: L, x2: W - R, y1: Y(s.target), y2: Y(s.target), style: { stroke: ST.ok.fg, strokeDasharray: '2 4' } }));
+    for (let d = mondayOf(pts[0].d); d <= TODAY; d = addD(d, 7)) if (pD(d).getTime() >= t0) k.push(e('text', { key: 'x' + d, x: X(d), y: H - 10, textAnchor: 'middle', style: { fontSize: 12, fill: 'var(--color-neutral-700)' } }, md(d)));
+    cleans.forEach((c, i) => k.push(e('g', { key: 'c' + i }, e('line', { x1: X(c), x2: X(c), y1: T, y2: H - B, style: { stroke: 'var(--color-accent-2)', strokeWidth: 2, strokeDasharray: '5 4' } }), e('text', { x: X(c) + 5, y: T + 12, style: { fontSize: 12, fill: 'var(--color-accent-2-700)' } }, `Leadec clean ${md(c)}`))));
+    k.push(e('path', { key: 'p', d: pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.d).toFixed(1)},${Y(p.p).toFixed(1)}`).join(''), style: { fill: 'none', stroke: 'var(--color-text)', strokeWidth: 1.5 } }));
+    pts.forEach((p, i) => {
+      const ok = inRange(s, p.p), x = X(p.d), y = Y(p.p);
+      k.push(ok ? e('circle', { key: 'o' + i, cx: x, cy: y, r: 3.5, style: { fill: 'var(--color-text)' } }, e('title', null, `${md(p.d)}: ${fx(p.p)}%`))
+        : e('rect', { key: 'o' + i, x: x - 4.5, y: y - 4.5, width: 9, height: 9, style: { fill: 'oklch(0.55 0.19 25)', stroke: 'var(--color-bg)' } }, e('title', null, `${md(p.d)}: ${fx(p.p)}% — out of range`)));
+    });
+    return e('svg', { viewBox: `0 0 ${W} ${H}`, style: { width: '100%', height: 'auto', display: 'block', fontFamily: 'var(--font-body)' } }, k);
+  }
+  vDrawer() {
+    const st = this.state, e = st.entries.find(x => x.id === st.auditId);
+    if (!e) return { open: false };
+    const s = SYSM[e.sys], u = this.user, can = this.canEdit(e), del = this.canDelete(e);
+    const cmt = st.drawerCmt ?? e.comment;
+    return {
+      open: true, title: `${s.line} ${s.op}`, sub: `${s.mach} · ${s.product} · ${s.group} · Shift ${s.shift}`,
+      enteredBy: `Entered by ${USERS[e.by].name} (${USERS[e.by].roleLabel}) on ${DAYN[dow(e.date)]} ${md(e.date)} at ${hhmm(e.at)}`,
+      fields: [
+        { k: 'Date', v: longDate(e.date) }, { k: 'Initial Refrac', v: `${fx(e.brix)} Brix × ${FACT[s.product]}` },
+        { k: 'Initial RI', v: `${fx(e.pct)}% (range ${s.low}–${s.high}%)` }, { k: 'Tank / skimmer', v: `${e.tank} / ${e.skimmer}` },
+        { k: 'Product added', v: `${fx(e.added)} L (${fx(e.added * GAL)} gal) · ${e.type}` }, { k: 'Recycled added', v: `${fx(e.recycled)} L` },
+        { k: 'Final RI', v: `${fx(e.final)}%${inRange(s, e.final) ? '' : ' — out of range'}` }, { k: 'Comment', v: e.comment || '—' }
+      ],
+      hist: e.hist.slice().reverse().map(h => ({ icon: h.action === 'Created' ? 'ph-plus-circle' : 'ph-pencil-simple', action: h.action, who: `${USERS[h.by].name} (${h.by})`, when: `${DAYN[dow(h.at)]} ${md(h.at)} · ${hhmm(h.at)}`, changes: h.changes.join(' · '), hasChanges: h.changes.length > 0 })),
+      canEdit: can, locked: !can, lockWhy: can ? '' : this.lockWhy(e, s), listId: s.type === 'Pit' ? 'cmt-pit' : 'cmt-std', cmt,
+      onCmt: ev => this.setState({ drawerCmt: ev.target.value }),
+      saveCmt: () => {
+        const val = (st.drawerCmt ?? e.comment).trim();
+        if (val === e.comment) return;
+        const at = nowStamp();
+        this.setState(s2 => ({ entries: s2.entries.map(x => x.id === e.id ? { ...x, comment: val, hist: [...x.hist, { at, by: u.id, action: 'Edited', changes: [`Comment: ${e.comment || '(blank)'} → ${val || '(blank)'}`] }] } : x), drawerCmt: null, pending: s2.online ? s2.pending : s2.pending + 1 }));
+        this.say('Comment saved');
+      },
+      canDelete: del, confirmDel: st.confirmDel, showDelBtn: !st.confirmDel, noDelete: !del,
+      deleteNote: 'Only a manager can delete entries. Techs can correct a reading; every change is kept in the history.',
+      askDel: () => this.setState({ confirmDel: true }), cancelDel: () => this.setState({ confirmDel: false }),
+      doDel: () => { this.setState(s2 => ({ entries: s2.entries.filter(x => x.id !== e.id), auditId: null, confirmDel: false })); this.say(`Deleted ${s.line} ${s.op} entry for ${md(e.date)}`); },
+      onClose: () => this.setState({ auditId: null, confirmDel: false, drawerCmt: null })
+    };
+  }
+  vFb(label) {
+    const st = this.state, u = this.user, items = st.fbList, txt = st.fbText.trim();
+    return {
+      open: st.fbOpen, screen: label, text: st.fbText, empty: !txt,
+      types: FB_TYPES.map(t => ({ t, on: t === st.fbType, pick: () => this.setState({ fbType: t }) })),
+      countLabel: items.length ? `(${items.length})` : '',
+      onOpen: () => this.setState({ fbOpen: true }), onClose: () => this.setState({ fbOpen: false }), stop: ev => ev.stopPropagation(),
+      onText: ev => this.setState({ fbText: ev.target.value }),
+      items: items.slice().reverse(), hasItems: items.length > 0, listLabel: `${items.length} noted this session`,
+      onSubmit: () => {
+        if (!txt) return;
+        this.setState({ fbText: '', fbList: [...items, { screen: label, type: st.fbType, text: txt, by: `${u.name} · ${u.roleLabel}`, at: nowStamp().replace('T', ' ') }] });
+        this.say('Feedback noted. Use Download all to send it to Ideal Technology Solutions');
+      },
+      onDownload: () => {
+        const body = ['Coolant Data Capture · prototype feedback', `TMMAL · ${st.area} area`, ''].concat(items.map((f, i) => `${i + 1}. [${f.type}] ${f.screen}\n   ${f.text}\n   ${f.by} · ${f.at}\n`)).join('\n');
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([body], { type: 'text/plain' }));
+        a.download = `CDC_feedback_${TODAY}.txt`; document.body.appendChild(a); a.click(); a.remove();
+      }
+    };
+  }
+  vDialog() {
+    const st = this.state, sel = st.sendSel;
+    const n = sel.filter(Boolean).length, people = DIST.reduce((a, d, i) => a + (sel[i] ? d.count : 0), 0);
+    return {
+      open: st.sendOpen,
+      recips: DIST.map((d, i) => ({ name: d.name, detail: `${d.count} ${d.count === 1 ? 'person' : 'people'} · ${d.ex}`, on: sel[i], toggle: () => this.setState({ sendSel: sel.map((v, j) => j === i ? !v : v) }) })),
+      hasOpen: (this._open || 0) > 0, openNote: `${this._open} review items are still open. They will show as MISSING or red in the report.`,
+      none: n === 0, sendLabel: n ? `Send to ${n} ${n === 1 ? 'list' : 'lists'} (${people} people)` : 'Pick a list',
+      stop: ev => ev.stopPropagation(), onClose: () => this.setState({ sendOpen: false }),
+      onSend: () => {
+        const n2 = new Date();
+        this.setState({ sendOpen: false, sentLog: `Sent ${DAYN[dow(TODAY)]} ${md(TODAY)} at ${String(n2.getHours()).padStart(2, '0')}:${String(n2.getMinutes()).padStart(2, '0')} by ${this.user.name} to ${DIST.filter((_, i) => sel[i]).map(d => d.name).join(', ')}` });
+        this.say(`Simulated send to ${n} lists · ${people} people. No email leaves the prototype`);
+      }
+    };
+  }
+  gcell(text, k, o = {}) { const t = k ? ST[k] : null; return { text: String(text), bg: t ? t.bg : 'transparent', fg: t ? t.fg : 'var(--color-text)', weight: o.bold ? 600 : 400, hasIcon: !!(t && o.icon), icon: o.icon || '' }; }
+  vGen(key) {
+    const st = this.state, E = st.entries, title = (REPORTS.find(r => r[0] === key) || [, ''])[1];
+    const C = (t, k, o) => this.gcell(t, k, o), P = t => this.gcell(t), Bd = t => this.gcell(t, null, { bold: true });
+    const MISS = () => C('MISSING', 'warn', { icon: 'ph-warning' }), fig = (value, label, sub, k) => ({ value: String(value), label, sub, fg: k ? ST[k].fg : 'var(--color-text)' });
+    const wkSub = `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))}`, month = `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`;
+    let sub = wkSub, figs = [], sections = [], note = 'Red = action needed · Amber = missing or not commented';
+    if (key === 'washer' || key === 'regrind' || key === 'asm') {
+      const f = key === 'regrind' ? s => s.line === 'Regrind' : key === 'asm' ? s => s.line === 'Assembly' : s => s.line !== 'Regrind' && s.line !== 'Assembly';
+      const all = this.vWash().rows.filter(r => f(r.sys));
+      sections = [...new Set(all.map(r => r.sys.line))].map(l => ({
+        title: key === 'washer' ? `${l} washers` : title, sub: wkSub, minW: '1100px',
+        cols: '64px 104px 70px 56px 64px 48px 70px 56px 64px 52px 90px 62px 84px minmax(150px,1fr)',
+        hdrs: ['Washer', 'Machine #', 'Product', 'Range', '# Drops', 'Limit', 'RI %', 'pH', 'Free oil', 'Tank', 'Skimmer', 'WR-90 (L)', 'Entered', 'Comment'],
+        rows: all.filter(r => r.sys.line === l).map(r => {
+          const s = r.sys, F = r.flags, e = r.entered;
+          return { cells: [Bd(s.op), P(s.mach), P(s.product), P(r.range),
+            !e ? MISS() : r.drops ? C(r.drops, F.drop ? 'bad' : 'ok', F.drop ? { icon: 'ph-arrow-down' } : {}) : P('—'), P(r.limit),
+            !e ? MISS() : r.brix ? C(r.pct, F.pct ? 'bad' : 'ok', F.pct ? { icon: F.low ? 'ph-arrow-down' : 'ph-arrow-up' } : {}) : P('—'),
+            r.ph ? C(r.ph, F.ph ? 'bad' : 'ok') : P('—'), e ? C(r.oil, r.oil === 'Heavy' ? 'bad' : null) : P('—'),
+            P(e ? r.tank : '—'), e ? C(r.skimmer, r.skimmer === 'Not working' ? 'bad' : null) : P('—'),
+            P(r.wr90 || (e ? '0' : '—')), P(r.hasMeta ? r.meta : '—'), r.comment ? P(r.comment) : r.hasIssues ? C('No comment', 'warn') : P('')] };
+        })
+      }));
+      const act = all.filter(r => r.hasIssues).length, wr = all.reduce((a, r) => a + (num(r.wr90) || 0), 0);
+      figs = [fig(`${all.filter(r => r.entered).length}/${all.length}`, 'Titrated this week', all.some(r => !r.entered) ? 'Some still missing' : 'All washers done', all.some(r => !r.entered) ? 'warn' : 'ok'), fig(act, 'Need action', 'Low RI, low drops, pH or free oil', act ? 'bad' : 'ok'), fig(fx(wr), 'WR-90 added (L)', 'This week')];
+    } else if (key === 'bug') {
+      let tested = 0, bac = 0, fun = 0, ph = 0;
+      sections = LINES.map(l => {
+        const ss = ROUND.filter(s => s.line === l); if (!ss.length) return null;
+        return { title: l, sub: `Group ${BUG_GROUP} + weekly · read Wed ${md(addD(MON, 2))}`, minW: '1000px',
+          cols: '60px 104px 70px 70px 70px 124px 70px 70px 70px 70px 70px 1fr',
+          hdrs: ['OP #', 'Machine #', 'Product', 'Bacteria', 'Fungus', 'Action', 'pH initial', 'pH final', 'Grotan (L)', 'LA-33 (L)', 'WR-90 (L)', 'By'],
+          rows: ss.map(s => {
+            const b = st.bugs[s.id] || {};
+            if (!BUG_TESTED.includes(s.bug)) return { cells: [Bd(s.op), P(s.mach), P(s.product), ...Array.from({ length: 9 }, () => C('SKIP', 'skip'))] };
+            tested++; if (b.bac >= 3) bac++; if (b.fun >= 2) fun++;
+            const pf = b.phf ?? b.phi, pOk = v => v >= 8.9 && v <= 9.6; if (pf != null && !pOk(pf)) ph++;
+            const bc = (v, lim) => v == null ? MISS() : C(v, v >= lim ? 'bad' : 'ok', v >= lim ? { icon: 'ph-arrow-up' } : {});
+            return { cells: [Bd(s.op), P(s.mach), P(s.product), bc(b.bac, 3), bc(b.fun, 2), P(b.bac == null ? '—' : b.action),
+              b.phi == null ? MISS() : C(fx(b.phi), pOk(b.phi) ? 'ok' : 'bad'), b.phf == null ? P('—') : C(fx(b.phf), pOk(b.phf) ? 'ok' : 'bad'),
+              P(fx(b.grotan || 0)), P(fx(b.la33 || 0)), P(fx(b.wr90 || 0)), P(b.by || '—')] };
+          }) };
+      }).filter(Boolean);
+      figs = [fig(tested, 'Systems tested', `Group ${BUG_GROUP} and weekly`), fig(bac, 'Bacteria at limit', '3 or more', bac ? 'bad' : 'ok'), fig(fun, 'Fungus at limit', '2 or more', fun ? 'bad' : 'ok'), fig(ph, 'pH out of range', 'Final pH outside 8.9–9.6', ph ? 'bad' : 'ok')];
+    } else if (key === 'chem') {
+      const wE = E.filter(e => WEEK.includes(e.date));
+      const water = e => { const m = /^\+([\d,]+) L WATER/.exec(e.comment || ''); return m ? +m[1].replace(/,/g, '') : 0; };
+      const tot = { v: 0, r: 0, g: 0, la: 0, wr: 0, w: 0 };
+      const rows = [...LINES, 'Regrind'].map(l => {
+        const es = wE.filter(e => SYSM[e.sys].line === l), bs = ROUND.filter(s => s.line === l).map(s => st.bugs[s.id] || {});
+        const x = {
+          v: es.reduce((a, e) => a + (e.type === 'Virgin' ? e.added : 0), 0) * GAL,
+          r: es.reduce((a, e) => a + e.recycled + (e.type === 'Recycled' ? e.added : 0), 0) * GAL,
+          g: bs.reduce((a, b) => a + (b.grotan || 0), 0), la: bs.reduce((a, b) => a + (b.la33 || 0), 0),
+          wr: bs.reduce((a, b) => a + (b.wr90 || 0), 0) + WASH.filter(s => s.line === l).reduce((a, s) => a + (num((st.washers[s.id] || {}).wr90) || 0), 0),
+          w: es.reduce((a, e) => a + water(e), 0)
+        };
+        Object.keys(x).forEach(k => { tot[k] += x[k]; });
+        return { cells: [Bd(l), P(fx(x.v)), P(fx(x.r)), P(fx(x.g)), P(fx(x.la)), P(fx(x.wr)), P(x.w ? fx(x.w, 0) : '—')] };
+      });
+      const mx = st.mix.filter(m => WEEK.includes(m.date)), ms = k => mx.reduce((a, m) => a + (m[k] || 0), 0);
+      const avg = mx.length ? mx.reduce((a, m) => a + m.m1 * MIX_F, 0) / mx.length : null;
+      sections = [
+        { title: 'By line', sub: wkSub, minW: '760px', cols: '110px repeat(6, minmax(90px,1fr))', hdrs: ['Line', 'Virgin coolant (gal)', 'Recycled coolant (gal)', 'Grotan (L)', 'LA-33 (L)', 'WR-90 (L)', 'Water to pits (L)'], rows,
+          foot: { cells: [P('TNGA area'), P(fx(tot.v)), P(fx(tot.r)), P(fx(tot.g)), P(fx(tot.la)), P(fx(tot.wr)), P(fx(tot.w, 0))] } },
+        { title: 'Mix tank', sub: `${mx.length} mixes this week`, minW: '640px', cols: 'repeat(5, minmax(110px,1fr))', hdrs: ['Raw to mix (L)', 'Raw to mix (gal)', 'Water (L)', 'Mix to line (L)', 'Avg Mix #1'],
+          rows: [{ cells: [Bd(fx(ms('raw'), 0)), P(fx(ms('raw') * GAL)), P(fx(ms('water'), 0)), P(fx(ms('toLine'), 0)), P(avg == null ? '—' : fx(avg) + '%')] }] }
+      ];
+      figs = [fig(fx(tot.v), 'Virgin coolant (gal)', 'Added at machines'), fig(fx(tot.r), 'Recycled coolant (gal)', 'Recycled and type R adds'), fig(fx(tot.g), 'Grotan (L)', 'Bug treatment'), fig(fx(tot.w, 0), 'Water to pits (L)', 'From pit comments')];
+      note = 'Coolant from Daily Round · chemicals from Bug & pH and Washers · water parsed from pit comments';
+    } else if (key === 'leadec') {
+      const L = st.leadec, wi = CUR_LW, base = ['Line · OP #', 'Machine #', 'Product', 'Type'], cols = 'minmax(140px,1fr) 120px 90px 90px 110px 80px';
+      const row = (s, a, b) => ({ cells: [Bd(`${s.line} ${s.op}`), P(s.mach), P(s.product), P(s.type), a, b] });
+      const thisWk = LSCOPE.filter(s => (L[s.id] || {})[wi]), notYet = LSCOPE.filter(s => !Object.keys(L[s.id] || {}).length);
+      const lines = [...new Set(LSCOPE.map(s => s.line))];
+      sections = [
+        { title: `Cleaned this week · Week ${wi + 1}`, sub: `${md(LWEEKS[wi])}–${md(addD(LWEEKS[wi], 4))}`, minW: '700px', cols, hdrs: [...base, 'Date', 'By'], rows: thisWk.map(s => { const c = L[s.id][wi]; return row(s, C(`${DAYN[dow(c.d)]} ${md(c.d)}`, 'ok'), P(c.by)); }), emptyText: 'No cleanings logged this week.' },
+        { title: 'Not yet cleaned this month', sub: month, minW: '700px', cols, hdrs: [...base, 'Status', ''], rows: notYet.map(s => row(s, C('Outstanding', 'warn'), P(''))), emptyText: 'Every machine in scope has been cleaned this month.' },
+        { title: 'Month to date by line', sub: month, minW: '520px', cols: '140px repeat(3, minmax(100px,1fr))', hdrs: ['Line', 'In scope', 'Cleaned', 'Outstanding'],
+          rows: lines.map(l => { const ss = LSCOPE.filter(s => s.line === l), n = ss.filter(s => Object.keys(L[s.id] || {}).length).length; return { cells: [Bd(l), P(ss.length), P(n), C(ss.length - n, ss.length - n ? 'warn' : 'ok')] }; }) }
+      ];
+      figs = [fig(thisWk.length, 'Cleaned this week', `Week ${wi + 1} of ${month}`), fig(`${LSCOPE.length - notYet.length}/${LSCOPE.length}`, 'Cleaned this month', 'Clean and recharge'), fig(notYet.length, 'Outstanding', 'Not yet cleaned this month', notYet.length ? 'warn' : 'ok')];
+      sub = `${wkSub} · ${month} to date`;
+    } else if (key === 'dust') {
+      const days = monthDays().filter(d => d <= TODAY);
+      let probs = 0, missT = 0;
+      sections = [['dust', 'Dust/Mist collectors'], ['skim', 'Skimmers']].map(([k, t]) => ({
+        title: t, sub: `${month} · ${days.length} workdays to date`, minW: '760px', cols: '100px 80px 70px 90px 70px minmax(180px,1fr) 110px',
+        hdrs: ['Line', 'Checked', 'OK (O)', 'Problem (X)', 'Missed', 'Problem days', 'Last check'],
+        rows: CHK_LINES.map(l => {
+          const m = st.checks[k][l] || {}, done = days.filter(d => m[d]), xs = done.filter(d => m[d].v === 'X'), miss = days.filter(d => !m[d] && d < TODAY), last = done[done.length - 1];
+          probs += xs.length; missT += miss.length;
+          return { cells: [Bd(l), P(done.length), C(done.length - xs.length, 'ok'), C(xs.length, xs.length ? 'bad' : null), C(miss.length, miss.length ? 'warn' : null), P(xs.map(md).join(', ') || '—'), P(last ? `${md(last)} · ${m[last].by}` : '—')] };
+        })
+      }));
+      figs = [fig(probs, 'Problems logged', 'X marks this month', probs ? 'bad' : 'ok'), fig(missT, 'Missed checks', 'Past workdays left blank', missT ? 'warn' : 'ok')];
+      sub = `${month} to date · both check types`;
+    }
+    const slug = title.replace(/[^A-Za-z]+/g, '_');
+    return {
+      title, sub, figs, note,
+      sections: sections.map(s => ({ sub: '', minW: '760px', emptyText: '', ...s, hasFoot: !!s.foot, foot: s.foot || { cells: [] }, empty: !s.rows.length })),
+      onPdf: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.pdf exports in the production build`), onXls: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.xlsx exports in the production build`)
+    };
+  }
+  touch(key) { if (this.state.online) return 0; this._q = this._q || new Set(); if (this._q.has(key)) return 0; this._q.add(key); return 1; }
+  locksFor(s) { const u = this.user; return u.role === 'internal' && s.shift !== u.shift; }
+  pill(k, label) { return { ...ST[k], label }; }
+  pctOf(a, b) { return b ? `${Math.round(a / b * 100)}%` : '0%'; }
+  setBug(id, patch) { const add = this.touch('b' + id), u = this.user.id; this.setState(st => ({ bugs: { ...st.bugs, [id]: { ...(st.bugs[id] || {}), ...patch, by: u, at: nowStamp() } }, pending: st.pending + add })); }
+  setWash(id, patch) { const add = this.touch('w' + id), u = this.user.id; this.setState(st => ({ washers: { ...st.washers, [id]: { tank: 'OK', skimmer: 'OK', oil: 'None', ...(st.washers[id] || {}), ...patch, by: u, at: nowStamp() } }, pending: st.pending + add })); }
+  vBug() {
+    const B = this.state.bugs, u = this.user, sys = ROUND.filter(s => BUG_TESTED.includes(s.bug));
+    const CH = [['grotan', 'Grotan'], ['la33', 'LA-33'], ['wr90', 'WR-90']];
+    const area = { grotan: 0, la33: 0, wr90: 0 }, byLine = { grotan: [], la33: [], wr90: [] };
+    let done = 0;
+    const groups = LINES.map(line => {
+      const ss = sys.filter(s => s.line === line); if (!ss.length) return null;
+      const tot = { grotan: 0, la33: 0, wr90: 0 };
+      const rows = ss.map(s => {
+        const b = B[s.id] || {}, locked = this.locksFor(s);
+        CH.forEach(([k]) => { tot[k] += b[k] || 0; });
+        const bacBad = b.bac != null && b.bac >= 3, funBad = b.fun != null && b.fun >= 2, treated = b.action && b.action !== 'Not Treated';
+        const pf = b.phf ?? b.phi, phLow = pf != null && pf < 8.9, phHigh = pf != null && pf > 9.6;
+        const complete = b.bac != null && b.fun != null && b.phi != null; if (complete) done++;
+        let k, label;
+        if (!complete) { k = 'skip'; label = b.bac == null || b.fun == null ? 'Slide not read' : 'pH missing'; }
+        else if ((bacBad || funBad) && !treated) { k = 'warn'; label = 'Needs treatment'; }
+        else if (phLow || phHigh) { k = 'bad'; label = 'pH out of range'; }
+        else if (bacBad || funBad) { k = 'ok'; label = 'Treated'; }
+        else { k = 'ok'; label = 'Clean'; }
+        const msgs = [];
+        if ((bacBad || funBad) && !treated) msgs.push({ icon: 'ph-bug', main: [bacBad ? `Bacteria ${b.bac}` : '', funBad ? `Fungus ${b.fun}` : ''].filter(Boolean).join(' · ') + ' — at or over the limit', sub: 'Treat the sump, set Action and record the dose.' });
+        if (phLow) msgs.push({ icon: 'ph-flask', main: `pH ${fx(pf)} is below 8.9`, sub: 'Add LA-33, then record the final pH.' });
+        if (phHigh) msgs.push({ icon: 'ph-flask', main: `pH ${fx(pf)} is above 9.6`, sub: 'Record the reason in the round comment.' });
+        const raw = key => b[key + 'Raw'] ?? (b[key] ? String(b[key]) : '');
+        const numSet = key => ev => this.setBug(s.id, { [key]: num(ev.target.value), [key + 'Raw']: ev.target.value });
+        return {
+          op: s.op, mach: s.mach, product: s.product, sump: fx(s.sumpL, 0), locked, lockWhy: locked ? this.lockWhy(null, s) : '',
+          bac: sv(b.bac), fun: sv(b.fun), action: b.action || 'Not Treated',
+          bacFg: bacBad ? ST.bad.fg : 'var(--color-text)', funFg: funBad ? ST.bad.fg : 'var(--color-text)',
+          phi: raw('phi'), phf: raw('phf'), phFg: phLow || phHigh ? ST.bad.fg : 'var(--color-text)',
+          grotan: raw('grotan'), la33: raw('la33'), wr90: raw('wr90'),
+          st: this.pill(k, label), hasMeta: !!b.at, meta: b.at ? `${b.by} · ${DAYN[dow(b.at)]} ${hhmm(b.at)}` : '',
+          issues: msgs, hasIssues: msgs.length > 0, rowBg: k === 'warn' || k === 'bad' ? 'oklch(0.955 0.03 25)' : 'transparent',
+          onBac: ev => this.setBug(s.id, { bac: ev.target.value === '' ? null : +ev.target.value }),
+          onFun: ev => this.setBug(s.id, { fun: ev.target.value === '' ? null : +ev.target.value }),
+          onAction: ev => this.setBug(s.id, { action: ev.target.value }),
+          onPhi: numSet('phi'), onPhf: numSet('phf'), onGro: numSet('grotan'), onLa: numSet('la33'), onWr: numSet('wr90')
+        };
+      });
+      CH.forEach(([k]) => { area[k] += tot[k]; if (tot[k]) byLine[k].push(`${line} ${fx(tot[k])}`); });
+      return { line, rows, tot: CH.map(([k, n]) => `${n} ${fx(tot[k])} L`).join(' · ') };
+    }).filter(Boolean);
+    return {
+      group: BUG_GROUP, slides: `Slides dipped Mon ${md(MON)} · read Wed ${md(addD(MON, 2))}`,
+      groups, done, due: sys.length, barW: this.pctOf(done, sys.length), pctLabel: this.pctOf(done, sys.length),
+      chem: CH.map(([k, n]) => ({ value: fx(area[k]), label: `${n} added (L)`, sub: byLine[k].length ? byLine[k].join(' · ') : 'None added this week' })),
+      hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} systems are read only for Shift ${u.shift} techs.`
+    };
+  }
+  vWash() {
+    const u = this.user;
+    const rows = WASH.map(s => {
+      const w = this.state.washers[s.id] || {}, locked = this.locksFor(s);
+      const bx = num(w.brix), drops = num(w.drops), ph = num(w.ph);
+      const pct = bx == null ? null : conc(s, bx), add = pct == null ? 0 : toAdd(s, pct);
+      const high = pct != null && pct > s.high + 0.055, dropLow = s.drop != null && drops != null && drops < s.drop;
+      const phBad = ph != null && (ph < 8.9 || ph > 9.6), oil = w.oil || 'None';
+      const issues = [];
+      if (add > 0) issues.push({ icon: 'ph-drop', main: `Add ${fx(add)} L (${fx(add * GAL)} gal) of ${s.product}`, sub: `RI ${fx(pct)}% is below ${s.low}% — this brings it to the ${s.target}% target.` });
+      if (high) issues.push({ icon: 'ph-arrow-up', main: `Above range at ${fx(pct)}%`, sub: `High limit is ${s.high}%. Don't add product.` });
+      if (dropLow) issues.push({ icon: 'ph-eyedropper', main: `${drops} drops — below the limit of ${s.drop}`, sub: 'Dose, then re-titrate.' });
+      if (phBad) issues.push({ icon: 'ph-flask', main: `pH ${fx(ph)} outside 8.9–9.6`, sub: 'Record the WR-90 added or the reason.' });
+      if (oil === 'Heavy') issues.push({ icon: 'ph-warning', main: 'Heavy free oil', sub: w.skimmer === 'Not working' ? 'Skimmer not working — raise a work order and note it.' : 'Check the skimmer is pulling oil.' });
+      const entered = bx != null || drops != null, noted = !!(w.comment || '').trim();
+      let k, label;
+      if (!entered) { k = 'skip'; label = 'Not entered'; } else if (!issues.length) { k = 'ok'; label = 'In range'; } else if (noted) { k = 'bad'; label = 'Action · noted'; } else { k = 'warn'; label = 'Needs comment'; }
+      const set = f => ev => this.setWash(s.id, { [f]: ev.target.value });
+      return {
+        sys: s, flags: { drop: dropLow, pct: add > 0 || high, low: add > 0, ph: phBad },
+        name: `${s.line} ${s.op}`, mach: s.mach, product: s.product, range: `${s.low}–${s.high}%`, sump: fx(s.sumpL, 0), limit: s.drop == null ? 'none' : String(s.drop),
+        locked, lockWhy: locked ? this.lockWhy(null, s) : '', entered,
+        drops: w.drops || '', brix: w.brix || '', ph: w.ph || '', oil, tank: w.tank || 'OK', skimmer: w.skimmer || 'OK', wr90: w.wr90 || '', comment: w.comment || '',
+        pct: pct == null ? '—' : fx(pct) + '%', pctFg: pct == null ? 'var(--color-neutral-600)' : add > 0 || high ? ST.bad.fg : ST.ok.fg,
+        dropFg: dropLow ? ST.bad.fg : 'var(--color-text)', phFg: phBad ? ST.bad.fg : 'var(--color-text)', oilFg: oil === 'Heavy' ? ST.bad.fg : 'var(--color-text)',
+        issues, hasIssues: issues.length > 0, rowBg: issues.length ? 'oklch(0.955 0.03 25)' : 'transparent',
+        st: this.pill(k, label), hasMeta: !!w.at, meta: w.at ? `${w.by} · ${DAYN[dow(w.at)]} ${hhmm(w.at)}` : '',
+        onDrops: set('drops'), onBrix: set('brix'), onPh: set('ph'), onOil: set('oil'), onTank: set('tank'), onSkim: set('skimmer'), onWr: set('wr90'), onCmt: set('comment')
+      };
+    });
+    const done = rows.filter(r => r.entered).length;
+    return { rows, done, due: rows.length, barW: this.pctOf(done, rows.length), pctLabel: this.pctOf(done, rows.length), week: `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))} · titrated once a week`, hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} washers are read only for Shift ${u.shift} techs.` };
+  }
+  vMix() {
+    const st = this.state, d = st.mixDraft, saved = st.mix.find(m => m.date === TODAY);
+    const val = k => d[k] !== undefined ? d[k] : saved ? sv(saved[k]) : '';
+    const raw = num(val('raw')), water = num(val('water')), m1 = num(val('m1')), m2 = num(val('m2')), tl = num(val('toLine'));
+    const exp = raw != null && water != null && raw + water > 0 ? raw / (raw + water) * 100 : null;
+    const p1 = m1 == null ? null : m1 * MIX_F, p2 = m2 == null ? null : m2 * MIX_F;
+    const off = p => p != null && exp != null && Math.abs(p - exp) > 0.5;
+    const fig = (p, b) => p == null ? { v: '—', sub: 'Enter the Brix reading', fg: 'var(--color-neutral-600)' } : { v: fx(p) + '%', sub: `${fx(b)} Brix × ${MIX_F}${exp == null ? '' : off(p) ? ` · ${fx(Math.abs(p - exp))} pts off the ratio — re-check` : ' · matches the ratio'}`, fg: off(p) ? ST.warn.fg : 'var(--color-text)' };
+    const f1 = fig(p1, m1), f2 = fig(p2, m2);
+    const set = k => ev => { const v = ev.target.value; this.setState(s2 => ({ mixDraft: { ...s2.mixDraft, [k]: v }, mixErr: null })); };
+    const dirty = Object.keys(d).length > 0;
+    const rows = st.mix.slice().sort((a, b) => a.date < b.date ? -1 : 1).map(m => {
+      const e = m.raw / (m.raw + m.water) * 100, a = m.m1 * MIX_F, c = m.m2 == null ? null : m.m2 * MIX_F;
+      return { day: `${DAYN[dow(m.date)]} ${md(m.date)}`, raw: fx(m.raw, 0), water: fx(m.water, 0), exp: fx(e) + '%', m1: `${fx(m.m1)} → ${fx(a)}%`, m1Fg: Math.abs(a - e) > 0.5 ? ST.warn.fg : 'var(--color-text)', m2: c == null ? '—' : `${fx(m.m2)} → ${fx(c)}%`, m2Fg: c != null && Math.abs(c - e) > 0.5 ? ST.warn.fg : 'var(--color-text)', toLine: m.toLine == null ? '—' : fx(m.toLine, 0), by: m.by };
+    });
+    const sum = k => fx(st.mix.reduce((a, m) => a + (m[k] || 0), 0), 0);
+    return {
+      todayLabel: longDate(TODAY), raw: val('raw'), water: val('water'), toLine: val('toLine'), m1: val('m1'), m2: val('m2'),
+      onRaw: set('raw'), onWater: set('water'), onToLine: set('toLine'), onM1: set('m1'), onM2: set('m2'),
+      exp: exp == null ? '—' : fx(exp) + '%', expSub: exp == null ? 'Enter raw and water volumes' : `${fx(raw, 0)} L raw in ${fx(raw + water, 0)} L total`,
+      p1: f1.v, p1Sub: f1.sub, p1Fg: f1.fg, p2: f2.v, p2Sub: f2.sub, p2Fg: f2.fg,
+      noDirty: !dirty, saveLabel: saved && !dirty ? 'Saved' : saved ? 'Save changes' : 'Save today’s mix',
+      meta: saved ? `Saved by ${USERS[saved.by].name} at ${hhmm(saved.at)}` : 'Not recorded yet today',
+      hasErr: !!st.mixErr, err: st.mixErr ? ' ' + st.mixErr : '',
+      rows, totRaw: sum('raw'), totWater: sum('water'), totLine: sum('toLine'),
+      save: () => {
+        if (raw == null || water == null) return this.setState({ mixErr: 'Enter both raw-to-mix and water volumes.' });
+        if (m1 == null) return this.setState({ mixErr: 'Enter the Mix #1 Initial RI (Brix) reading.' });
+        const add = this.touch('mix' + TODAY), rec = { date: TODAY, raw, water, toLine: tl, m1, m2, by: this.user.id, at: nowStamp() };
+        this.setState(s2 => ({ mix: [...s2.mix.filter(m => m.date !== TODAY), rec], mixDraft: {}, mixErr: null, pending: s2.pending + add }));
+        this.say(`Mix tank saved · Mix #1 ${fx(p1)}%`);
+      }
+    };
+  }
+  vChecks() {
+    const st = this.state, kind = st.checkKind, data = st.checks[kind], days = monthDays();
+    let todayDone = 0;
+    const rows = CHK_LINES.map(l => {
+      const m = data[l] || {}; let xs = 0, miss = 0;
+      const cells = days.map(d => {
+        const c = m[d], fut = d > TODAY, isT = d === TODAY;
+        if (c && c.v === 'X') xs++; if (!c && !fut && !isT) miss++; if (c && isT) todayDone++;
+        let bg = 'transparent', fg = 'var(--color-neutral-600)', v = '', by = '';
+        if (c) { const t = c.v === 'O' ? ST.ok : ST.bad; bg = t.bg; fg = t.fg; v = c.v; by = c.by; }
+        else if (isT) { bg = 'var(--color-accent-100)'; fg = 'var(--color-accent-800)'; v = '+'; }
+        else if (!fut) { bg = ST.warn.bg; fg = ST.warn.fg; v = '–'; }
+        return { v, by, bg, fg, disabled: fut, title: `${l} · ${DAYN[dow(d)]} ${md(d)}${c ? ` · ${c.v === 'O' ? 'OK' : 'Problem'} · ${c.by}` : ''}`, onClick: () => this.cycleCheck(kind, l, d) };
+      });
+      return { line: l, cells, xs: String(xs), miss: String(miss), xsFg: xs ? ST.bad.fg : 'var(--color-neutral-700)', missFg: miss ? ST.warn.fg : 'var(--color-neutral-700)' };
+    });
+    return {
+      month: `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`, cols: `96px repeat(${days.length}, 46px) 52px 60px`,
+      hdrs: days.map(d => ({ n: +d.slice(8), w: DAYN[dow(d)].slice(0, 2), bg: d === TODAY ? 'var(--color-accent-100)' : 'transparent', fg: d === TODAY ? 'var(--color-accent-800)' : 'var(--color-neutral-700)' })),
+      rows, isDust: kind === 'dust', isSkim: kind === 'skim', title: kind === 'dust' ? 'Dust/Mist collectors' : 'Skimmers',
+      onDust: () => this.setState({ checkKind: 'dust' }), onSkim: () => this.setState({ checkKind: 'skim' }),
+      summary: `today ${todayDone} of ${CHK_LINES.length} lines checked`
+    };
+  }
+  cycleCheck(kind, l, d) {
+    if (d > TODAY) return;
+    const add = this.touch(`c${kind}${l}${d}`), u = this.user.id;
+    this.setState(st => { const line = { ...(st.checks[kind][l] || {}) }, cur = line[d]; const nx = !cur ? { v: 'O', by: u } : cur.v === 'O' ? { v: 'X', by: u } : null; if (nx) line[d] = nx; else delete line[d]; return { checks: { ...st.checks, [kind]: { ...st.checks[kind], [l]: line } }, pending: st.pending + add }; });
+  }
+  vLeadec() {
+    const st = this.state, can = this.user.role !== 'internal';
+    let done = 0;
+    const rows = LSCOPE.map(s => {
+      const L = st.leadec[s.id] || {}; if (Object.keys(L).length) done++;
+      const cells = LWEEKS.map((w, i) => { const c = L[i], fut = i > CUR_LW; return { on: !!c, by: c ? c.by : (fut ? '' : '—'), d: c ? md(c.d) : '', disabled: fut || !can, bg: c ? ST.ok.bg : i === CUR_LW ? 'var(--color-accent-100)' : 'transparent', cursor: fut || !can ? 'default' : 'pointer', toggle: () => this.toggleLeadec(s.id, i) }; });
+      return { name: `${s.line} ${s.op}`, mach: s.mach, product: s.product, type: s.type, cells };
+    });
+    return {
+      month: `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`, rows, done, total: LSCOPE.length,
+      weeks: LWEEKS.map((w, i) => ({ label: `Week ${i + 1}`, sub: `${md(w)}–${md(addD(w, 4))}`, fg: i === CUR_LW ? 'var(--color-accent-800)' : 'var(--color-neutral-700)' })),
+      hasLock: !can, lockNote: 'Leadec techs and managers record cleanings. Internal techs see the log read only.'
+    };
+  }
+  toggleLeadec(id, i) {
+    if (i > CUR_LW || this.user.role === 'internal') return;
+    const add = this.touch(`l${id}${i}`), u = this.user.id;
+    this.setState(st => { const L = { ...(st.leadec[id] || {}) }; if (L[i]) delete L[i]; else L[i] = { by: u, d: i === CUR_LW ? TODAY : addD(LWEEKS[i], 2) }; return { leadec: { ...st.leadec, [id]: L }, pending: st.pending + add }; });
+  }
+  vMaster() {
+    const st = this.state, tab = st.mdTab;
+    const TABS = [['sys', 'Systems'], ['prod', 'Products'], ['pick', 'Pick Lists'], ['dist', 'Distribution List'], ['hol', 'Holiday Calendar'], ['users', 'Users']];
+    const mach = SYS.filter(s => s.type === 'Machining');
+    const cnt = (g, sh) => mach.filter(s => s.group === g && (!sh || s.shift === sh)).length;
+    return {
+      tabs: TABS.map(([k, l]) => { const a = k === tab; return { label: l, bg: a ? 'var(--color-accent)' : 'transparent', fg: a ? 'var(--color-bg)' : 'var(--color-text)', border: a ? 'var(--color-accent)' : 'var(--color-divider)', onClick: () => this.setState({ mdTab: k }) }; }),
+      isSys: tab === 'sys', isProd: tab === 'prod', isPick: tab === 'pick', isDist: tab === 'dist', isHol: tab === 'hol', isUsers: tab === 'users',
+      load: [
+        { value: cnt('MWTH'), label: 'MWTH systems', sub: `Mon, Wed, Thu · S1 ${cnt('MWTH', 1)} · S2 ${cnt('MWTH', 2)}` },
+        { value: cnt('TF'), label: 'TF systems', sub: `Tue, Fri · S1 ${cnt('TF', 1)} · S2 ${cnt('TF', 2)}` },
+        { value: SYS.filter(s => s.type === 'Pit').length, label: 'Pits', sub: 'Every workday' },
+        { value: WASH.length, label: 'Washers', sub: 'Titrated weekly' }
+      ],
+      systems: SYS.map(s => ({
+        line: s.line, op: s.op, mach: s.mach, type: s.type, product: s.product, gal: fx(s.gal, 0), range: `${s.low}–${s.high}%`, target: `${s.target}%`,
+        group: s.group, canMove: s.type === 'Machining', fixed: s.type !== 'Machining', groupLabel: s.type === 'Pit' ? 'Daily' : 'Weekly', shift: 'S' + s.shift, bug: s.bug,
+        onGroup: ev => { const v = ev.target.value; s.group = v; this.setState({ ver: st.ver + 1 }); this.say(`${s.line} ${s.op} moved to ${v} — due ${v === 'MWTH' ? 'Mon, Wed, Thu' : 'Tue, Fri'} from now on`); }
+      })),
+      products: Object.entries(FACT).map(([p, f]) => { const us = SYS.filter(s => s.product === p); return { p, f: String(f), n: String(us.length), uses: [...new Set(us.map(s => s.type))].join(', ') || '—', ex: `4.0 Brix → ${fx(4 * f)}%` }; }),
+      pick: st.comStd.map((c, i) => ({ c, onRemove: () => this.setState(s2 => ({ comStd: s2.comStd.filter((_, j) => j !== i) })) })),
+      newCmt: st.newCmt, onNewCmt: ev => this.setState({ newCmt: ev.target.value }),
+      addCmt: () => { const v = st.newCmt.trim().toUpperCase(); if (!v || st.comStd.includes(v)) return; this.setState({ comStd: [...st.comStd, v], newCmt: '' }); this.say(`Added “${v}” to standard comments`); },
+      pit: PIT_WATER, pitNote: `Pit rows only. The date is added when picked, e.g. “+3,000 L WATER (${md(TODAY)})”.`,
+      dist: DIST.map(d => ({ name: d.name, count: String(d.count), ex: d.ex })),
+      hol: [...HOL].sort().map(d => ({ label: longDate(d), note: d === MON && this.props.holidayMonday ? 'Set by the Monday-is-holiday rule' : d <= TODAY ? 'Past' : 'Upcoming', canRemove: d > TODAY, onRemove: () => { HOL.delete(d); this.setState({ ver: st.ver + 1 }); this.say(`Removed ${longDate(d)}`); } })),
+      newHol: st.newHol, onNewHol: ev => this.setState({ newHol: ev.target.value, holErr: null }),
+      addHol: () => {
+        const d = st.newHol;
+        if (!d) return this.setState({ holErr: 'Pick a date first.' });
+        if (d <= TODAY) return this.setState({ holErr: 'Pick a date after today — past rounds are already recorded.' });
+        if (dow(d) === 0 || dow(d) === 6) return this.setState({ holErr: 'That’s a weekend — no rounds are due anyway.' });
+        if (HOL.has(d)) return this.setState({ holErr: 'Already in the calendar.' });
+        HOL.add(d); this.setState({ newHol: '', holErr: null, ver: st.ver + 1 }); this.say(`Added ${longDate(d)} as a holiday`);
+      },
+      hasHolErr: !!st.holErr, holErr: st.holErr || '',
+      users: Object.values(USERS).map(x => ({ name: x.name, id: x.id, role: x.roleLabel, shift: `Shift ${x.shift}`, perm: PERM[x.role] }))
+    };
+  }
+  renderVals() {
+    const st = this.state, u = this.user, mgr = u.role === 'manager';
+    const NAV = [['dash', 'Dashboard', 'ph-gauge'], ['round', 'Daily Round', 'ph-clipboard-text'], ['bug', 'Bug & pH', 'ph-flask'], ['washer', 'Washers', 'ph-drop'], ['mix', 'Mix Tank', 'ph-cylinder'], ['dust', 'Dust/Mist & Skimmer', 'ph-wind'], ['leadec', 'Leadec Log', 'ph-broom'], ['reports', 'Reports', 'ph-file-text', 1], ['master', 'Master Data', 'ph-database', 1]];
+    const screen = !mgr && (st.screen === 'reports' || st.screen === 'master') ? 'round' : st.screen;
+    const navItems = NAV.filter(n => mgr || !n[3]).map(([key, label, icon]) => {
+      const a = key === screen;
+      return { label, icon, bg: a ? 'var(--color-accent-100)' : 'transparent', fg: a ? 'var(--color-accent-800)' : 'var(--color-text)', weight: a ? 600 : 400, bar: a ? 'inset 0 -3px 0 var(--color-accent)' : 'none', onClick: () => this.setState({ screen: key }) };
+    });
+    const net = !st.online
+      ? { bg: ST.warn.bg, fg: ST.warn.fg, icon: 'ph-wifi-slash', label: 'Offline', showBadge: st.pending > 0, badge: `${st.pending} ${st.pending === 1 ? 'entry' : 'entries'} waiting to sync`, hint: 'Tap to reconnect' }
+      : st.syncing ? { bg: 'var(--color-accent-100)', fg: 'var(--color-accent-800)', icon: 'ph-arrows-clockwise', label: `Syncing ${st.pending}…`, showBadge: false, badge: '', hint: '' }
+      : { bg: 'transparent', fg: ST.ok.fg, icon: 'ph-wifi-high', label: 'Online', showBadge: false, badge: '', hint: 'All synced' };
+    const rep = {
+      list: REPORTS.map(([key, label]) => { const a = key === st.report; return { label, bg: a ? 'var(--color-accent)' : 'transparent', fg: a ? 'var(--color-bg)' : 'var(--color-text)', border: a ? 'var(--color-accent)' : 'var(--color-divider)', onClick: () => this.setState({ report: key }) }; }),
+      isWeekly: st.report === 'weekly', isTrend: st.report === 'trend', isGen: st.report !== 'weekly' && st.report !== 'trend',
+      otherTitle: (REPORTS.find(r => r[0] === st.report) || [, ''])[1]
+    };
+    const wk = screen === 'reports' && rep.isWeekly ? this.vWeekly() : {};
+    if (screen !== 'reports' || !rep.isWeekly) this.vWeekly();
+    let tr = {};
+    if (screen === 'reports' && rep.isTrend) {
+      const s = SYSM[st.trendSys], e = React.createElement;
+      tr = {
+        sub: `${s.line} ${s.op} · ${s.mach} · ${s.product} · concentration over the last 11 weeks`, range: `${s.low}–${s.high}%`,
+        select: e('select', { className: 'input', value: s.id, onChange: ev => this.setState({ trendSys: ev.target.value }), style: { width: 'auto', minHeight: 44, fontSize: 15 } }, ROUND.map(x => e('option', { key: x.id, value: x.id }, `${x.line} ${x.op} · ${x.mach}`))),
+        chart: this.buildChart(s)
+      };
+    }
+    return {
+      todayShort: `${DAYN[dow(TODAY)]} ${+TODAY.slice(8)} ${MONTHS[+TODAY.slice(5, 7) - 1].slice(0, 3)} ${TODAY.slice(0, 4)}`, weekNo: WEEKNO,
+      role: st.role, onRole: ev => this.setState({ role: ev.target.value, drafts: {}, errors: {}, auditId: null }),
+      userName: u.name, userId: u.id, userLine: `${u.name} (${u.id}) · ${u.roleLabel}`, userRole: u.roleLabel,
+      net, toggleOnline: this.toggleOnline, navItems,
+      commentsStd: st.comStd, commentsPit: [...PIT_WATER, ...st.comStd],
+      isBug: screen === 'bug', isWash: screen === 'washer', isMix: screen === 'mix', isDust: screen === 'dust', isLeadec: screen === 'leadec', isMaster: screen === 'master',
+      bug: this.vBug(), wash: this.vWash(), mix: this.vMix(), chk: this.vChecks(), ldc: this.vLeadec(), mst: mgr ? this.vMaster() : { tabs: [] },
+      isRound: screen === 'round', isDash: screen === 'dash', isReports: screen === 'reports',       round: this.vRound(), dash: screen === 'dash' ? this.vDash() : { tiles: [], latest: [], warnings: [] },
+      rep, wk, tr, gen: screen === 'reports' && rep.isGen ? this.vGen(st.report) : { figs: [], sections: [] }, drawer: this.vDrawer(), dlg: this.vDialog(),
+      hasToast: !!st.toast, toast: st.toast || '',
+      fb: this.vFb((NAV.find(n => n[0] === screen) || [, 'App'])[1]),
+      areas: AREAS.map(([k]) => ({ k, on: st.area === k, pick: () => this.setState({ area: k }) })),
+      notTNGA: st.area !== 'TNGA', areaName: (AREAS.find(a => a[0] === st.area) || AREAS[0])[1], areaNote: (AREAS.find(a => a[0] === st.area) || AREAS[0])[2]
+    };
+  }
+}
+</script>
+</body>
+</html>

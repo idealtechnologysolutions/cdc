@@ -27,7 +27,12 @@ button:disabled{cursor:default}
     <div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap">
       <div style="display:flex;align-items:baseline;gap:14px;margin-right:auto;flex-wrap:wrap">
         <span style="font-family:var(--font-heading);font-weight:600;font-size:23px;letter-spacing:-0.015em">Coolant Data Capture</span>
-        <span style="font-size:14px;color:var(--color-neutral-700)">TNGA area · {{ todayShort }} · Week {{ weekNo }}</span>
+        <span style="font-size:14px;color:var(--color-neutral-700)">CMIS · TMMAL · {{ todayShort }} · Week {{ weekNo }}</span>
+        <div class="seg" title="Plant area">
+          <sc-for list="{{ areas }}" as="ar" hint-placeholder-count="4">
+            <label class="seg-opt" style="min-height:36px;padding:0 12px;font-size:14px;white-space:nowrap"><input type="radio" name="area" checked="{{ ar.on }}" onChange="{{ ar.pick }}">{{ ar.k }}</label>
+          </sc-for>
+        </div>
       </div>
       <button onClick="{{ toggleOnline }}" title="Simulate going offline / back online" style="display:flex;align-items:center;gap:10px;min-height:44px;padding:0 14px;border:1px solid var(--color-divider);border-radius:var(--radius-md);background:{{ net.bg }};color:{{ net.fg }};font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;flex:none" style-hover="border-color:var(--color-neutral-600)">
         <i class="ph-duotone {{ net.icon }}" style="font-size:20px"></i>
@@ -35,6 +40,7 @@ button:disabled{cursor:default}
         <sc-if value="{{ net.showBadge }}" hint-placeholder-val="{{ false }}"><span style="background:var(--color-neutral-900);color:var(--color-bg);padding:2px 8px;border-radius:var(--radius-md);font-size:12px">{{ net.badge }}</span></sc-if>
         <span style="font-size:12px;color:var(--color-neutral-700)">{{ net.hint }}</span>
       </button>
+      <button class="btn btn-secondary" onClick="{{ fb.onOpen }}" style="min-height:44px;font-size:14px;white-space:nowrap;flex:none"><i class="ph-duotone ph-chat-centered-text" style="font-size:20px"></i>Feedback {{ fb.countLabel }}</button>
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-neutral-700)">
         <i class="ph-duotone ph-user-switch" style="font-size:20px"></i>Demo role
         <select class="input" value="{{ role }}" onChange="{{ onRole }}" style="width:auto;min-height:44px;font-size:14px;color:var(--color-text)">
@@ -54,6 +60,17 @@ button:disabled{cursor:default}
   </header>
 
   <main style="flex:1;padding:28px 24px 40px;display:flex;flex-direction:column;gap:24px;min-width:0">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--color-neutral-800)">
+      <span class="tag tag-accent-2">Prototype</span>
+      <span style="text-wrap:pretty">Sprint/TRUQ2 pilot, built from the SPRINT Master Template (OP Info). Exports, emails and texts are simulated. Production adds Power BI reporting and the other three areas under CMIS.</span>
+      <button class="btn btn-ghost" onClick="{{ fb.onOpen }}" style="min-height:40px;font-size:14px;white-space:nowrap;flex:none"><i class="ph-duotone ph-chat-centered-text" style="font-size:18px"></i>Tell us what to change</button>
+    </div>
+    <sc-if value="{{ notPilot }}" hint-placeholder-val="{{ false }}">
+      <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--color-accent-100);color:var(--color-accent-900);border-radius:var(--radius-md);font-size:15px">
+        <i class="ph-duotone ph-factory" style="font-size:24px;flex:none"></i>
+        <span style="text-wrap:pretty"><strong>{{ areaName }} comes after the pilot.</strong> {{ areaNote }} The screens below show Sprint/TRUQ2.</span>
+      </div>
+    </sc-if>
 
     <sc-if value="{{ isRound }}" hint-placeholder-val="{{ true }}">
       <section data-screen-label="Daily Round" style="display:flex;flex-direction:column;gap:22px">
@@ -67,6 +84,8 @@ button:disabled{cursor:default}
                 <label class="seg-opt" style="min-height:42px;padding:0 16px;font-size:14px;white-space:nowrap"><input type="radio" name="shift" checked="{{ round.s2 }}" onChange="{{ round.onS2 }}">Shift 2</label>
               </div>
               <span style="display:flex;align-items:center;gap:6px"><i class="ph-duotone ph-user" style="font-size:20px"></i>{{ userLine }}</span>
+              <label style="display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer"><input type="checkbox" checked="{{ round.showAlt }}" onChange="{{ round.onAlt }}" style="width:20px;height:20px;accent-color:var(--color-accent)"><span>Show {{ round.altLabel }} systems ({{ round.altCount }})</span></label>
+              <sc-if value="{{ round.showMy }}" hint-placeholder-val="{{ false }}"><label style="display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer"><input type="checkbox" checked="{{ round.myOnly }}" onChange="{{ round.onMy }}" style="width:20px;height:20px;accent-color:var(--color-accent)"><span>{{ round.myLabel }}</span></label></sc-if>
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;width:280px">
@@ -76,6 +95,11 @@ button:disabled{cursor:default}
           <button class="btn btn-primary" disabled="{{ round.noDirty }}" onClick="{{ round.saveAll }}" style="min-height:50px;font-size:16px;padding:0 22px;white-space:nowrap;flex:none"><i class="ph-duotone ph-floppy-disk" style="font-size:20px"></i>{{ round.saveLabel }}</button>
         </div>
 
+        <div style="display:flex;gap:22px;flex-wrap:wrap;align-items:center">
+          <sc-for list="{{ round.techs }}" as="t" hint-placeholder-count="2">
+            <span style="display:flex;align-items:center;gap:8px;font-size:14px"><span style="display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 6px;border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.fg }};font-weight:600;font-size:13px">{{ t.short }}</span><strong>{{ t.name }}</strong><span style="color:var(--color-neutral-700)">{{ t.n }}</span></span>
+          </sc-for>
+        </div>
         <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800)">
           <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-check-circle" style="font-size:18px;color:oklch(0.42 0.1 150)"></i>In range / corrected</span>
           <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-x-circle" style="font-size:18px;color:oklch(0.47 0.17 25)"></i>Out of range (red row)</span>
@@ -94,17 +118,19 @@ button:disabled{cursor:default}
               <div style="display:flex;flex-direction:column">
                 <div style="display:flex;align-items:baseline;gap:12px;margin-bottom:6px">
                   <h3 style="margin:0;font-size:25px">{{ g.line }}</h3>
+                  <sc-if value="{{ g.alt }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent-2">Alternate day · {{ g.altSched }}</span></sc-if>
                   <span style="font-size:14px;color:var(--color-neutral-700)">{{ g.done }} of {{ g.due }} recorded</span>
                 </div>
                 <div style="display:grid;grid-template-columns:minmax(96px,1.1fr) 70px 70px 62px 76px 62px 74px 84px 86px 82px 84px 70px minmax(140px,1.6fr) 72px 122px;gap:4px;align-items:end;padding:6px 8px;font-size:11px;line-height:1.25;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
                   <span>OP # / Machine</span><span>Product</span><span>Sump (L)</span><span>Range</span><span>Initial Refrac (Brix)</span><span>Initial RI %</span><span>Tank level</span><span>Skimmer</span><span>To add</span><span>Added (L)</span><span>Type V / R</span><span>Recycled (L)</span><span>Comment</span><span>Final RI %</span><span>Status</span>
                 </div>
                 <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
-                  <div style="background:{{ r.rowBg }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 9%, transparent)">
+                  <div style="background:{{ r.rowBg }};box-shadow:inset 4px 0 0 {{ r.techBar }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 9%, transparent)">
                     <div style="display:grid;grid-template-columns:minmax(96px,1.1fr) 70px 70px 62px 76px 62px 74px 84px 86px 82px 84px 70px minmax(140px,1.6fr) 72px 122px;gap:4px;align-items:center;padding:8px">
                       <div style="display:flex;flex-direction:column;line-height:1.2">
                         <span style="font-family:var(--font-heading);font-weight:600;font-size:18px;display:flex;align-items:center;gap:5px">{{ r.op }}<sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone ph-lock" title="{{ r.lockWhy }}" style="font-size:16px;color:var(--color-neutral-700)"></i></sc-if></span>
                         <span style="font-size:12px;color:var(--color-neutral-700)">{{ r.mach }}</span>
+                        <span title="Assigned to {{ r.techName }}" style="align-self:flex-start;margin-top:3px;padding:1px 6px;border-radius:var(--radius-md);background:{{ r.techBg }};color:{{ r.techFg }};font-size:12px;font-weight:600">{{ r.techShort }}</span>
                       </div>
                       <span style="font-size:13px">{{ r.product }}</span>
                       <div style="display:flex;flex-direction:column;line-height:1.2"><span style="font-size:14px">{{ r.sumpL }}</span><span style="font-size:11px;color:var(--color-neutral-700)">{{ r.gal }}</span></div>
@@ -178,7 +204,7 @@ button:disabled{cursor:default}
               <h2 style="margin:0 auto 0 0;font-size:26px;flex:1 1 100%">Latest reading per system</h2>
               <label class="field"><label>Line</label>
                 <select class="input" value="{{ dash.fLine }}" onChange="{{ dash.onLine }}" style="min-height:44px;width:auto">
-                  <option value="All">All lines</option><option value="Block">Block</option><option value="Head">Head</option><option value="Crank">Crank</option><option value="Cam">Cam</option><option value="Conrod">Conrod</option>
+                  <option value="All">All lines</option><sc-for list="{{ lineOpts }}" as="lo" hint-placeholder-count="0"><option value="{{ lo }}">{{ lo }}</option></sc-for>
                 </select>
               </label>
               <label class="field"><label>Shift</label>
@@ -233,6 +259,7 @@ button:disabled{cursor:default}
 
     <sc-if value="{{ isReports }}" hint-placeholder-val="{{ false }}">
       <section data-screen-label="Reports" style="display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;align-items:center;gap:8px;font-size:14px;color:var(--color-neutral-800)"><i class="ph-duotone ph-chart-bar" style="font-size:20px;color:var(--color-accent-700)"></i><span style="text-wrap:pretty">These reports preview in the app. In production they also publish to Power BI.</span></div>
         <div style="display:flex;gap:4px;flex-wrap:wrap">
           <sc-for list="{{ rep.list }}" as="rp" hint-placeholder-count="9">
             <button onClick="{{ rp.onClick }}" style="display:flex;align-items:center;gap:6px;min-height:44px;padding:0 14px;border:1px solid {{ rp.border }};border-radius:var(--radius-md);background:{{ rp.bg }};color:{{ rp.fg }};font:inherit;font-size:14px;cursor:pointer;white-space:nowrap;flex:none" style-hover="border-color:var(--color-accent)">{{ rp.label }}</button>
@@ -277,7 +304,7 @@ button:disabled{cursor:default}
               <article data-screen-label="Weekly Status page" style="display:flex;flex-direction:column;gap:16px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);padding:30px 34px 22px;overflow-x:auto">
                 <div style="display:flex;align-items:flex-end;gap:20px">
                   <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
-                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">TNGA · Weekly coolant status · Week {{ weekNo }}</span>
+                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Sprint/TRUQ2 · Weekly coolant status · Week {{ weekNo }}</span>
                     <h2 style="margin:0;font-size:30px">{{ p.line }}</h2>
                   </div>
                   <span style="font-size:13px;color:var(--color-neutral-700);text-align:right">{{ wk.range }}<br>{{ p.pageLabel }}</span>
@@ -339,6 +366,7 @@ button:disabled{cursor:default}
               </div>
               <button class="btn btn-secondary" onClick="{{ gen.onPdf }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-pdf" style="font-size:20px"></i>Export PDF</button>
               <button class="btn btn-secondary" onClick="{{ gen.onXls }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Export Excel</button>
+              <button class="btn btn-primary" onClick="{{ gen.onSend }}" style="min-height:48px;font-size:15px;white-space:nowrap;flex:none"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:20px"></i>Send to managers</button>
             </div>
             <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:28px">
               <sc-for list="{{ gen.figs }}" as="f" hint-placeholder-count="3">
@@ -353,7 +381,7 @@ button:disabled{cursor:default}
               <article data-screen-label="Report page" style="display:flex;flex-direction:column;gap:14px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);padding:28px 32px 20px;overflow-x:auto">
                 <div style="display:flex;align-items:flex-end;gap:20px">
                   <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
-                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">TNGA · {{ gen.title }} · Week {{ weekNo }}</span>
+                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Sprint/TRUQ2 · {{ gen.title }} · Week {{ weekNo }}</span>
                     <h2 style="margin:0;font-size:28px">{{ sec.title }}</h2>
                   </div>
                   <span style="font-size:13px;color:var(--color-neutral-700);text-align:right">{{ sec.sub }}</span>
@@ -456,7 +484,7 @@ button:disabled{cursor:default}
           </div>
         </div>
         <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px">
-          <h2 style="margin:0;font-size:26px">Chemical use this week · TNGA area</h2>
+          <h2 style="margin:0;font-size:26px">Chemical use this week · Sprint/TRUQ2</h2>
           <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:28px">
             <sc-for list="{{ bug.chem }}" as="c" hint-placeholder-count="3">
               <div style="display:flex;flex-direction:column;gap:6px">
@@ -602,16 +630,18 @@ button:disabled{cursor:default}
       <section data-screen-label="Dust/Mist and Skimmer" style="display:flex;flex-direction:column;gap:22px">
         <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:6px;margin-right:auto">
-            <h1 style="margin:0;font-size:38px">Dust/Mist &amp; Skimmer Checks</h1>
+            <h1 style="margin:0;font-size:38px">Dust, Mist &amp; Skimmer Checks</h1>
             <span style="font-size:15px;color:var(--color-neutral-700)">{{ chk.month }} · workdays · {{ chk.summary }}</span>
           </div>
           <div class="seg">
-            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isDust }}" onChange="{{ chk.onDust }}">Dust/Mist</label>
+            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isDust }}" onChange="{{ chk.onDust }}">Dust</label>
+            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isMist }}" onChange="{{ chk.onMist }}">Mist</label>
             <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isSkim }}" onChange="{{ chk.onSkim }}">Skimmer</label>
           </div>
         </div>
         <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800);align-items:center">
           <span>Tap a cell: blank → O → X → blank. Your initials are added.</span>
+          <sc-if value="{{ chk.hasAlertNote }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;gap:6px;color:var(--color-accent-2-800)"><i class="ph-duotone ph-device-mobile" style="font-size:18px"></i>{{ chk.alertNote }}</span></sc-if>
           <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.05 150);color:oklch(0.38 0.1 150);border-radius:var(--radius-sm)">O</strong>OK</span>
           <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.92 0.045 25);color:oklch(0.44 0.17 25);border-radius:var(--radius-sm)">X</strong>Problem</span>
           <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.08 85);color:oklch(0.38 0.08 65);border-radius:var(--radius-sm)">–</strong>Missed</span>
@@ -629,7 +659,7 @@ button:disabled{cursor:default}
             </div>
             <sc-for list="{{ chk.rows }}" as="r" hint-placeholder-count="6">
               <div style="display:grid;grid-template-columns:{{ chk.cols }};gap:4px;align-items:center">
-                <strong style="font-family:var(--font-heading);font-size:18px">{{ r.line }}</strong>
+                <span style="display:flex;align-items:center;gap:8px"><strong style="font-family:var(--font-heading);font-size:18px">{{ r.line }}</strong><span style="padding:1px 6px;border-radius:var(--radius-md);background:{{ r.techBg }};color:{{ r.techFg }};font-size:12px;font-weight:600">{{ r.techShort }}</span></span>
                 <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="20">
                   <button onClick="{{ c.onClick }}" disabled="{{ c.disabled }}" title="{{ c.title }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:50px;padding:0;border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent);border-radius:var(--radius-sm);background:{{ c.bg }};color:{{ c.fg }};font:inherit;cursor:pointer" style-hover="border-color:var(--color-accent)"><strong style="font-size:17px;line-height:1">{{ c.v }}</strong><span style="font-size:10px;line-height:1.3">{{ c.by }}</span></button>
                 </sc-for>
@@ -639,6 +669,14 @@ button:disabled{cursor:default}
             </sc-for>
           </div>
         </div>
+        <sc-if value="{{ chk.hasLog }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <h3 style="margin:0;font-size:22px">Texts sent this month</h3>
+            <sc-for list="{{ chk.log }}" as="lg" hint-placeholder-count="0">
+              <div style="display:flex;gap:14px;flex-wrap:wrap;font-size:14px"><strong>{{ lg.text }}</strong><span style="color:var(--color-neutral-700)">{{ lg.to }}</span></div>
+            </sc-for>
+          </div>
+        </sc-if>
       </section>
     </sc-if>
 
@@ -679,6 +717,138 @@ button:disabled{cursor:default}
               </div>
             </sc-for>
           </div>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isAssign }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Assignments" style="display:flex;flex-direction:column;gap:24px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:38px">Assignments</h1>
+          <span style="font-size:15px;color:var(--color-neutral-700);text-wrap:pretty">Who covers what in Sprint/TRUQ2, by shift. Each tech’s color carries through to the Daily Round and the check sheets.</span>
+        </div>
+        <div class="seg" style="flex-wrap:wrap;width:fit-content">
+          <sc-for list="{{ asg.cats }}" as="c" hint-placeholder-count="4">
+            <label class="seg-opt" style="min-height:46px;padding:0 16px;font-size:15px;white-space:nowrap"><input type="radio" name="asgcat" checked="{{ c.on }}" onChange="{{ c.pick }}">{{ c.label }}</label>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:28px;flex-wrap:wrap">
+          <sc-for list="{{ asg.techs }}" as="t" hint-placeholder-count="5">
+            <div style="display:flex;align-items:center;gap:10px">
+              <span style="display:inline-flex;align-items:center;justify-content:center;min-width:38px;height:30px;padding:0 6px;border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.fg }};font-weight:600;font-size:14px">{{ t.short }}</span>
+              <span style="display:flex;flex-direction:column;line-height:1.25"><strong style="font-size:15px">{{ t.name }}</strong><span style="font-size:13px;color:var(--color-neutral-700)">{{ t.meta }}</span></span>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ asg.ro }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>Read only. A manager defines and changes assignments.</div>
+        </sc-if>
+        <sc-if value="{{ asg.showCopy }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-secondary" onClick="{{ asg.onCopy }}" style="min-height:46px;width:fit-content"><i class="ph-duotone ph-copy" style="font-size:18px"></i>Copy from concentration rounds</button>
+        </sc-if>
+        <sc-for list="{{ asg.groups }}" as="g" hint-placeholder-count="3">
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+              <h3 style="margin:0;font-size:25px">{{ g.title }}</h3>
+              <span style="font-size:14px;color:var(--color-neutral-700);margin-right:auto">{{ g.sub }}</span>
+              <sc-if value="{{ g.canBulk }}" hint-placeholder-val="{{ false }}">
+                <div style="display:flex;gap:8px;flex-wrap:wrap">
+                  <sc-for list="{{ g.bulk }}" as="b" hint-placeholder-count="2">
+                    <select class="input" value="" onChange="{{ b.onPick }}" style="width:auto;min-height:44px;font-size:14px"><option value="">{{ b.label }}</option><sc-for list="{{ b.opts }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
+                  </sc-for>
+                </div>
+              </sc-if>
+            </div>
+            <div style="overflow-x:auto">
+              <div style="min-width:680px;max-width:1100px;display:flex;flex-direction:column">
+                <div style="display:grid;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);grid-template-columns:minmax(170px,1.4fr) 110px 110px minmax(240px,1.3fr)"><span>OP # / Machine</span><span>Schedule</span><span>Shift</span><span>Assigned to</span></div>
+                <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4">
+                  <div style="display:grid;grid-template-columns:minmax(170px,1.4fr) 110px 110px minmax(240px,1.3fr);gap:10px;align-items:center;padding:6px 8px 6px 12px;min-height:56px;box-shadow:inset 4px 0 0 {{ r.bar }};border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <div style="display:flex;flex-direction:column;line-height:1.2"><strong style="font-family:var(--font-heading);font-size:17px">{{ r.op }}</strong><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.sub }}</span></div>
+                    <span style="font-size:14px">{{ r.sched }}</span>
+                    <span style="font-size:14px">{{ r.shift }}</span>
+                    <div style="display:flex;align-items:center;gap:10px">
+                      <span style="display:inline-flex;align-items:center;justify-content:center;min-width:34px;height:28px;padding:0 6px;border-radius:var(--radius-md);background:{{ r.bg }};color:{{ r.fg }};font-weight:600;font-size:13px;flex:none">{{ r.chip }}</span>
+                      <select class="input" value="{{ r.tech }}" onChange="{{ r.onPick }}" disabled="{{ asg.ro }}" style="min-height:44px;font-size:14px;flex:1"><sc-for list="{{ r.opts }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
+                    </div>
+                  </div>
+                </sc-for>
+              </div>
+            </div>
+          </div>
+        </sc-for>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isImports }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Imports" style="display:flex;flex-direction:column;gap:36px">
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:38px">Imports</h1>
+          <span style="font-size:15px;color:var(--color-neutral-700);max-width:760px;text-wrap:pretty">Bring in data kept in other Excel files. Columns are matched by their header names, so files don’t have to follow one fixed layout. In the prototype the preview shows sample rows.</span>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">
+          <h2 style="margin:0;font-size:28px">General Stores fluid orders</h2>
+          <p style="margin:0;font-size:15px;text-wrap:pretty">Orders placed with General Stores, compared with the fluid techs recorded as added in CDC this month.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline">Order date</span><span class="tag tag-outline">Order #</span><span class="tag tag-outline">Product</span><span class="tag tag-outline">Quantity</span><span class="tag tag-outline">Liters</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.stores.onFile }}" style="display:none"></label>
+            <button class="btn btn-ghost" onClick="{{ imp.stores.onSample }}" style="min-height:46px">Use sample file</button>
+          </div>
+          <sc-if value="{{ imp.stores.hasPreview }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:14px"><strong>{{ imp.stores.file }}</strong> · {{ imp.stores.count }} rows found</span>
+              <div style="overflow-x:auto"><div style="min-width:620px;display:flex;flex-direction:column">
+                <div style="display:grid;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);grid-template-columns:80px 110px 110px 110px 90px"><span>Date</span><span>Order #</span><span>Product</span><span>Quantity</span><span>Liters</span></div>
+                <sc-for list="{{ imp.stores.rows }}" as="r" hint-placeholder-count="0">
+                  <div style="display:grid;gap:10px;padding:8px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);grid-template-columns:80px 110px 110px 110px 90px"><sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="0"><span>{{ c }}</span></sc-for></div>
+                </sc-for>
+              </div></div>
+              <div style="display:flex;gap:10px"><button class="btn btn-primary" onClick="{{ imp.stores.onImport }}" style="min-height:46px">{{ imp.stores.importLabel }}</button><button class="btn btn-secondary" onClick="{{ imp.stores.onCancel }}" style="min-height:46px">Cancel</button></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ imp.stores.isDone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.1 150)"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>Imported {{ imp.stores.count }} orders from {{ imp.stores.file }}</span>
+              <div style="overflow-x:auto"><div style="min-width:560px;display:flex;flex-direction:column">
+                <div style="display:grid;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);grid-template-columns:120px repeat(3, minmax(120px,1fr))"><span>Product</span><span>Ordered (L)</span><span>Used in CDC (L)</span><span>Ordered − used (L)</span></div>
+                <sc-for list="{{ imp.stores.summary }}" as="r" hint-placeholder-count="0">
+                  <div style="display:grid;gap:10px;padding:8px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);grid-template-columns:120px repeat(3, minmax(120px,1fr))"><strong>{{ r.p }}</strong><span>{{ r.ord }}</span><span>{{ r.used }}</span><span>{{ r.left }}</span></div>
+                </sc-for>
+              </div></div>
+              <button class="btn btn-ghost" onClick="{{ imp.stores.onCancel }}" style="min-height:44px;width:fit-content">Import another file</button>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">
+          <h2 style="margin:0;font-size:28px">Leadec schedule and completions</h2>
+          <p style="margin:0;font-size:15px;text-wrap:pretty">Leadec’s cleaning schedule, with completion dates and fluid charged. Completed cleanings are ticked in the Leadec Log for this week.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline">Machine #</span><span class="tag tag-outline">Scheduled</span><span class="tag tag-outline">Completed</span><span class="tag tag-outline">Product</span><span class="tag tag-outline">Liters charged</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.leadec.onFile }}" style="display:none"></label>
+            <button class="btn btn-ghost" onClick="{{ imp.leadec.onSample }}" style="min-height:46px">Use sample file</button>
+          </div>
+          <sc-if value="{{ imp.leadec.hasPreview }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="font-size:14px"><strong>{{ imp.leadec.file }}</strong> · {{ imp.leadec.count }} rows found</span>
+              <div style="overflow-x:auto"><div style="min-width:720px;display:flex;flex-direction:column">
+                <div style="display:grid;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);grid-template-columns:150px 120px 90px 90px 100px 100px"><span>Line · OP #</span><span>Machine #</span><span>Scheduled</span><span>Completed</span><span>Product</span><span>Liters</span></div>
+                <sc-for list="{{ imp.leadec.rows }}" as="r" hint-placeholder-count="0">
+                  <div style="display:grid;gap:10px;padding:8px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent);grid-template-columns:150px 120px 90px 90px 100px 100px"><sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="0"><span>{{ c }}</span></sc-for></div>
+                </sc-for>
+              </div></div>
+              <div style="display:flex;gap:10px"><button class="btn btn-primary" onClick="{{ imp.leadec.onImport }}" style="min-height:46px">{{ imp.leadec.importLabel }}</button><button class="btn btn-secondary" onClick="{{ imp.leadec.onCancel }}" style="min-height:46px">Cancel</button></div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ imp.leadec.isDone }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.1 150)"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>{{ imp.leadec.result }}</span>
+              <button class="btn btn-ghost" onClick="{{ imp.leadec.onCancel }}" style="min-height:44px;width:fit-content">Import another file</button>
+            </div>
+          </sc-if>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;max-width:760px">
+          <div style="display:flex;align-items:center;gap:10px"><h2 style="margin:0;font-size:28px">In-line data capture</h2><span class="tag tag-accent">Future</span></div>
+          <p style="margin:0;font-size:15px;text-wrap:pretty">In-line concentration and pH sensors on the sumps could send readings straight into CDC. Techs would confirm or correct each value instead of typing it, and the same rules for adding product, comments and reports would apply. Which sensors and data feeds are available would be confirmed with the plant.</p>
         </div>
       </section>
     </sc-if>
@@ -809,6 +979,21 @@ button:disabled{cursor:default}
           </div>
         </sc-if>
 
+        <sc-if value="{{ mst.isAlerts }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
+            <p style="margin:0;font-size:15px;text-wrap:pretty">Group Leads who get a text message when a dust or mist collector is marked Not Good (X). Names and numbers are samples.</p>
+            <div style="overflow-x:auto"><div style="min-width:640px;display:flex;flex-direction:column">
+              <div style="display:grid;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider);grid-template-columns:110px 80px minmax(160px,1fr) 150px 120px"><span>Area</span><span>Shift</span><span>Group Lead</span><span>Cell phone</span><span>Text alerts</span></div>
+              <sc-for list="{{ mst.gl }}" as="g" hint-placeholder-count="6">
+                <div style="display:grid;grid-template-columns:110px 80px minmax(160px,1fr) 150px 120px;gap:10px;align-items:center;padding:4px 8px;min-height:52px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                  <strong>{{ g.line }}</strong><span>{{ g.shift }}</span><span>{{ g.name }}</span><span>{{ g.phone }}</span>
+                  <label style="display:flex;align-items:center;gap:8px;min-height:44px;cursor:pointer"><input type="checkbox" checked="{{ g.on }}" onChange="{{ g.toggle }}" style="width:20px;height:20px;accent-color:var(--color-accent)"><span>On</span></label>
+                </div>
+              </sc-for>
+            </div></div>
+          </div>
+        </sc-if>
+
         <sc-if value="{{ mst.isUsers }}" hint-placeholder-val="{{ false }}">
           <div style="overflow-x:auto">
             <div style="min-width:760px;max-width:1100px;display:flex;flex-direction:column">
@@ -898,7 +1083,7 @@ button:disabled{cursor:default}
   <sc-if value="{{ dlg.open }}" hint-placeholder-val="{{ false }}">
     <div class="dialog-backdrop" onClick="{{ dlg.onClose }}" style="z-index:50">
       <div class="dialog" onClick="{{ dlg.stop }}" style="width:min(540px,100%)">
-        <div class="dialog-title">Send Weekly Status · Week {{ weekNo }}</div>
+        <div class="dialog-title">Send {{ dlg.what }} · Week {{ weekNo }}</div>
         <div class="dialog-body" style="display:flex;flex-direction:column;gap:6px;opacity:1">
           <p style="margin:0 0 6px">Nothing is sent until you confirm. The PDF goes to the lists you tick:</p>
           <sc-for list="{{ dlg.recips }}" as="rc" hint-placeholder-count="5">
@@ -919,38 +1104,217 @@ button:disabled{cursor:default}
     </div>
   </sc-if>
 
+  <sc-if value="{{ sms.open }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" onClick="{{ sms.onClose }}" style="z-index:50">
+      <div class="dialog" onClick="{{ sms.stop }}" style="width:min(560px,100%);max-height:88vh;overflow:auto">
+        <div class="dialog-title" style="display:flex;align-items:center;gap:10px"><i class="ph-duotone ph-device-mobile" style="font-size:26px;color:var(--color-accent-2)"></i>{{ sms.title }}</div>
+        <div class="dialog-body" style="display:flex;flex-direction:column;gap:12px;opacity:1">
+          <p style="margin:0">This goes to the Group Leads for the area as a text message.</p>
+          <div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">Message preview</div>
+          <div style="align-self:flex-start;max-width:340px;padding:12px 14px;background:var(--color-neutral-200);border-radius:var(--radius-lg) var(--radius-lg) var(--radius-lg) var(--radius-sm);font-size:15px;line-height:1.45;white-space:pre-line">{{ sms.text }}</div>
+          <div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);margin-top:6px">Send to</div>
+          <sc-for list="{{ sms.recips }}" as="rc" hint-placeholder-count="2">
+            <label style="display:flex;align-items:center;gap:12px;min-height:48px;cursor:pointer">
+              <input type="checkbox" checked="{{ rc.on }}" onChange="{{ rc.toggle }}" style="width:22px;height:22px;accent-color:var(--color-accent)">
+              <span style="display:flex;flex-direction:column;line-height:1.3"><strong>{{ rc.name }}</strong><span style="font-size:13px;color:var(--color-neutral-700)">{{ rc.detail }}</span></span>
+            </label>
+          </sc-for>
+        </div>
+        <div class="dialog-actions">
+          <button class="btn btn-secondary" onClick="{{ sms.onClose }}" style="min-height:46px">Not now</button>
+          <button class="btn btn-primary" onClick="{{ sms.onSend }}" disabled="{{ sms.none }}" style="min-height:46px"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:18px"></i>{{ sms.sendLabel }}</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
+  <sc-if value="{{ fb.open }}" hint-placeholder-val="{{ false }}">
+    <div class="dialog-backdrop" onClick="{{ fb.onClose }}" style="z-index:50">
+      <div class="dialog" onClick="{{ fb.stop }}" style="width:min(600px,100%);max-height:88vh;overflow:auto">
+        <div class="dialog-title">Feedback · {{ fb.screen }}</div>
+        <div class="dialog-body" style="display:flex;flex-direction:column;gap:14px;opacity:1">
+          <p style="margin:0">Tell us what works and what doesn’t on this screen. Your role and the screen name are saved with it.</p>
+          <div class="seg" style="flex-wrap:wrap">
+            <sc-for list="{{ fb.types }}" as="ft" hint-placeholder-count="4">
+              <label class="seg-opt" style="min-height:42px;padding:0 14px;font-size:14px;white-space:nowrap"><input type="radio" name="fbtype" checked="{{ ft.on }}" onChange="{{ ft.pick }}">{{ ft.t }}</label>
+            </sc-for>
+          </div>
+          <div class="field">
+            <label>Details</label>
+            <textarea class="input" rows="4" value="{{ fb.text }}" onChange="{{ fb.onText }}" placeholder="e.g. Put pH before concentration, that’s the order we walk the line" style="min-height:110px;font-size:15px;resize:vertical"></textarea>
+          </div>
+          <sc-if value="{{ fb.hasItems }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:12px">
+              <div style="font-size:12px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)">{{ fb.listLabel }}</div>
+              <sc-for list="{{ fb.items }}" as="it" hint-placeholder-count="0">
+                <div style="display:flex;flex-direction:column;gap:2px;font-size:14px">
+                  <span><strong>{{ it.screen }}</strong> · {{ it.type }}</span>
+                  <span style="text-wrap:pretty">{{ it.text }}</span>
+                  <span style="font-size:12px;color:var(--color-neutral-700)">{{ it.by }} · {{ it.at }}</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+        <div class="dialog-actions">
+          <sc-if value="{{ fb.hasItems }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-ghost" onClick="{{ fb.onDownload }}" style="min-height:46px;margin-right:auto"><i class="ph-duotone ph-download-simple" style="font-size:18px"></i>Download all</button>
+          </sc-if>
+          <button class="btn btn-secondary" onClick="{{ fb.onClose }}" style="min-height:46px">Close</button>
+          <button class="btn btn-primary" onClick="{{ fb.onSubmit }}" disabled="{{ fb.empty }}" style="min-height:46px">Add feedback</button>
+        </div>
+      </div>
+    </div>
+  </sc-if>
+
   <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
     <div style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:60;display:flex;align-items:center;gap:10px;padding:12px 20px;background:var(--color-neutral-900);color:var(--color-bg);border-radius:var(--radius-md);box-shadow:var(--shadow-lg);font-size:15px"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>{{ toast }}</div>
   </sc-if>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;internal&quot;,&quot;external&quot;,&quot;manager&quot;],&quot;default&quot;:&quot;internal&quot;,&quot;tsType&quot;:&quot;'internal'|'external'|'manager'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;round&quot;,&quot;dash&quot;,&quot;bug&quot;,&quot;washer&quot;,&quot;mix&quot;,&quot;dust&quot;,&quot;leadec&quot;,&quot;reports&quot;,&quot;master&quot;],&quot;default&quot;:&quot;round&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;holidayMonday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Schedule rules&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;internal&quot;,&quot;external&quot;,&quot;manager&quot;],&quot;default&quot;:&quot;internal&quot;,&quot;tsType&quot;:&quot;'internal'|'external'|'manager'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;round&quot;,&quot;dash&quot;,&quot;bug&quot;,&quot;washer&quot;,&quot;mix&quot;,&quot;dust&quot;,&quot;assign&quot;,&quot;imports&quot;,&quot;leadec&quot;,&quot;reports&quot;,&quot;master&quot;],&quot;default&quot;:&quot;round&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;holidayMonday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Schedule rules&quot;}}">
 const TODAY = '2026-10-15';
 const GAL = 0.264172, LPG = 3.785;
-const FACT = { 'GTS-120': 1.29, 'FGS-690': 1.384, 'AQ-YB': 2.0, 'PCW-553': 2.45, 'WSW-87': 3.7, 'G-2200TU': 1.89 };
-const LINES = ['Block', 'Head', 'Crank', 'Cam', 'Conrod', 'Assembly'];
+const FACT = { 'GTS-120': 1.29, 'MDS-570': 1.3, 'AQ-YB': 2.0, 'G-2200TU': 1.89, 'G-5300ME': 1.89 };
+const LINES = ['Shaft 1/2', 'Shaft 3/4', 'Shaft 5/6', 'Carrier', 'Cap', 'Case', 'Manual Case', 'Assembly'];
 const RAW = [
-  'Block|PIT|NDMZY-00002|32678|GTS-120|5|7|6|ALL|1|W|', 'Block|10-A|UAMSP-00012|210|GTS-120|5|7|6|MWTH|1|A|',
-  'Block|20-A|NDMSP-00133|210|GTS-120|5|7|6|MWTH|1|B|', 'Block|30-1A|NDMSP-00137|210|GTS-120|5|7|6|MWTH|2|A|',
-  'Block|30-3A|NDMSP-00130|210|GTS-120|5|7|6|TF|1|B|', 'Block|40-1A|UAMSP-00013|210|GTS-120|5|7|6|TF|2|A|',
-  'Block|50-1A|NDMSP-00139|210|GTS-120|5|7|6|TF|1|B|', 'Block|180|PDMBR-00004|435|GTS-120|5|7|6|MWTH|2|A|',
-  'Block|190|PDMGR-00002|335|GTS-120|5|7|6|MWTH|1|B|', 'Block|120|NAMWB-00016|1090|GTS-120|3|5|4|WASHER|1|W|9',
-  'Block|200|NDMWB-00021|955|PCW-553|2|4|3|WASHER|1|W|6',
-  'Head|PIT|NDMZY-00001|29984|GTS-120|5|7|6|ALL|1|W|', 'Head|1A|NDMSP-00223|150|GTS-120|5|7|6|MWTH|1|A|',
-  'Head|2A|NDMSP-00224|150|GTS-120|5|7|6|MWTH|2|B|', 'Head|70B|NDMSP-00164|290|GTS-120|5|7|6|TF|1|A|',
-  'Head|210A|NLMSP-00325|150|GTS-120|7|9|8|TF|1|B|', 'Head|3A|NDMWB-00030|500|G-2200TU|1|1.3|1.2|WASHER|2|W|',
-  'Crank|10|NDMTS-00040|150|GTS-120|5|7|6|TF|1|B|', 'Crank|170B|NDMLA-00008|98|GTS-120|3|5|4|MWTH|1|A|',
-  'Cam|30-A|NDMIH-00007|365|AQ-YB|9|11|10|MWTH|2|A|', 'Cam|50-A|NDMSP-00252|147|GTS-120|7|9|8|MWTH|1|B|',
-  'Cam|100-A|NDMGR-00037|174|GTS-120|3|5|4|TF|1|A|',
-  'Conrod|10A|NDMSP-00230|150|GTS-120|4|6|5|TF|1|B|', 'Conrod|60|CKMGR-00058|580|GTS-120|4|6|5|MWTH|1|A|',
-  'Conrod|100|AMWB-00042|130|PCW-553|2|4|3|WASHER|1|W|',
-  'Assembly|WB-35|NDMWB-00035|105|PCW-553|5|7|6|WASHER|2|W|', 'Assembly|WB-11|LAMWB-00011|500|PCW-553|2|4|3|WASHER|1|W|',
-  'Regrind|PW-1|RGMWB-00003|80|PCW-553|2|4|3|WASHER|1|W|5'
+  "Shaft 1/2|10-L1|TAMCE-00011|575|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Shaft 1/2|20-L1|TAMLA-00050|630|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Shaft 1/2|30-L1|TAMLA-00053|630|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Shaft 1/2|50 A/B-L1|TAMIH-00017 / TAMIH-00018|3300|AQ-YB|5|7|6|MWTH|2|B|TS",
+  "Shaft 1/2|70-L1|TAMLA-00051|630|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Shaft 1/2|80-L1|TAMLA-00052|630|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Shaft 1/2|90-L1|TAMGR-00113|690|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Shaft 1/2|100A-L1|NAMSP-00282|850|GTS-120|7|9|8|MWTH|2|B|MC",
+  "Shaft 1/2|100B-L1|NAMSP-00284|850|GTS-120|7|9|8|MWTH|2|A|TS",
+  "Shaft 1/2|10-L2|TAMCE-00010|575|GTS-120|5|7|6|TF|2|B|MC",
+  "Shaft 1/2|20-L2|TAMLA-00048|685|GTS-120|5|7|6|TF|2|A|TS",
+  "Shaft 1/2|30-L2|TAMLA-00046|685|GTS-120|5|7|6|TF|2|B|MC",
+  "Shaft 1/2|50 A/B-L2|TAMIH-00019 / TAMIH-00020|3300|AQ-YB|5|7|6|TF|2|A|TS",
+  "Shaft 1/2|70-L2|TAMLA-00047|630|GTS-120|5|7|6|TF|2|B|TS",
+  "Shaft 1/2|80-L2|TAMLA-00049|630|GTS-120|5|7|6|TF|2|A|MC",
+  "Shaft 1/2|90-L2|TAMGR-00112|690|GTS-120|5|7|6|TF|2|B|TS",
+  "Shaft 1/2|100A-L2|NAMSP-00287|850|GTS-120|7|9|8|TF|2|A|MC",
+  "Shaft 1/2|100B-L2|NAMSP-00292|850|GTS-120|7|9|8|TF|2|B|TS",
+  "Shaft 3/4|10-L3|TAMCE-00013|575|GTS-120|5|7|6|MWTH|2|A|MC",
+  "Shaft 3/4|20-L3|TAMLA-00064|630|GTS-120|5|7|6|MWTH|2|B|TS",
+  "Shaft 3/4|30-L3|TAMLA-00065|630|GTS-120|5|7|6|MWTH|2|A|MC",
+  "Shaft 3/4|50 A/B-L3|TAMIH-00021 / TMAIH-00022|3300|AQ-YB|5|7|6|MWTH|2|B|MC",
+  "Shaft 3/4|70-L3|TAMLA-00066|630|GTS-120|5|7|6|TF|2|A|MC",
+  "Shaft 3/4|80-L3|TAMLA-00067|630|GTS-120|5|7|6|TF|2|B|TS",
+  "Shaft 3/4|90-L3|TAMGR-00115|690|GTS-120|5|7|6|TF|2|A|MC",
+  "Shaft 3/4|100A-L3|NAMSP-00341|850|MDS-570|7|9|8|TF|2|B|TS",
+  "Shaft 3/4|100B-L3|NAMSP-00343|850|MDS-570|7|9|8|TF|2|A|MC",
+  "Shaft 3/4|10-L4|TAMCE-00012|575|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 3/4|20-L4|TAMLA-00054|685|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Shaft 3/4|30-L4|TAMLA-00061|685|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 3/4|50 A/B-L4|TAMIH-00023 / TAMIH-00024|3300|AQ-YB|5|7|6|MWTH|1|B|LB",
+  "Shaft 3/4|70-L4|TAMLA-00062|630|GTS-120|5|7|6|TF|1|A|LB",
+  "Shaft 3/4|80-L4|TAMLA-00063|630|GTS-120|5|7|6|TF|1|B|JR",
+  "Shaft 3/4|90-L4|TAMGR-00114|690|GTS-120|5|7|6|TF|1|A|LB",
+  "Shaft 3/4|100A-L4|NAMSP-00306|850|MDS-570|7|9|8|TF|1|B|JR",
+  "Shaft 3/4|100B-L4|NAMSP-00327|850|MDS-570|7|9|8|TF|1|A|LB",
+  "Shaft 5/6|10-L5|TAMCE-00014|575|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 5/6|20-L5|TAMLA-00068|630|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Shaft 5/6|30-L5|TAMLA-00069|630|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 5/6|50 A/B-L5|TAMIH-00025 / TAMIH-00026|3300|AQ-YB|5|7|6|MWTH|1|B|JR",
+  "Shaft 5/6|70-L5|TAMLA-00070|630|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 5/6|80-L5|TAMLA-00071|630|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Shaft 5/6|90-L5|TAMGR-00116|690|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Shaft 5/6|100A-L5|NAMSP-00294|850|GTS-120|7|9|8|MWTH|1|B|LB",
+  "Shaft 5/6|100B-L5|NAMSP-00299|850|GTS-120|7|9|8|MWTH|1|A|JR",
+  "Shaft 5/6|10-L6|TAMCE-00015|575|GTS-120|5|7|6|TF|1|B|LB",
+  "Shaft 5/6|20-L6|TAMLA-00072|685|GTS-120|5|7|6|TF|1|A|JR",
+  "Shaft 5/6|30-L6|TAMLA-00073|685|GTS-120|5|7|6|TF|1|B|LB",
+  "Shaft 5/6|50 A/B-L6|TAMIH-00027 / TAMIH-00028|3300|AQ-YB|5|7|6|TF|1|A|JR",
+  "Shaft 5/6|70-L6|TAMLA-00074|630|GTS-120|5|7|6|TF|1|B|JR",
+  "Shaft 5/6|80-L6|TAMLA-00075|630|GTS-120|5|7|6|TF|1|A|LB",
+  "Shaft 5/6|90-1-L6|TAMGR-00117|690|GTS-120|5|7|6|TF|1|B|JR",
+  "Shaft 5/6|90-2-L6|TAMGR-00118|690|GTS-120|5|7|6|TF|1|A|LB",
+  "Shaft 5/6|100A-L6|NAMSP-00328|850|GTS-120|7|9|8|TF|1|B|JR",
+  "Shaft 5/6|100B-L6|NAMSP-00280|850|GTS-120|7|9|8|TF|1|A|LB",
+  "Shaft|SHAWB-58|TAMWB-00058|925|G-5300ME|1.5|2.5|2|WASHER|2|W|TS",
+  "Shaft|SHAWB-60|TAMWB-00060|925|G-5300ME|1.5|2.5|2|WASHER|2|W|MC",
+  "Shaft|SHAWB-59|TAMWB-00059|925|G-5300ME|1.5|2.5|2|WASHER|1|W|JR",
+  "Carrier|10A|TAMTV-00004|590|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Carrier|20A|TAMMM-00024|875|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Carrier|40A|TAMMM-00030|875|GTS-120|5|7|6|TF|1|A|JR",
+  "Carrier|50A|TAMMM-00025|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Carrier|60A|TAMMM-00031|875|GTS-120|5|7|6|TF|1|A|JR",
+  "Carrier|10B|TAMTV-00005|590|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Carrier|20B|TAMMM-00026|875|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Carrier|40B|TAMMM-00027|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Carrier|50B|TAMMM-000032|875|GTS-120|5|7|6|TF|1|A|JR",
+  "Carrier|10C|TAMTV-00002|590|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Carrier|20C|TAMMM-00033|875|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Carrier|40C|TAMMM-00041|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Carrier|50C|TAMMM-00034|875|GTS-120|5|7|6|TF|1|A|JR",
+  "Carrier|60C|TAMMM-00028|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Carrier|10D|UAMTV-00002|590|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Carrier|20D|UAMMM-00017|875|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Carrier|40D|UAMMM-00016|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Carrier|50D|UAMMM-00015|875|GTS-120|5|7|6|TF|2|B|MC",
+  "Carrier|60D|UAMMM-00014|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Carrier|10E|UAMTV-00001|590|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Carrier|20E|UAMMM-00013|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Carrier|40E|UAMMM-00012|875|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Carrier|50E|UAMMM-00011|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Carrier|10F|TAMTV-00001|590|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Carrier|20F|TAMMM-00037|875|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Carrier|40F|TAMMM-00038|875|GTS-120|5|7|6|TF|2|B|MC",
+  "Carrier|50F|TAMMM-00039|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Carrier|60F|TAMMM-00040|875|GTS-120|5|7|6|TF|2|B|MC",
+  "Carrier|10G|TAMTV-00003|590|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Carrier|20G|TAMMM-00035|875|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Carrier|40G|TAMMM-00029|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Carrier|50G|TAMMM-00036|875|GTS-120|5|7|6|TF|2|B|MC",
+  "Carrier|CARWB-64|TAMWB-00064|830.49|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
+  "Carrier|CARWB-66|TAMWB-00066|830.49|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
+  "Cap|10A|TAMMM-00042|875|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Cap|10B|TAMMM-00043|875|GTS-120|5|7|6|TF|1|B|LB",
+  "Cap|10C|UAMMM-00018|875|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Cap|10D|UAMMM-00019|875|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Cap|10E|TAMMM-00044|875|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Cap|10F|TAMMM-00045|875|GTS-120|5|7|6|TF|2|A|TS",
+  "Cap|CAPWB-67|TAMWB-00067|590|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
+  "Cap|CAPWB-68|TAMWB-00068|590|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
+  "Cap|CAPWB-51|UAMWB-00051|590|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
+  "Case|10-1|TAMLA-00055|1010|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Case|20-1|TAMLA-00056|1010|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Case|30-1|TAMLA-00057|1010|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Case|40-1|TAMSP-00374|925|GTS-120|5|7|6|TF|2|A|TS",
+  "Case|50-1|TAMSP-00370|925|GTS-120|5|7|6|TF|2|B|MC",
+  "Case|60-1|TAMSP-00371|925|GTS-120|5|7|6|TF|2|A|TS",
+  "Case|70-1|TAMSP-00372|925|GTS-120|5|7|6|TF|2|B|MC",
+  "Case|10-2|TAMLA-00058|1010|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Case|20-2|TAMLA-00059|1010|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Case|30-2|TAMLA-00060|1010|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Case|40-2|TAMSP-00375|925|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Case|50-2|TAMSP-00376|925|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Case|60-2|TAMSP-00377|925|GTS-120|5|7|6|MWTH|2|B|MC",
+  "Case|70-2|TAMSP-00378|925|GTS-120|5|7|6|MWTH|2|A|TS",
+  "Case|CASWB-61|TAMWB-00061|600|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
+  "Case|CASWB-62|TAMWB-00062|600|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
+  "Manual Case|110|UKMMM-00012|680|GTS-120|5|7|6|TF|1|A|JR",
+  "Manual Case|120|UKMLA-00022|205|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Manual Case|125|UKMLA-00023|205|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Manual Case|130|UAMSP-00264|1110|GTS-120|5|7|6|MWTH|1|B|LB",
+  "Manual Case|140|UAMSP-00265|585|GTS-120|5|7|6|MWTH|1|A|JR",
+  "Manual Case|150|UKMLA-00024|205|GTS-120|5|7|6|TF|1|B|LB",
+  "Manual Case|160|UKMMM-00014|680|GTS-120|5|7|6|TF|1|A|JR",
+  "Manual Case|MANWB-62|UKMWB-00062|450|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
+  "Assembly|CSAWB-65|TAMWB-00065|860|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
+  "Assembly|CSAWB-63|TAMWB-00063|860|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
+  "Assembly|DSAWB-69|TAMWB-00069|692|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
+  "Assembly|DSAWB-70|TAMWB-00070|692|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
+  "Assembly|DSAWB-73|TAMWB-00073|692|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
+  "Assembly|GKAWB-71|TAMWB-00071|1000|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
+  "Assembly|GKAWB-72|TAMWB-00072|1000|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS"
 ];
 const SYS = RAW.map(r => {
-  const [line, op, mach, gal, product, low, high, target, group, shift, bug, drop] = r.split('|');
-  const type = group === 'ALL' ? 'Pit' : group === 'WASHER' ? 'Washer' : 'Machining';
-  return { id: line + '-' + op, area: 'TNGA', line, op, mach, gal: +gal, sumpL: +gal * LPG, product, low: +low, high: +high, target: +target, group, shift: +shift, bug, drop: drop ? +drop : null, type, active: true };
+  const [line, op, mach, L, product, low, high, target, group, shift, bug, tech] = r.split('|');
+  const type = group === 'WASHER' ? 'Washer' : 'Machining';
+  return { id: line + '-' + op, area: 'Sprint', line, op, mach, gal: +L * GAL, sumpL: +L, product, low: +low, high: +high, target: +target, group, shift: +shift, bug, drop: null, type, tech, active: true };
 });
 const SYSM = Object.fromEntries(SYS.map(s => [s.id, s]));
 const ROUND = SYS.filter(s => s.type === 'Machining' || s.type === 'Pit');
@@ -959,20 +1323,47 @@ let HOL = new Set(BASE_HOL);
 const USERS = {
   DA: { id: 'DA', name: 'Dana Alvarez', role: 'manager', roleLabel: 'Manager', shift: 1 },
   JR: { id: 'JR', name: 'Jordan Reyes', role: 'internal', roleLabel: 'Internal Tech', shift: 1 },
+  LB: { id: 'LB', name: 'Luis Bennett', role: 'internal', roleLabel: 'Internal Tech', shift: 1 },
   TS: { id: 'TS', name: 'Terrell Smith', role: 'internal', roleLabel: 'Internal Tech', shift: 2 },
+  MC: { id: 'MC', name: 'Mia Carter', role: 'internal', roleLabel: 'Internal Tech', shift: 2 },
   KM: { id: 'KM', name: 'Kim Moore', role: 'external', roleLabel: 'External Tech · Leadec', shift: 1 }
 };
 const ROLE_USER = { manager: 'DA', internal: 'JR', external: 'KM' };
 const COMMENTS = ['SYSTEM NOT RUNNING', 'SYSTEM DOWN ALL WEEK', 'SYSTEM OBSTRUCTED, COULD NOT ACCESS', 'NO PRODUCT AVAILABLE TO ADD', 'SYSTEM OVERFLOWING', "ADDED COOLANT PER YUSHIRO'S DATA", '+WR90', 'NO WR90 AVAILABLE'];
 const PIT_WATER = Array.from({ length: 15 }, (_, i) => `+${((i + 1) * 1000).toLocaleString('en-US')} L WATER`);
 const DIST = [
-  { name: 'Manufacturing Managers', count: 4, ex: 'TNGA manufacturing managers' },
-  { name: 'Group Leads', count: 9, ex: 'Block, Head, Crank, Cam, Conrod, Assembly' },
+  { name: 'Sprint/TRUQ2 Managers', count: 4, ex: 'Area and assistant managers' },
+  { name: 'Group Leads · Sprint/TRUQ2', count: 12, ex: 'Shaft, Carrier, Case, Cap · both shifts' },
+  { name: 'Upper Management', count: 3, ex: 'Plant and section managers' },
   { name: 'Process Engineers', count: 5, ex: 'Machining process engineering' },
-  { name: 'All Fluid Techs', count: 7, ex: 'Internal and Leadec fluid techs' },
+  { name: 'All Fluid Techs', count: 5, ex: 'Internal and Leadec fluid techs' },
   { name: 'TMMAL Rep', count: 1, ex: 'Toyota plant representative' }
 ];
-const REPORTS = [['weekly', 'Weekly Status'], ['washer', 'Washer Report'], ['regrind', 'Regrind Parts Washer'], ['asm', 'Assembly Washer'], ['chem', 'Chemical Use'], ['bug', 'Bug and pH'], ['leadec', 'Leadec Weekly'], ['dust', 'Dust/Mist'], ['trend', 'Trend Charts']];
+const TECHS = {
+  JR: { short: 'JR', name: 'Jordan Reyes', shift: 1, bg: 'var(--color-accent-100)', fg: 'var(--color-accent-800)', bar: 'var(--color-accent)' },
+  LB: { short: 'LB', name: 'Luis Bennett', shift: 1, bg: 'var(--color-accent-2-100)', fg: 'var(--color-accent-2-800)', bar: 'var(--color-accent-2)' },
+  TS: { short: 'TS', name: 'Terrell Smith', shift: 2, bg: 'oklch(0.94 0.07 95)', fg: 'oklch(0.4 0.08 80)', bar: 'oklch(0.8 0.15 90)' },
+  MC: { short: 'MC', name: 'Mia Carter', shift: 2, bg: 'oklch(0.93 0.05 150)', fg: 'oklch(0.38 0.1 150)', bar: 'oklch(0.6 0.12 150)' },
+  KM: { short: 'KM', name: 'Kim Moore (Leadec)', shift: 0, ext: true, bg: 'var(--color-neutral-200)', fg: 'var(--color-neutral-800)', bar: 'var(--color-neutral-600)' }
+};
+const GLS = [
+  ['Shaft 1/2', 1, 'Ray Hughes', '(256) 555-0141'], ['Shaft 1/2', 2, 'Tasha Grant', '(256) 555-0178'],
+  ['Shaft 3/4', 1, 'Devon Pike', '(256) 555-0112'], ['Shaft 3/4', 2, 'Alicia Moss', '(256) 555-0193'],
+  ['Shaft 5/6', 1, 'Carl Benton', '(256) 555-0126'], ['Shaft 5/6', 2, 'Nia Brooks', '(256) 555-0164'],
+  ['Carrier', 1, 'Owen Price', '(256) 555-0135'], ['Carrier', 2, 'Lena Ward', '(256) 555-0187'],
+  ['Case', 1, 'Marcus Hale', '(256) 555-0158'], ['Case', 2, 'Jade Foster', '(256) 555-0109'],
+  ['Cap', 1, 'Victor Lane', '(256) 555-0147'], ['Cap', 2, 'Erin Cole', '(256) 555-0172']
+].map(([line, shift, name, phone]) => ({ line, shift, name, phone }));
+const STORE_SAMPLE = [['10/01', 'GS-48811', 'GTS-120', '2 totes', 2080], ['10/06', 'GS-48902', 'AQ-YB', '4 drums', 832], ['10/08', 'GS-48950', 'G-2200TU', '3 drums', 624], ['10/13', 'GS-49017', 'GTS-120', '1 tote', 1040], ['10/14', 'GS-49030', 'MDS-570', '2 drums', 416], ['10/15', 'GS-49061', 'Grotan', '1 pail', 19]];
+const CHK_KINDS = { dust: 'Dust collector', mist: 'Mist collector', skim: 'Skimmer' };
+const AREAS = [
+  ['Sprint', 'Sprint/TRUQ2', ''],
+  ['TNGA', 'TNGA', 'It is adapted from the Sprint/TRUQ2 pilot once the pilot is proven.'],
+  ['V6T', 'V6 Turbo', 'It is adapted from the Sprint/TRUQ2 pilot once the pilot is proven.'],
+  ['24T', '24T', 'It is adapted from the Sprint/TRUQ2 pilot once the pilot is proven.']
+];
+const FB_TYPES = ['Works well', 'Change needed', 'Missing', 'Problem'];
+const REPORTS = [['weekly', 'Weekly Status'], ['washer', 'Washer Report'], ['asm', 'Assembly Washer'], ['chem', 'Chemical Use'], ['bug', 'Bug and pH'], ['leadec', 'Leadec Weekly'], ['dust', 'Dust Collectors'], ['mist', 'Mist Collectors'], ['skim', 'Skimmers'], ['trend', 'Trend Charts']];
 const ST = {
   ok: { bg: 'oklch(0.93 0.05 150)', fg: 'oklch(0.38 0.1 150)', icon: 'ph-check-circle' },
   bad: { bg: 'oklch(0.92 0.045 25)', fg: 'oklch(0.44 0.17 25)', icon: 'ph-x-circle' },
@@ -1013,7 +1404,7 @@ const BUG_GROUP = PARITY ? 'B' : 'A';
 const BUG_TESTED = [BUG_GROUP, 'W'];
 const WASH = SYS.filter(s => s.type === 'Washer');
 const MIX_F = 1.29;
-const CHK_LINES = ['Block', 'Head', 'Crank', 'Cam', 'Rod', 'Regrind'];
+const CHK_LINES = ['Shaft 1/2', 'Shaft 3/4', 'Shaft 5/6', 'Carrier', 'Case', 'Cap'];
 const MONTH0 = TODAY.slice(0, 8) + '01';
 const monthDays = () => { const out = []; for (let d = MONTH0; d.slice(0, 7) === TODAY.slice(0, 7); d = addD(d, 1)) { const w = dow(d); if (w >= 1 && w <= 5 && !HOL.has(d)) out.push(d); } return out; };
 const LWEEKS = [0, 1, 2, 3, 4].map(i => addD(mondayOf(MONTH0), i * 7));
@@ -1021,7 +1412,7 @@ const CUR_LW = LWEEKS.indexOf(MON);
 const LSCOPE = SYS.filter(s => s.type !== 'Pit');
 const num = v => { const n = parseFloat(v); return isNaN(n) ? null : n; };
 const sv = v => v == null ? '' : String(v);
-const PERM = { manager: 'All screens, reports and master data. Edit and delete any entry. Sends the Weekly Status.', internal: 'Enter, edit and delete own shift’s readings. Other shift and Leadec log read only.', external: 'Enter readings and the Leadec log. Edit own entries for 5 days. Cannot delete.' };
+const PERM = { manager: 'All screens, reports and master data. Edit and delete any entry. Sends the Weekly Status.', internal: 'Enter and edit own shift’s readings. Cannot delete. Other shift and Leadec log read only.', external: 'Enter readings and the Leadec log. Edit own entries for 5 days. Cannot delete.' };
 const longDate = s => `${DAYL[dow(s)]} ${+s.slice(8, 10)} ${MONTHS[+s.slice(5, 7) - 1]} ${s.slice(0, 4)}`;
 const nowStamp = () => { const n = new Date(); return `${TODAY}T${String(n.getHours()).padStart(2, '0')}:${String(n.getMinutes()).padStart(2, '0')}`; };
 const FIELDS = { brix: 'Initial Refrac', tank: 'Tank level', skimmer: 'Skimmer', added: 'Product added (L)', type: 'Coolant type', recycled: 'Recycled added (L)', comment: 'Comment', final: 'Final RI %' };
@@ -1029,19 +1420,14 @@ const fv = (k, v) => typeof v === 'number' ? String(r1(v)) : (v || '');
 
 function seedEntries() {
   const EX = {
-    'Block-190|2026-10-12': { brix: 3.6 },
-    'Block-30-3A|2026-10-13': { brix: 3.4, added: 0, comment: 'NO PRODUCT AVAILABLE TO ADD', edit: true },
-    'Conrod-60|2026-10-14': { brix: 2.6, added: 0, by: 'KM' },
-    'Cam-30-A|2026-10-14': { brix: 5.8, comment: 'SYSTEM OVERFLOWING' },
-    'Block-PIT|2026-10-14': { brix: 3.7, comment: "ADDED COOLANT PER YUSHIRO'S DATA" },
-    'Head-PIT|2026-10-15': { brix: 3.6, by: 'KM', time: '06:58' },
-    'Block-PIT|2026-10-12': { recycled: 400 },
-    'Head-PIT|2026-10-13': { recycled: 600 },
-    'Head-PIT|2026-10-12': { comment: '+3,000 L WATER (10/12)' },
-    'Block-180|2026-10-14': { brix: 3.7, type: 'Recycled' }
+    'Carrier-20A|2026-10-12': { brix: 3.6 },
+    'Shaft 1/2-20-L1|2026-10-14': { brix: 3.4, added: 0, comment: 'NO PRODUCT AVAILABLE TO ADD', edit: true },
+    'Manual Case-150|2026-10-13': { brix: 2.6, added: 0, by: 'KM' },
+    'Shaft 3/4-30-L4|2026-10-14': { brix: 5.8, comment: 'SYSTEM OVERFLOWING' },
+    'Case-10-1|2026-10-14': { brix: 3.7, type: 'Recycled' }
   };
-  const SKIP = new Set(['Head-70B|2026-10-13']);
-  const DONE = new Set(['Block-PIT', 'Block-20-A', 'Head-PIT', 'Head-1A', 'Crank-170B', 'Conrod-60']);
+  const SKIP = new Set(['Carrier-40A|2026-10-13']);
+  const DONE = new Set(['Shaft 3/4-10-L4', 'Shaft 3/4-20-L4', 'Carrier-10A', 'Carrier-20A', 'Case-10-1', 'Cap-10A']);
   const out = []; let n = 1;
   for (const s of ROUND) for (const d of worked()) {
     if (d > TODAY || !isDue(s, d)) continue;
@@ -1051,7 +1437,7 @@ function seedEntries() {
     const brix = o.brix ?? r1((s.target + ((h % 11) - 5) / 10) / FACT[s.product]);
     const pct = conc(s, brix);
     const added = o.added ?? r1(toAdd(s, pct));
-    const by = o.by || (s.shift === 2 ? 'TS' : (h % 4 === 0 ? 'KM' : 'JR'));
+    const by = o.by || (h % 6 === 0 ? 'KM' : s.tech);
     const mins = (s.shift === 1 ? 390 : 930) + (h % 150);
     const at = `${d}T${o.time || `${String(Math.floor(mins / 60)).padStart(2, '0')}:${String(mins % 60).padStart(2, '0')}`}`;
     const hist = [{ at, by, action: 'Created', changes: [] }];
@@ -1061,23 +1447,23 @@ function seedEntries() {
   return out;
 }
 function seedBugs() {
-  const EX = { 'Block-190': { bac: 3, action: 'Treated Bacteria', grotan: 1.9 }, 'Head-2A': { fun: 2, action: 'Treated Fungus', grotan: 0.9 }, 'Head-PIT': { bac: 3, fun: 2, action: 'Treated', grotan: 170 }, 'Block-50-1A': { phi: 8.7, phf: 9.1, la33: 2.4 }, 'Cam-50-A': { phi: 8.8, phf: 9.0, la33: 1.1 }, 'Block-20-A': { bac: 3 } };
-  const NOBUG = new Set(['Head-210A']), NOPH = new Set(['Crank-10']);
+  const EX = { 'Carrier-20A': { bac: 3, action: 'Treated Bacteria', grotan: 1.9 }, 'Case-20-1': { fun: 2, action: 'Treated Fungus', grotan: 0.9 }, 'Shaft 1/2-90-L1': { phi: 8.7, phf: 9.1, la33: 2.4 }, 'Shaft 5/6-100A-L5': { phi: 8.8, phf: 9.0, la33: 1.1 } };
+  const NOBUG = new Set(['Cap-10B']), NOPH = new Set(['Manual Case-120']);
   const out = {}, rd = addD(MON, 2);
   for (const s of ROUND) if (BUG_TESTED.includes(s.bug)) {
     const h = hash(s.id + 'bug'), o = EX[s.id] || {}, nb = NOBUG.has(s.id);
-    out[s.id] = { bac: nb ? null : (o.bac ?? (h % 2)), fun: nb ? null : (o.fun ?? ((h >> 3) % 2)), action: o.action || 'Not Treated', phi: NOPH.has(s.id) ? null : (o.phi ?? r1(9.0 + (h % 5) / 10)), phf: o.phf ?? null, grotan: o.grotan || 0, la33: o.la33 || 0, wr90: 0, by: s.shift === 2 ? 'TS' : 'JR', at: `${rd}T${s.shift === 2 ? '15' : '07'}:${String(10 + (h % 45)).padStart(2, '0')}` };
+    out[s.id] = { bac: nb ? null : (o.bac ?? (h % 2)), fun: nb ? null : (o.fun ?? ((h >> 3) % 2)), action: o.action || 'Not Treated', phi: NOPH.has(s.id) ? null : (o.phi ?? r1(9.0 + (h % 5) / 10)), phf: o.phf ?? null, grotan: o.grotan || 0, la33: o.la33 || 0, wr90: 0, by: s.tech, at: `${rd}T${s.shift === 2 ? '15' : '07'}:${String(10 + (h % 45)).padStart(2, '0')}` };
   }
   return out;
 }
 function seedWashers() {
   const y = addD(TODAY, -1);
   return {
-    'Block-120': { drops: '10', brix: '2.8', ph: '9.3', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T07:40` },
-    'Block-200': { drops: '5', brix: '1.0', ph: '9.1', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'KM', at: `${y}T08:05` },
-    'Conrod-100': { drops: '', brix: '0.7', ph: '8.7', oil: 'Heavy', tank: 'Low', skimmer: 'Not working', wr90: '', comment: '', by: 'JR', at: `${TODAY}T07:15` },
-    'Regrind-PW-1': { drops: '4', brix: '0.9', ph: '9.0', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T09:20` },
-    'Assembly-WB-35': { drops: '', brix: '2.5', ph: '9.2', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '2', comment: '+WR90', by: 'TS', at: `${y}T15:50` }
+    'Shaft-SHAWB-58': { drops: '', brix: '1.1', ph: '9.2', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'TS', at: `${y}T15:40` },
+    'Carrier-CARWB-64': { drops: '', brix: '0.6', ph: '9.3', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T08:05` },
+    'Case-CASWB-61': { drops: '', brix: '0.35', ph: '8.7', oil: 'Heavy', tank: 'Low', skimmer: 'Not working', wr90: '', comment: '', by: 'LB', at: `${TODAY}T07:15` },
+    'Cap-CAPWB-67': { drops: '', brix: '0.62', ph: '9.0', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'JR', at: `${y}T09:20` },
+    'Assembly-CSAWB-65': { drops: '', brix: '0.7', ph: '9.2', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '2', comment: '+WR90', by: 'LB', at: `${y}T10:50` }
   };
 }
 function seedMix() {
@@ -1087,8 +1473,8 @@ function seedMix() {
   });
 }
 function seedChecks() {
-  const out = { dust: {}, skim: {} };
-  for (const k of ['dust', 'skim']) for (const l of CHK_LINES) {
+  const out = { dust: {}, mist: {}, skim: {} };
+  for (const k of ['dust', 'mist', 'skim']) for (const l of CHK_LINES) {
     out[k][l] = {};
     for (const d of monthDays()) {
       if (d > TODAY) continue;
@@ -1098,6 +1484,13 @@ function seedChecks() {
     }
   }
   return out;
+}
+function seedAssign() {
+  const conc = {}, wash = {}, dust = {};
+  ROUND.forEach(s => { conc[s.id] = s.tech; });
+  WASH.forEach(s => { wash[s.id] = s.tech; });
+  CHK_LINES.forEach((l, i) => { dust[l] = i % 2 ? 'LB' : 'JR'; });
+  return { conc, bug: { ...conc }, dust, wash };
 }
 function seedLeadec() {
   const out = {};
@@ -1127,7 +1520,7 @@ class Component extends DCLogic {
     mdTab: 'sys', comStd: [...COMMENTS], newCmt: '', newHol: '', holErr: null, ver: 0,
     auditId: null, confirmDel: false, drawerCmt: null,
     fLine: 'All', fShift: 'All', fGroup: 'All', report: 'weekly', chkOpen: true,
-    sendOpen: false, sendSel: DIST.map(() => true), sentLog: null, trendSys: 'Block-10-A', toast: null
+    sendOpen: false, sendSel: DIST.map(() => true), sentLog: null, trendSys: ROUND[0].id, toast: null, area: 'Sprint', assign: seedAssign(), assignCat: 'conc', myOnly: false, sms: null, smsLog: [], glOn: GLS.map(() => true), imp: { stores: {}, leadec: {} }, sendWhat: 'Weekly Status', showAlt: false, fbOpen: false, fbText: '', fbType: 'Change needed', fbList: []
   };
   componentDidMount() { this.applyHoliday(); }
   componentDidUpdate(pp) { if (pp.holidayMonday !== this.props.holidayMonday) this.applyHoliday(true); }
@@ -1144,7 +1537,7 @@ class Component extends DCLogic {
   say(text) { clearTimeout(this._t); this.setState({ toast: text }); this._t = setTimeout(() => this.setState({ toast: null }), 3400); }
   canEnter(s) { const u = this.user; return u.role !== 'internal' || s.shift === u.shift; }
   canEdit(e) { const u = this.user; if (u.role === 'manager') return true; if (u.role === 'internal') return e.shift === u.shift; return e.by === u.id && (pD(TODAY) - pD(e.date)) / 864e5 <= 5; }
-  canDelete(e) { const u = this.user; return u.role === 'manager' || (u.role === 'internal' && e.shift === u.shift); }
+  canDelete(e) { return this.user.role === 'manager'; }
   lockWhy(e, s) {
     const u = this.user;
     if (u.role === 'internal') return `Shift ${(e || s).shift} system — read only for Shift ${u.shift} techs`;
@@ -1203,7 +1596,7 @@ class Component extends DCLogic {
   };
 
   vRow(s) {
-    const c = this.calc(s), st = this.state;
+    const c = this.calc(s), st = this.state, t = TECHS[st.assign.conc[s.id]];
     const locked = c.e ? !this.canEdit(c.e) : !this.canEnter(s);
     let k, label;
     if (!c.has) { k = 'skip'; label = 'Not entered'; }
@@ -1214,7 +1607,7 @@ class Component extends DCLogic {
     const low = c.has && c.pct < s.low - 0.055, high = c.has && c.pct > s.high + 0.055;
     const err = st.errors[s.id], isPit = s.type === 'Pit';
     return {
-      id: s.id, op: s.op, mach: s.mach, product: s.product, sumpL: fx(s.sumpL), gal: `${fx(s.gal, 0)} gal`, range: `${s.low}–${s.high}%`, target: `target ${s.target}%`,
+      id: s.id, op: s.op, mach: s.mach, product: s.product, techShort: t ? t.short : '—', techName: t ? t.name : 'Unassigned', techBg: t ? t.bg : 'var(--color-neutral-200)', techFg: t ? t.fg : 'var(--color-neutral-700)', techBar: t ? t.bar : 'transparent', sumpL: fx(s.sumpL), gal: `${fx(s.gal, 0)} gal`, range: `${s.low}–${s.high}%`, target: `target ${s.target}%`,
       brix: c.v.brix, pctText: c.has ? fx(c.pct) + '%' : '—', pctFg: !c.has ? 'var(--color-neutral-600)' : c.initOk ? ST.ok.fg : ST.bad.fg,
       tank: c.v.tank, skimmer: c.v.skimmer,
       addL: c.prompt > 0 ? fx(c.prompt) + ' L' : '—', addG: c.prompt > 0 ? fx(c.prompt * GAL) + ' gal' : (c.has ? 'none' : ''), addFg: c.prompt > 0 ? ST.bad.fg : 'var(--color-neutral-700)',
@@ -1243,14 +1636,20 @@ class Component extends DCLogic {
   }
   vRound() {
     const st = this.state, u = this.user;
-    const due = ROUND.filter(s => s.shift === st.shift && isDue(s, TODAY));
-    const groups = LINES.map(line => {
-      const sys = due.filter(s => s.line === line); if (!sys.length) return null;
-      const rows = sys.map(s => this.vRow(s));
-      return { line, rows, due: rows.length, done: sys.filter(s => this.entryFor(s.id, TODAY)).length };
-    }).filter(Boolean);
+    const A = st.assign.conc, mine = st.myOnly && u.role === 'internal', mf = s => !mine || A[s.id] === u.id;
+    const dueAll = ROUND.filter(s => s.shift === st.shift && isDue(s, TODAY)), due = dueAll.filter(mf);
+    const w = dow(TODAY), altGrp = (w === 2 || w === 5) ? 'MWTH' : 'TF';
+    const altSys = ROUND.filter(s => s.shift === st.shift && s.group === altGrp && !isDue(s, TODAY) && mf(s));
+    const mk = (sys, line, alt) => { const rows = sys.map(s => this.vRow(s)); return { line, rows, alt, altSched: altGrp === 'TF' ? 'normally Tue, Fri' : 'normally Mon, Wed, Thu', due: rows.length, done: sys.filter(s => this.entryFor(s.id, TODAY)).length }; };
+    const groups = LINES.flatMap(line => {
+      const out = [], sys = due.filter(s => s.line === line), alt = st.showAlt ? altSys.filter(s => s.line === line) : [];
+      if (sys.length) out.push(mk(sys, line, false));
+      if (alt.length) out.push(mk(alt, line, true));
+      return out;
+    });
+    const shown = st.showAlt ? due.concat(altSys) : due;
     const done = due.filter(s => this.entryFor(s.id, TODAY)).length;
-    const dirty = due.filter(s => st.drafts[s.id] && Object.keys(st.drafts[s.id]).length).map(s => s.id);
+    const dirty = shown.filter(s => st.drafts[s.id] && Object.keys(st.drafts[s.id]).length).map(s => s.id);
     const lockNote = u.role === 'internal' && st.shift !== u.shift ? `You're viewing Shift ${st.shift}. Shift ${u.shift} techs can see these systems but not edit them.`
       : u.role === 'external' ? 'External techs can edit only their own entries, for 5 days after saving, and cannot delete. Rows with a lock were entered by someone else.' : '';
     return {
@@ -1259,7 +1658,10 @@ class Component extends DCLogic {
       done, due: due.length, barW: `${due.length ? Math.round(done / due.length * 100) : 0}%`, pctLabel: `${due.length ? Math.round(done / due.length * 100) : 0}%`,
       groups, empty: !groups.length, noDirty: !dirty.length,
       saveLabel: dirty.length ? `Save ${dirty.length} changed ${dirty.length === 1 ? 'row' : 'rows'}` : 'All saved',
-      saveAll: () => this.saveRows(dirty), lockNote, hasLockNote: !!lockNote
+      saveAll: () => this.saveRows(dirty), lockNote, hasLockNote: !!lockNote,
+      showAlt: !!st.showAlt, altLabel: altGrp, altCount: altSys.length, onAlt: ev => this.setState({ showAlt: ev.target.checked }),
+      showMy: u.role === 'internal', myOnly: !!st.myOnly, myLabel: `Only my assignments (${dueAll.filter(s => A[s.id] === u.id).length})`, onMy: ev => this.setState({ myOnly: ev.target.checked }),
+      techs: Object.values(TECHS).filter(x => x.shift === st.shift).map(x => ({ short: x.short, name: x.name, bg: x.bg, fg: x.fg, n: `${dueAll.filter(s => A[s.id] === x.short).length} due today` }))
     };
   }
   vDash() {
@@ -1366,9 +1768,9 @@ class Component extends DCLogic {
       chkSummary: open ? `${open} open items — fix them or send with notes` : 'Nothing missing. Ready to send.',
       chkBg: open ? ST.warn.bg : ST.ok.bg, chkFg: open ? ST.warn.fg : ST.ok.fg, chkIcon: open ? 'ph-clipboard-text' : 'ph-check-circle',
       toggleChk: () => this.setState({ chkOpen: !st.chkOpen }),
-      onPdf: () => this.say(`Weekly_Status_Wk${WEEKNO}.pdf exported — ${pages.length} pages, one per line`),
-      onXls: () => this.say(`Weekly_Status_Wk${WEEKNO}.xlsx exported`),
-      onSend: () => this.setState({ sendOpen: true }),
+      onPdf: () => this.say(`Preview only: Weekly_Status_Wk${WEEKNO}.pdf (${pages.length} pages) exports in the production build`),
+      onXls: () => this.say(`Preview only: Weekly_Status_Wk${WEEKNO}.xlsx exports in the production build`),
+      onSend: () => this.setState({ sendOpen: true, sendWhat: 'Weekly Status' }),
       hasSent: !!st.sentLog, sentLog: st.sentLog || ''
     };
   }
@@ -1421,17 +1823,38 @@ class Component extends DCLogic {
         this.say('Comment saved');
       },
       canDelete: del, confirmDel: st.confirmDel, showDelBtn: !st.confirmDel, noDelete: !del,
-      deleteNote: u.role === 'external' ? 'External techs can’t delete entries.' : 'Only this shift’s techs or a manager can delete this entry.',
+      deleteNote: 'Only a manager can delete entries. Techs can correct a reading; every change is kept in the history.',
       askDel: () => this.setState({ confirmDel: true }), cancelDel: () => this.setState({ confirmDel: false }),
       doDel: () => { this.setState(s2 => ({ entries: s2.entries.filter(x => x.id !== e.id), auditId: null, confirmDel: false })); this.say(`Deleted ${s.line} ${s.op} entry for ${md(e.date)}`); },
       onClose: () => this.setState({ auditId: null, confirmDel: false, drawerCmt: null })
+    };
+  }
+  vFb(label) {
+    const st = this.state, u = this.user, items = st.fbList, txt = st.fbText.trim();
+    return {
+      open: st.fbOpen, screen: label, text: st.fbText, empty: !txt,
+      types: FB_TYPES.map(t => ({ t, on: t === st.fbType, pick: () => this.setState({ fbType: t }) })),
+      countLabel: items.length ? `(${items.length})` : '',
+      onOpen: () => this.setState({ fbOpen: true }), onClose: () => this.setState({ fbOpen: false }), stop: ev => ev.stopPropagation(),
+      onText: ev => this.setState({ fbText: ev.target.value }),
+      items: items.slice().reverse(), hasItems: items.length > 0, listLabel: `${items.length} noted this session`,
+      onSubmit: () => {
+        if (!txt) return;
+        this.setState({ fbText: '', fbList: [...items, { screen: label, type: st.fbType, text: txt, by: `${u.name} · ${u.roleLabel}`, at: nowStamp().replace('T', ' ') }] });
+        this.say('Feedback noted. Use Download all to send it to Ideal Technology Solutions');
+      },
+      onDownload: () => {
+        const body = ['Coolant Data Capture · prototype feedback', `TMMAL · ${st.area} area`, ''].concat(items.map((f, i) => `${i + 1}. [${f.type}] ${f.screen}\n   ${f.text}\n   ${f.by} · ${f.at}\n`)).join('\n');
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([body], { type: 'text/plain' }));
+        a.download = `CDC_feedback_${TODAY}.txt`; document.body.appendChild(a); a.click(); a.remove();
+      }
     };
   }
   vDialog() {
     const st = this.state, sel = st.sendSel;
     const n = sel.filter(Boolean).length, people = DIST.reduce((a, d, i) => a + (sel[i] ? d.count : 0), 0);
     return {
-      open: st.sendOpen,
+      open: st.sendOpen, what: st.sendWhat,
       recips: DIST.map((d, i) => ({ name: d.name, detail: `${d.count} ${d.count === 1 ? 'person' : 'people'} · ${d.ex}`, on: sel[i], toggle: () => this.setState({ sendSel: sel.map((v, j) => j === i ? !v : v) }) })),
       hasOpen: (this._open || 0) > 0, openNote: `${this._open} review items are still open. They will show as MISSING or red in the report.`,
       none: n === 0, sendLabel: n ? `Send to ${n} ${n === 1 ? 'list' : 'lists'} (${people} people)` : 'Pick a list',
@@ -1439,7 +1862,7 @@ class Component extends DCLogic {
       onSend: () => {
         const n2 = new Date();
         this.setState({ sendOpen: false, sentLog: `Sent ${DAYN[dow(TODAY)]} ${md(TODAY)} at ${String(n2.getHours()).padStart(2, '0')}:${String(n2.getMinutes()).padStart(2, '0')} by ${this.user.name} to ${DIST.filter((_, i) => sel[i]).map(d => d.name).join(', ')}` });
-        this.say(`Weekly Status sent to ${n} lists · ${people} people`);
+        this.say(`Simulated send of ${st.sendWhat} to ${n} lists · ${people} people. No email leaves the prototype`);
       }
     };
   }
@@ -1450,8 +1873,8 @@ class Component extends DCLogic {
     const MISS = () => C('MISSING', 'warn', { icon: 'ph-warning' }), fig = (value, label, sub, k) => ({ value: String(value), label, sub, fg: k ? ST[k].fg : 'var(--color-text)' });
     const wkSub = `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))}`, month = `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`;
     let sub = wkSub, figs = [], sections = [], note = 'Red = action needed · Amber = missing or not commented';
-    if (key === 'washer' || key === 'regrind' || key === 'asm') {
-      const f = key === 'regrind' ? s => s.line === 'Regrind' : key === 'asm' ? s => s.line === 'Assembly' : s => s.line !== 'Regrind' && s.line !== 'Assembly';
+    if (key === 'washer' || key === 'asm') {
+      const f = key === 'asm' ? s => s.line === 'Assembly' : s => s.line !== 'Assembly';
       const all = this.vWash().rows.filter(r => f(r.sys));
       sections = [...new Set(all.map(r => r.sys.line))].map(l => ({
         title: key === 'washer' ? `${l} washers` : title, sub: wkSub, minW: '1100px',
@@ -1492,7 +1915,7 @@ class Component extends DCLogic {
       const wE = E.filter(e => WEEK.includes(e.date));
       const water = e => { const m = /^\+([\d,]+) L WATER/.exec(e.comment || ''); return m ? +m[1].replace(/,/g, '') : 0; };
       const tot = { v: 0, r: 0, g: 0, la: 0, wr: 0, w: 0 };
-      const rows = [...LINES, 'Regrind'].map(l => {
+      const rows = LINES.map(l => {
         const es = wE.filter(e => SYSM[e.sys].line === l), bs = ROUND.filter(s => s.line === l).map(s => st.bugs[s.id] || {});
         const x = {
           v: es.reduce((a, e) => a + (e.type === 'Virgin' ? e.added : 0), 0) * GAL,
@@ -1527,10 +1950,10 @@ class Component extends DCLogic {
       ];
       figs = [fig(thisWk.length, 'Cleaned this week', `Week ${wi + 1} of ${month}`), fig(`${LSCOPE.length - notYet.length}/${LSCOPE.length}`, 'Cleaned this month', 'Clean and recharge'), fig(notYet.length, 'Outstanding', 'Not yet cleaned this month', notYet.length ? 'warn' : 'ok')];
       sub = `${wkSub} · ${month} to date`;
-    } else if (key === 'dust') {
+    } else if (key === 'dust' || key === 'mist' || key === 'skim') {
       const days = monthDays().filter(d => d <= TODAY);
       let probs = 0, missT = 0;
-      sections = [['dust', 'Dust/Mist collectors'], ['skim', 'Skimmers']].map(([k, t]) => ({
+      sections = [[key, CHK_KINDS[key] + 's']].map(([k, t]) => ({
         title: t, sub: `${month} · ${days.length} workdays to date`, minW: '760px', cols: '100px 80px 70px 90px 70px minmax(180px,1fr) 110px',
         hdrs: ['Line', 'Checked', 'OK (O)', 'Problem (X)', 'Missed', 'Problem days', 'Last check'],
         rows: CHK_LINES.map(l => {
@@ -1539,14 +1962,15 @@ class Component extends DCLogic {
           return { cells: [Bd(l), P(done.length), C(done.length - xs.length, 'ok'), C(xs.length, xs.length ? 'bad' : null), C(miss.length, miss.length ? 'warn' : null), P(xs.map(md).join(', ') || '—'), P(last ? `${md(last)} · ${m[last].by}` : '—')] };
         })
       }));
-      figs = [fig(probs, 'Problems logged', 'X marks this month', probs ? 'bad' : 'ok'), fig(missT, 'Missed checks', 'Past workdays left blank', missT ? 'warn' : 'ok')];
-      sub = `${month} to date · both check types`;
+      figs = [fig(probs, 'Not Good logged', 'X marks this month', probs ? 'bad' : 'ok'), fig(missT, 'Missed checks', 'Past workdays left blank', missT ? 'warn' : 'ok')];
+      if (key !== 'skim') { const tx = st.smsLog.filter(x => x.kind === key).length; figs.push(fig(tx, 'Texts sent', 'Not Good alerts to Group Leads')); }
+      sub = `${month} to date`;
     }
     const slug = title.replace(/[^A-Za-z]+/g, '_');
     return {
-      title, sub, figs, note,
+      title, sub, figs, note, onSend: () => this.setState({ sendOpen: true, sendWhat: title }),
       sections: sections.map(s => ({ sub: '', minW: '760px', emptyText: '', ...s, hasFoot: !!s.foot, foot: s.foot || { cells: [] }, empty: !s.rows.length })),
-      onPdf: () => this.say(`${slug}_Wk${WEEKNO}.pdf exported`), onXls: () => this.say(`${slug}_Wk${WEEKNO}.xlsx exported`)
+      onPdf: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.pdf exports in the production build`), onXls: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.xlsx exports in the production build`)
     };
   }
   touch(key) { if (this.state.online) return 0; this._q = this._q || new Set(); if (this._q.has(key)) return 0; this._q.add(key); return 1; }
@@ -1673,7 +2097,7 @@ class Component extends DCLogic {
     };
   }
   vChecks() {
-    const st = this.state, kind = st.checkKind, data = st.checks[kind], days = monthDays();
+    const st = this.state, kind = st.checkKind, data = st.checks[kind] || {}, days = monthDays();
     let todayDone = 0;
     const rows = CHK_LINES.map(l => {
       const m = data[l] || {}; let xs = 0, miss = 0;
@@ -1686,20 +2110,95 @@ class Component extends DCLogic {
         else if (!fut) { bg = ST.warn.bg; fg = ST.warn.fg; v = '–'; }
         return { v, by, bg, fg, disabled: fut, title: `${l} · ${DAYN[dow(d)]} ${md(d)}${c ? ` · ${c.v === 'O' ? 'OK' : 'Problem'} · ${c.by}` : ''}`, onClick: () => this.cycleCheck(kind, l, d) };
       });
-      return { line: l, cells, xs: String(xs), miss: String(miss), xsFg: xs ? ST.bad.fg : 'var(--color-neutral-700)', missFg: miss ? ST.warn.fg : 'var(--color-neutral-700)' };
+      const tt = TECHS[st.assign.dust[l]];
+      return { line: l, techShort: tt ? tt.short : '—', techBg: tt ? tt.bg : 'var(--color-neutral-200)', techFg: tt ? tt.fg : 'var(--color-neutral-700)', cells, xs: String(xs), miss: String(miss), xsFg: xs ? ST.bad.fg : 'var(--color-neutral-700)', missFg: miss ? ST.warn.fg : 'var(--color-neutral-700)' };
     });
     return {
-      month: `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`, cols: `96px repeat(${days.length}, 46px) 52px 60px`,
+      month: `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`, cols: `150px repeat(${days.length}, 46px) 52px 60px`,
       hdrs: days.map(d => ({ n: +d.slice(8), w: DAYN[dow(d)].slice(0, 2), bg: d === TODAY ? 'var(--color-accent-100)' : 'transparent', fg: d === TODAY ? 'var(--color-accent-800)' : 'var(--color-neutral-700)' })),
-      rows, isDust: kind === 'dust', isSkim: kind === 'skim', title: kind === 'dust' ? 'Dust/Mist collectors' : 'Skimmers',
-      onDust: () => this.setState({ checkKind: 'dust' }), onSkim: () => this.setState({ checkKind: 'skim' }),
+      rows, isDust: kind === 'dust', isMist: kind === 'mist', isSkim: kind === 'skim', title: CHK_KINDS[kind] + 's',
+      onDust: () => this.setState({ checkKind: 'dust' }), onMist: () => this.setState({ checkKind: 'mist' }), onSkim: () => this.setState({ checkKind: 'skim' }),
+      hasAlertNote: kind !== 'skim', alertNote: 'Marking X (Not Good) sends a text message to the Group Leads for that area.',
+      log: st.smsLog.slice().reverse().map(x => ({ text: `${md(x.d)} ${hhmm(x.at)} · ${CHK_KINDS[x.kind]} · ${x.line} · Not Good`, to: `Texted ${x.to.join(', ')}` })), hasLog: st.smsLog.length > 0,
       summary: `today ${todayDone} of ${CHK_LINES.length} lines checked`
     };
   }
   cycleCheck(kind, l, d) {
     if (d > TODAY) return;
-    const add = this.touch(`c${kind}${l}${d}`), u = this.user.id;
-    this.setState(st => { const line = { ...(st.checks[kind][l] || {}) }, cur = line[d]; const nx = !cur ? { v: 'O', by: u } : cur.v === 'O' ? { v: 'X', by: u } : null; if (nx) line[d] = nx; else delete line[d]; return { checks: { ...st.checks, [kind]: { ...st.checks[kind], [l]: line } }, pending: st.pending + add }; });
+    const add = this.touch(`c${kind}${l}${d}`), u = this.user.id, st0 = this.state;
+    const cur = (st0.checks[kind][l] || {})[d], nx = !cur ? { v: 'O', by: u } : cur.v === 'O' ? { v: 'X', by: u } : null;
+    this.setState(st => { const line = { ...(st.checks[kind][l] || {}) }; if (nx) line[d] = nx; else delete line[d]; return { checks: { ...st.checks, [kind]: { ...st.checks[kind], [l]: line } }, pending: st.pending + add }; });
+    if (nx && nx.v === 'X' && kind !== 'skim') this.setState({ sms: { kind, line: l, d, by: u, at: nowStamp(), sel: GLS.map((g, i) => i).filter(i => GLS[i].line === l && st0.glOn[i]) } });
+  }
+  vSms() {
+    const st = this.state, a = st.sms;
+    if (!a) return { open: false, recips: [] };
+    const recips = GLS.map((g, i) => ({ g, i })).filter(x => x.g.line === a.line).map(({ g, i }) => ({ name: g.name, detail: `Group Lead · Shift ${g.shift} · ${g.phone}`, on: a.sel.includes(i), toggle: () => this.setState(s2 => ({ sms: { ...s2.sms, sel: s2.sms.sel.includes(i) ? s2.sms.sel.filter(j => j !== i) : [...s2.sms.sel, i] } })) }));
+    const n = a.sel.length;
+    return {
+      open: true, title: `Not Good · ${CHK_KINDS[a.kind]} · ${a.line}`, recips,
+      text: `CDC ALERT · TMMAL Sprint/TRUQ2\n${CHK_KINDS[a.kind]} ${a.line}: NOT GOOD (X)\n${DAYN[dow(a.d)]} ${md(a.d)} ${hhmm(a.at)} · checked by ${USERS[a.by].name}\nReply 1 to acknowledge.`,
+      none: n === 0, sendLabel: n ? `Send text to ${n}` : 'Pick a Group Lead',
+      stop: ev => ev.stopPropagation(), onClose: () => this.setState({ sms: null }),
+      onSend: () => { const to = a.sel.map(i => GLS[i].name); this.setState(s2 => ({ sms: null, smsLog: [...s2.smsLog, { kind: a.kind, line: a.line, d: a.d, at: a.at, to }] })); this.say(`Simulated text to ${to.length} Group ${to.length === 1 ? 'Lead' : 'Leads'}. In production it sends as soon as X is saved`); }
+    };
+  }
+  vAssign() {
+    const st = this.state, ro = this.user.role !== 'manager', cat = st.assignCat, A = st.assign[cat] || {};
+    const CATS = [['conc', 'Concentration rounds'], ['bug', 'Bug slides & pH'], ['dust', 'Dust/Mist collectors'], ['wash', 'Washers']];
+    const items = cat === 'dust' ? CHK_LINES.map(l => ({ id: l, line: 'Dust and mist collectors', op: l, sub: 'Dust and mist, every workday', sched: 'Daily', shift: 0 }))
+      : (cat === 'wash' ? WASH : ROUND).map(s => ({ id: s.id, line: cat === 'wash' ? `${s.line} washers` : s.line, op: s.op, sub: s.mach, sched: cat === 'wash' ? 'Weekly' : cat === 'bug' ? `Group ${s.bug}` : s.group, shift: s.shift }));
+    const optsFor = sh => [{ v: '', label: 'Unassigned' }, ...Object.values(TECHS).filter(x => !sh || x.shift === sh || x.ext).map(x => ({ v: x.short, label: `${x.short} · ${x.name}` }))];
+    const setA = (ids, v) => this.setState(s2 => ({ assign: { ...s2.assign, [cat]: { ...s2.assign[cat], ...Object.fromEntries(ids.map(i => [i, v])) } } }));
+    const groups = [...new Set(items.map(i => i.line))].map(l => {
+      const its = items.filter(i => i.line === l);
+      const tally = Object.values(TECHS).map(x => [x.short, its.filter(i => A[i.id] === x.short).length]).filter(x => x[1]).map(x => x.join(' ')).join(' · ');
+      const un = its.filter(i => !A[i.id]).length;
+      return {
+        title: l, sub: `${its.length} items · ${tally || 'none assigned'}${un ? ` · ${un} unassigned` : ''}`, canBulk: !ro,
+        bulk: [...new Set(its.map(i => i.shift))].map(sh => { const ids = its.filter(i => i.shift === sh).map(i => i.id); return { label: sh ? `Assign all Shift ${sh} (${ids.length}) to…` : `Assign all (${ids.length}) to…`, opts: optsFor(sh).slice(1), onPick: ev => { const v = ev.target.value; if (!v) return; setA(ids, v); this.say(`${ids.length} ${l} items assigned to ${TECHS[v].name}`); } }; }),
+        rows: its.map(i => { const x = TECHS[A[i.id]]; return { op: i.op, sub: i.sub, sched: i.sched, shift: i.shift ? `Shift ${i.shift}` : 'Either shift', tech: A[i.id] || '', chip: x ? x.short : '—', bg: x ? x.bg : 'var(--color-neutral-200)', fg: x ? x.fg : 'var(--color-neutral-700)', bar: x ? x.bar : 'transparent', opts: optsFor(i.shift), onPick: ev => { const v = ev.target.value; setA([i.id], v); this.say(`${i.op} assigned to ${v ? TECHS[v].name : 'nobody'}`); } }; })
+      };
+    });
+    return {
+      ro, cats: CATS.map(([k, label]) => ({ label, on: k === cat, pick: () => this.setState({ assignCat: k }) })),
+      techs: Object.values(TECHS).map(x => ({ short: x.short, name: x.name, bg: x.bg, fg: x.fg, meta: `${x.ext ? 'Leadec · either shift' : `Shift ${x.shift}`} · ${items.filter(i => A[i.id] === x.short).length} assigned` })),
+      groups, showCopy: !ro && cat === 'bug', onCopy: () => { this.setState(s2 => ({ assign: { ...s2.assign, bug: { ...s2.assign.conc } } })); this.say('Bug & pH assignments now match the concentration rounds'); }
+    };
+  }
+  vImports() {
+    const st = this.state, I = st.imp, month = TODAY.slice(0, 7);
+    const set = (k, v) => this.setState(s2 => ({ imp: { ...s2.imp, [k]: v } }));
+    const sample = k => k === 'stores' ? STORE_SAMPLE.map(r => ({ cells: [r[0], r[1], r[2], r[3], fx(r[4], 0)], product: r[2], L: r[4] }))
+      : LSCOPE.filter(s => !Object.keys(st.leadec[s.id] || {}).length).slice(0, 6).map((s, i) => { const sd = addD(LWEEKS[CUR_LW], i % 3), done = i < 4 && sd <= TODAY; return { sys: s.id, done, d: sd, L: Math.round(s.sumpL), cells: [`${s.line} ${s.op}`, s.mach, md(sd), done ? md(sd) : '—', s.product, fx(s.sumpL, 0)] }; });
+    const mk = (k, def) => {
+      const x = I[k] || {};
+      return {
+        hasPreview: !!x.rows && !x.done, isDone: !!x.done, file: x.file || '', rows: x.rows || [], count: x.rows ? x.rows.length : 0,
+        importLabel: x.rows ? `Import ${x.rows.length} rows` : 'Import',
+        onFile: ev => { const f = ev.target.files && ev.target.files[0]; if (!f) return; set(k, { file: f.name, rows: sample(k) }); ev.target.value = ''; },
+        onSample: () => set(k, { file: def, rows: sample(k) }),
+        onCancel: () => set(k, {}),
+        onImport: () => {
+          if (k === 'leadec') {
+            const done = x.rows.filter(r => r.done);
+            this.setState(s2 => { const L = { ...s2.leadec }; done.forEach(r => { L[r.sys] = { ...(L[r.sys] || {}), [CUR_LW]: { by: 'KM', d: r.d } }; }); return { leadec: L, imp: { ...s2.imp, leadec: { ...x, done: true } } }; });
+            this.say(`${done.length} cleanings added to the Leadec Log`);
+          } else { set(k, { ...x, done: true }); this.say(`${x.rows.length} General Stores orders imported`); }
+        }
+      };
+    };
+    const stores = mk('stores', 'General_Stores_Orders_Oct2026.xlsx (sample)'), leadec = mk('leadec', 'Leadec_Schedule_Wk' + (CUR_LW + 1) + '.xlsx (sample)');
+    if (stores.isDone) {
+      const prods = [...new Set(stores.rows.map(r => r.product))];
+      stores.summary = prods.map(p => {
+        const ord = stores.rows.filter(r => r.product === p).reduce((a, r) => a + r.L, 0);
+        const used = p === 'Grotan' ? Object.values(st.bugs).reduce((a, b) => a + (b.grotan || 0), 0) : st.entries.filter(e => e.date.startsWith(month) && SYSM[e.sys].product === p).reduce((a, e) => a + (e.type === 'Virgin' ? e.added : 0), 0);
+        return { p, ord: fx(ord, 0), used: fx(used, 0), left: fx(ord - used, 0) };
+      });
+    } else stores.summary = [];
+    if (leadec.isDone) { const d = leadec.rows.filter(r => r.done); leadec.result = `${d.length} cleanings added to the Leadec Log · ${leadec.rows.length - d.length} scheduled, not yet done · ${fx(d.reduce((a, r) => a + r.L, 0), 0)} L of fluid charged`; } else leadec.result = '';
+    return { stores, leadec };
   }
   vLeadec() {
     const st = this.state, can = this.user.role !== 'internal';
@@ -1722,16 +2221,16 @@ class Component extends DCLogic {
   }
   vMaster() {
     const st = this.state, tab = st.mdTab;
-    const TABS = [['sys', 'Systems'], ['prod', 'Products'], ['pick', 'Pick Lists'], ['dist', 'Distribution List'], ['hol', 'Holiday Calendar'], ['users', 'Users']];
+    const TABS = [['sys', 'Systems'], ['prod', 'Products'], ['pick', 'Pick Lists'], ['dist', 'Distribution List'], ['alerts', 'Alert Contacts'], ['hol', 'Holiday Calendar'], ['users', 'Users']];
     const mach = SYS.filter(s => s.type === 'Machining');
     const cnt = (g, sh) => mach.filter(s => s.group === g && (!sh || s.shift === sh)).length;
     return {
       tabs: TABS.map(([k, l]) => { const a = k === tab; return { label: l, bg: a ? 'var(--color-accent)' : 'transparent', fg: a ? 'var(--color-bg)' : 'var(--color-text)', border: a ? 'var(--color-accent)' : 'var(--color-divider)', onClick: () => this.setState({ mdTab: k }) }; }),
-      isSys: tab === 'sys', isProd: tab === 'prod', isPick: tab === 'pick', isDist: tab === 'dist', isHol: tab === 'hol', isUsers: tab === 'users',
+      isSys: tab === 'sys', isProd: tab === 'prod', isPick: tab === 'pick', isDist: tab === 'dist', isAlerts: tab === 'alerts', isHol: tab === 'hol', isUsers: tab === 'users',
       load: [
         { value: cnt('MWTH'), label: 'MWTH systems', sub: `Mon, Wed, Thu · S1 ${cnt('MWTH', 1)} · S2 ${cnt('MWTH', 2)}` },
         { value: cnt('TF'), label: 'TF systems', sub: `Tue, Fri · S1 ${cnt('TF', 1)} · S2 ${cnt('TF', 2)}` },
-        { value: SYS.filter(s => s.type === 'Pit').length, label: 'Pits', sub: 'Every workday' },
+        { value: CHK_LINES.length, label: 'Dust/Mist areas', sub: 'Checked every workday' },
         { value: WASH.length, label: 'Washers', sub: 'Titrated weekly' }
       ],
       systems: SYS.map(s => ({
@@ -1745,6 +2244,7 @@ class Component extends DCLogic {
       addCmt: () => { const v = st.newCmt.trim().toUpperCase(); if (!v || st.comStd.includes(v)) return; this.setState({ comStd: [...st.comStd, v], newCmt: '' }); this.say(`Added “${v}” to standard comments`); },
       pit: PIT_WATER, pitNote: `Pit rows only. The date is added when picked, e.g. “+3,000 L WATER (${md(TODAY)})”.`,
       dist: DIST.map(d => ({ name: d.name, count: String(d.count), ex: d.ex })),
+      gl: GLS.map((g, i) => ({ line: g.line, shift: `Shift ${g.shift}`, name: g.name, phone: g.phone, on: st.glOn[i], toggle: () => this.setState(s2 => ({ glOn: s2.glOn.map((v, j) => j === i ? !v : v) })) })),
       hol: [...HOL].sort().map(d => ({ label: longDate(d), note: d === MON && this.props.holidayMonday ? 'Set by the Monday-is-holiday rule' : d <= TODAY ? 'Past' : 'Upcoming', canRemove: d > TODAY, onRemove: () => { HOL.delete(d); this.setState({ ver: st.ver + 1 }); this.say(`Removed ${longDate(d)}`); } })),
       newHol: st.newHol, onNewHol: ev => this.setState({ newHol: ev.target.value, holErr: null }),
       addHol: () => {
@@ -1761,8 +2261,8 @@ class Component extends DCLogic {
   }
   renderVals() {
     const st = this.state, u = this.user, mgr = u.role === 'manager';
-    const NAV = [['dash', 'Dashboard', 'ph-gauge'], ['round', 'Daily Round', 'ph-clipboard-text'], ['bug', 'Bug & pH', 'ph-flask'], ['washer', 'Washers', 'ph-drop'], ['mix', 'Mix Tank', 'ph-cylinder'], ['dust', 'Dust/Mist & Skimmer', 'ph-wind'], ['leadec', 'Leadec Log', 'ph-broom'], ['reports', 'Reports', 'ph-file-text', 1], ['master', 'Master Data', 'ph-database', 1]];
-    const screen = !mgr && (st.screen === 'reports' || st.screen === 'master') ? 'round' : st.screen;
+    const NAV = [['dash', 'Dashboard', 'ph-gauge'], ['round', 'Daily Round', 'ph-clipboard-text'], ['assign', 'Assignments', 'ph-users-three'], ['bug', 'Bug & pH', 'ph-flask'], ['washer', 'Washers', 'ph-drop'], ['mix', 'Mix Tank', 'ph-cylinder'], ['dust', 'Dust, Mist & Skimmer', 'ph-wind'], ['leadec', 'Leadec Log', 'ph-broom'], ['imports', 'Imports', 'ph-file-arrow-up', 1], ['reports', 'Reports', 'ph-file-text', 1], ['master', 'Master Data', 'ph-database', 1]];
+    const screen = !mgr && (st.screen === 'reports' || st.screen === 'master' || st.screen === 'imports') ? 'round' : st.screen;
     const navItems = NAV.filter(n => mgr || !n[3]).map(([key, label, icon]) => {
       const a = key === screen;
       return { label, icon, bg: a ? 'var(--color-accent-100)' : 'transparent', fg: a ? 'var(--color-accent-800)' : 'var(--color-text)', weight: a ? 600 : 400, bar: a ? 'inset 0 -3px 0 var(--color-accent)' : 'none', onClick: () => this.setState({ screen: key }) };
@@ -1797,7 +2297,13 @@ class Component extends DCLogic {
       bug: this.vBug(), wash: this.vWash(), mix: this.vMix(), chk: this.vChecks(), ldc: this.vLeadec(), mst: mgr ? this.vMaster() : { tabs: [] },
       isRound: screen === 'round', isDash: screen === 'dash', isReports: screen === 'reports',       round: this.vRound(), dash: screen === 'dash' ? this.vDash() : { tiles: [], latest: [], warnings: [] },
       rep, wk, tr, gen: screen === 'reports' && rep.isGen ? this.vGen(st.report) : { figs: [], sections: [] }, drawer: this.vDrawer(), dlg: this.vDialog(),
-      hasToast: !!st.toast, toast: st.toast || ''
+      hasToast: !!st.toast, toast: st.toast || '',
+      fb: this.vFb((NAV.find(n => n[0] === screen) || [, 'App'])[1]),
+      areas: AREAS.map(([k]) => ({ k, on: st.area === k, pick: () => this.setState({ area: k }) })),
+      isAssign: screen === 'assign', asg: screen === 'assign' ? this.vAssign() : { cats: [], techs: [], groups: [] },
+      isImports: screen === 'imports', imp: this.vImports(), sms: this.vSms(),
+      lineOpts: LINES.filter(l => ROUND.some(s => s.line === l)),
+      notPilot: st.area !== 'Sprint', areaName: (AREAS.find(a => a[0] === st.area) || AREAS[0])[1], areaNote: (AREAS.find(a => a[0] === st.area) || AREAS[0])[2]
     };
   }
 }

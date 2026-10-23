@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="vendor/broadsheet/styles.css">
+<script src="vendor/broadsheet/ds-bundle.js"></script>
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+figure,.keep{break-inside:avoid}
+</style>
+</helmet>
+<doc-page size="letter" margin="0.75in">
+  <div style="font-family:var(--font-body);color:var(--color-text);font-size:14.5px;line-height:1.6">
+    <h1 style="margin:0 0 6px;font-size:34px;line-height:1.15">Coolant Data Capture — Functional Overview</h1>
+    <p style="margin:0 0 4px;font-size:15px;color:var(--color-neutral-700)">TNGA machining area · Prototype walkthrough · October 2026</p>
+    <p style="margin:0 0 28px;font-size:13px;color:var(--color-neutral-700)">Prepared by Ideal Technology Solutions</p>
+
+    <h2 style="font-size:22px;margin:0 0 8px">What the app does</h2>
+    <p style="margin:0 0 12px">Coolant Data Capture replaces the paper and spreadsheet coolant round. Fluid techs record refractometer readings, bug slides, washer titrations, mix-tank batches and housekeeping checks on a tablet at the machine. The app calculates concentration and dosing on the spot, flags anything out of range, and builds the weekly reports managers send to the plant.</p>
+
+    <h3 style="font-size:17px;margin:18px 0 8px">Who uses it</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:13.5px;margin:0 0 18px">
+      <thead><tr style="text-align:left;border-bottom:1px solid var(--color-divider)"><th style="padding:6px 8px 6px 0;font-weight:600">Role</th><th style="padding:6px 8px;font-weight:600">Can do</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-200)"><td style="padding:6px 8px 6px 0;vertical-align:top;width:150px"><strong>Internal Tech</strong></td><td style="padding:6px 8px">Enter, edit and delete readings for their own shift. Other shift's rows and the Leadec log are read only.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-200)"><td style="padding:6px 8px 6px 0;vertical-align:top"><strong>External Tech (Leadec)</strong></td><td style="padding:6px 8px">Enter readings and the cleaning log. Edit only their own entries for 5 days. Cannot delete.</td></tr>
+        <tr><td style="padding:6px 8px 6px 0;vertical-align:top"><strong>Manager</strong></td><td style="padding:6px 8px">Everything above, plus Reports, Master Data, deleting any entry and sending the Weekly Status.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:17px;margin:18px 0 8px">A typical shift</h3>
+    <ol style="margin:0 0 12px;padding-left:22px">
+      <li>Open <strong>Daily Round</strong>. Only the systems due today for your shift are listed.</li>
+      <li>Enter the Brix reading. Concentration and the dosing amount appear instantly.</li>
+      <li>Add product, enter what was added and the final RI. Out-of-range rows need a comment before they save.</li>
+      <li>On Monday dip bug slides and on Wednesday read them in <strong>Bug &amp; pH</strong>. Titrate washers once a week.</li>
+      <li>Managers check the <strong>Dashboard</strong> during the day and send the <strong>Weekly Status</strong> on Friday.</li>
+    </ol>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Header, roles and offline mode</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/01-offline-header.jpg" alt="App header showing offline badge" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Offline: entries queue on the tablet and the badge counts what is waiting to sync.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>The header shows area, date and ISO week number, plus connection status.</li>
+      <li>When the tablet loses Wi-Fi the app keeps working. Saved entries queue up and sync automatically when it reconnects.</li>
+      <li>The navigation bar changes with role. Reports and Master Data appear for managers only.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Daily Round</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/02-daily-round.jpg" alt="Daily Round screen" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Systems due today, grouped by line, with progress for the shift.</figcaption>
+    </figure>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/03-round-dosing.jpg" alt="Out-of-range row with dosing prompt" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">A low reading turns the row red and tells the tech exactly how much product to add.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>Concentration %</strong> = Brix × the product's refractive factor (for example GTS-120 × 1.29).</li>
+      <li><strong>To add (L)</strong> = (target % − reading %) ÷ 100 × sump litres, shown in litres and gallons. Example: Block OP 10-A at 3.5 Brix → 4.5% → add 11.9 L (3.1 gal).</li>
+      <li>Final RI estimates itself from what was added and can be overwritten with the re-test.</li>
+      <li>A row still out of range after dosing cannot save without a comment, picked from the standard list or typed.</li>
+      <li>Pit rows offer water additions (+1,000 to +15,000 L), and the date is stamped automatically.</li>
+      <li>Every saved row shows who entered it and when. Locked rows show a padlock with the reason.</li>
+    </ul>
+
+    <h3 style="font-size:17px;margin:18px 0 8px">Entry and audit history</h3>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/04-audit-drawer.jpg" alt="Audit drawer" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Tapping the time stamp opens the entry, its calculation and every change made to it.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px">Each edit records who changed what, from and to. Deleting is limited to managers and techs on the entry's own shift, and always asks for confirmation.</p>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Dashboard</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/05-dashboard.jpg" alt="Dashboard" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Four tiles: due today, completed, out of range, and missing comments.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Latest reading per system, filterable by line, shift and schedule group.</li>
+      <li>Today's warnings list missing readings and out-of-range entries without comments, each with a button that jumps straight to the fix.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Bug &amp; pH</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/06-bug-ph.jpg" alt="Bug and pH screen" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">This week's test group (A or B by week parity) plus the weekly systems.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Bacteria and fungus readings (0–4), action taken, initial and final pH, and doses of Grotan, LA-33 and WR-90.</li>
+      <li>Flags fire at bacteria 3 or more, fungus 2 or more, or pH outside 8.9–9.6, with a short instruction.</li>
+      <li>Chemical totals are shown per line and for the whole area. Results feed the Weekly Status automatically.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Washers</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/07-washers.jpg" alt="Washers screen" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Weekly titration for every washer, including Assembly and the Regrind parts washer.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Number of drops against each washer's drop limit, Brix → RI %, pH, free oil, tank level, skimmer and WR-90 added.</li>
+      <li>Dosing prompts work the same way as the round. Heavy oil with a broken skimmer prompts a work order.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Mix Tank</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/08-mix-tank.jpg" alt="Mix Tank screen" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Today's batch with live calculations, and the week's log below.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Raw to mix, water and mix to line in litres. Mix #1 and #2 concentration = Brix × 1.29.</li>
+      <li>The expected % from the raw-to-water ratio is shown beside each reading. Readings more than 0.5 points off turn amber.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Dust/Mist &amp; Skimmer Checks</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/09-dust-skimmer.jpg" alt="Dust/Mist and Skimmer checks" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">A monthly grid of workdays by line. One tap per check.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px">Tap a cell to cycle O (OK), X (problem) and blank. The tech's initials are added. Missed past days show amber, and problem and missed counts total on the right.</p>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Leadec Cleaning Log</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/10-leadec-log.jpg" alt="Leadec cleaning log" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Machines in Leadec's scope with a box for each week of the month.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px">Ticking a week records the clean and recharge with initials and date. Future weeks are locked. Cleanings also show as markers on the trend charts.</p>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Reports (manager)</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/11-weekly-status.jpg" alt="Weekly Status report" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Weekly Status: one page per line, with green and red cells by range and the bug and pH columns.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>A review checklist above the report lists missing readings, out-of-range entries without comments, unread slides and missing pH before anything is sent.</li>
+      <li><strong>Send</strong> opens the distribution-list picker. Nothing goes out until the manager confirms, and the send is logged.</li>
+      <li>Only days actually worked appear. A Monday holiday moves the MWTH round to Tuesday.</li>
+    </ul>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/12-chemical-use.jpg" alt="Chemical Use report" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Chemical Use: coolant, Grotan, LA-33, WR-90 and pit water by line, with area totals and a mix-tank summary.</figcaption>
+    </figure>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/13-trend-chart.jpg" alt="Trend chart" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Trend Charts: 11 weeks of concentration against the target band, with Leadec cleans marked.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px">Also included: Washer Report, Regrind Parts Washer, Assembly Washer, Bug and pH, Leadec Weekly and Dust/Mist. Each has PDF and Excel export.</p>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Master Data (manager)</h2>
+    <figure style="margin:0 0 14px">
+      <img src="screenshots/14-master-data.jpg" alt="Master Data" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12.5px;color:var(--color-neutral-700);margin-top:6px">Systems tab: the workload split between MWTH and TF, with every system's settings.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>Systems</strong>: move a machining system between MWTH and TF to balance the round. The change applies immediately.</li>
+      <li><strong>Products</strong>: refractive factors. <strong>Pick Lists</strong>: add or remove standard comments.</li>
+      <li><strong>Distribution List</strong>, <strong>Holiday Calendar</strong> (add or remove future holidays) and <strong>Users</strong> with their permissions.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">Schedule rules</h2>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>Pits</strong>: every workday. <strong>MWTH</strong>: Monday, Wednesday and Thursday. <strong>TF</strong>: Tuesday and Friday. <strong>Washers</strong>: weekly.</li>
+      <li>Bug testing alternates Group A and Group B by week. Weekly systems are tested every week.</li>
+      <li>No readings are due on holidays.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:30px 0 8px">What's left before production</h2>
+    <p style="margin:0 0 10px">The prototype shows every screen and rule working on realistic sample data. To become the live app it still needs:</p>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>Database and sign-in.</strong> Data is held in memory today and resets on reload. Roles are switched from a demo menu, not a real login.</li>
+      <li><strong>Real exports and email.</strong> PDF, Excel and Send show confirmations only. Report files and sending to the distribution lists need building.</li>
+      <li><strong>True offline sync.</strong> Offline is simulated with a toggle. Production needs storage on the device and conflict handling when two techs edit the same row.</li>
+      <li><strong>Confirmed plant data.</strong> The system list, refractive factors, drop limits, Leadec scope and distribution lists are sample values to be replaced with the plant's own.</li>
+      <li><strong>Rules to confirm.</strong> Treating fewer drops than the limit as low, the 0.5-point mix-tank tolerance, and the chemical dose units (litres) are assumptions.</li>
+      <li><strong>Consistent saving.</strong> The Daily Round and Mix Tank use a Save button, while the other capture screens save as you type. Pick one pattern.</li>
+      <li><strong>Editing Master Data.</strong> Systems can be moved between MWTH and TF, but adding, retiring or re-ranging systems, and editing products, users and lists beyond comments, isn't built yet.</li>
+    </ul>
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>
