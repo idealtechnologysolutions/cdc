@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="vendor/broadsheet/styles.css">
+<script src="vendor/broadsheet/ds-bundle.js"></script>
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+figure,.keep{break-inside:avoid}
+</style>
+</helmet>
+<doc-page size="letter" margin="0.7in">
+  <div style="font-family:var(--font-body);color:var(--color-text);font-size:14px;line-height:1.6">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 20px">
+      <img src="assets/chemico-logo.png" alt="The Chemico Group" style="height:48px;width:auto;display:block">
+      <span style="font-size:12px;color:var(--color-neutral-700);text-align:right">Prepared by Ideal Technology Solutions</span>
+    </div>
+    <h1 style="margin:0 0 6px;font-size:32px;line-height:1.15;text-wrap:pretty">Coolant Data Capture — Prototype Features</h1>
+    <p style="margin:0 0 28px;font-size:14px;color:var(--color-neutral-700)">Sprint / TRUQ2 pilot · TMMAL · October 2026 · updated with Jeff Davis’s answers</p>
+
+    <h2 style="font-size:21px;margin:0 0 8px">What the app is</h2>
+    <p style="margin:0 0 10px;text-wrap:pretty">Coolant Data Capture replaces the paper and Excel coolant round. Fluid techs carry a tablet and record each check at the machine. The app works out concentration and dosing on the spot, flags anything out of range, alerts Group Leads when a collector fails, and builds the reports managers send to Toyota.</p>
+    <p style="margin:0 0 10px;text-wrap:pretty">The pilot covers Sprint / TRUQ2: 132 systems across Shaft 1/2, 3/4 and 5/6, Carrier, Cap, Case, Manual Case and Assembly, plus 18 parts washers, taken from the Sprint master template. TNGA, V6T and 24T will be adapted from the pilot after plant walks.</p>
+
+    <h3 style="font-size:16px;margin:18px 0 8px">Who uses it</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:13px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top;width:150px"><strong>Internal tech</strong></td><td style="padding:7px 0">Does the rounds and checks for their own shift. Shift 1: Harry Woessner, Keith Hamby, Emily Womack, Nick Loftin. Shift 2: Ruben Robinson, Earl Grigsby, Justin Reed.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>External tech (Yushiro)</strong></td><td style="padding:7px 0">Michael Ward, 1st shift. Records readings and edits only his own entries, for 5 days.</td></tr>
+        <tr><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Manager</strong></td><td style="padding:7px 0">Everything above, plus Assignments, Imports, Reports, Master Data and the Leadec Log.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:16px;margin:18px 0 8px">A typical day</h3>
+    <ol style="margin:0 0 12px;padding-left:22px">
+      <li>The manager has assigned techs to each job for the week.</li>
+      <li>The tech opens the Dashboard to see what's due, then works through the Daily Round.</li>
+      <li>They do their other checks: bug slides, pH, washers, dust and mist collectors.</li>
+      <li>A failed collector sends a text to the Group Lead whose crew is on shift for that area.</li>
+      <li>At the end of the week the manager imports the General Stores and Leadec files, reviews the reports and sends them to Toyota.</li>
+    </ol>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">1. Dashboard</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/01-dashboard.jpg?v=2" alt="Dashboard" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">The day at a glance, with the latest reading for every system.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Four counts: systems due today, completed, out of range, and missing comments.</li>
+      <li>Latest reading per system, filtered by line, shift and schedule group, 40 systems to a page.</li>
+      <li>Today's warnings list each missing reading or uncommented problem, with a button that goes straight to it.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">2. Daily Round</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/02-daily-round.jpg?v=2" alt="Daily Round" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Systems due today for the chosen shift, grouped by line, with the assigned tech's color on each row.</figcaption>
+    </figure>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/03-round-dosing.jpg?v=2" alt="Low reading with dosing prompt" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">A low reading turns the row red and says exactly how much product to add.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>The tech enters the refractometer reading (Brix). The app converts it to concentration % using the product's factor.</li>
+      <li>Below the low limit, the app works out the litres (and gallons) needed to reach target.</li>
+      <li>Tank level, skimmer, virgin or recycled fluid and the final reading are recorded on the same row.</li>
+      <li>A row still out of range after dosing can't be saved without a comment.</li>
+      <li>MDS-570 systems aren't refracted, so they're listed under the round heading and left off it.</li>
+      <li>Progress for the shift shows at the top. Each saved entry records who made it and when.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">3. Assignments <span style="font-size:14px;font-weight:400;color:var(--color-neutral-700)">· manager</span></h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/04-assignments.jpg?v=2" alt="Assignments" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Who covers what, by shift.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Separate lists for concentration rounds, bug slides and pH, dust and mist collectors, and washers.</li>
+      <li>Assign one system at a time, or a whole line or shift in one step.</li>
+      <li>Each tech has a color that carries through to the Daily Round and the check sheets, so everyone can see their own work.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">4. Bug &amp; pH</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/05-bug-ph.jpg?v=2" alt="Bug and pH" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">This week's test group, plus the systems tested every week.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Slides are dipped Monday and read Wednesday. Groups A and B alternate by week.</li>
+      <li>Bacteria and fungus readings, action taken, pH before and after, and doses of Grotan, LA-33 and WR-90.</li>
+      <li>High counts or pH outside range are flagged with a short instruction.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">5. Washers</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/06-washers.jpg?v=2" alt="Washers" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Weekly titration for all 18 Sprint washers. The three Shaft washers now sit under their own lines.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px;text-wrap:pretty">Drops against each washer's limit, concentration, pH, free oil, tank level and skimmer. Weak washers are flagged and dosing works the same way as the round. G-5300ME washers aren't refracted, so their Brix field is locked and pH, oil and tank are still recorded.</p>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">6. Mix Tank</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/07-mix-tank.jpg?v=2" alt="Mix Tank" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Today's batch with live calculations, and the week's log below.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px;text-wrap:pretty">Raw fluid, water and mix sent to line, in litres. The app shows the expected strength from the mix ratio beside each reading and highlights any that don't match.</p>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">7. Dust, Mist &amp; Skimmer checks</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/08-dust-mist.jpg?v=2" alt="Dust collector check sheet" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">A monthly sheet of workdays by area. Dust, Mist and Skimmer each have their own sheet.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>One tap per check: O for OK, X for Not Good. The tech's initials are added.</li>
+      <li>Missed days show amber. Dust and mist collectors are kept separate, each with its own report.</li>
+    </ul>
+
+    <h3 style="font-size:16px;margin:18px 0 8px">Text alert to Group Leads</h3>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/09-text-alert.jpg?v=2" alt="Text message preview" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Marking a collector X pre-selects the Group Lead whose crew is on shift.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px;text-wrap:pretty">Shaft collectors go to the Shaft Group Leads (Melisha Martin, Moises Rodriguez); Carrier, Case and Cap go to the Carrier/Diff Group Leads (Jason Todd, Josh Reyer). Green and Yellow crews rotate two weeks on days and two on nights, and only Group Leads get the text. In the prototype the text is a preview only.</p>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">8. Leadec Log</h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/10-leadec-log.jpg?v=2" alt="Leadec Cleaning Log" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Every machine in Leadec's scope, with a box for each week of the month. Week 2 shows Leadec’s real 10/10 completions.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px;text-wrap:pretty">The manager ticks a week or imports Leadec’s completion sheet. Rescheduled cleanings show amber with the reason, for example no G-2200T onsite. Cleanings also appear as markers on the trend charts.</p>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">9. Imports <span style="font-size:14px;font-weight:400;color:var(--color-neutral-700)">· manager</span></h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/11-imports.jpg?v=2" alt="Imports" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Leadec’s 10/10–10/11 sheet, matched machine by machine to the CDC system list.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>General Stores fluid orders:</strong> reads the all-area order calendar and compares Sprint/TRUQ2 orders with what techs recorded adding.</li>
+      <li><strong>Leadec schedule:</strong> completed cleanings are ticked in the Leadec Log and rescheduled ones are flagged. Typos in machine numbers are matched, and machines not in the system list are called out.</li>
+      <li>Columns are matched by their headings, so the files don't need a fixed layout.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">10. Reports <span style="font-size:14px;font-weight:400;color:var(--color-neutral-700)">· manager</span></h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/12-reports.jpg?v=2" alt="Weekly Status report" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Weekly Status, with a checklist of open items to fix before sending.</figcaption>
+    </figure>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/14-trend.jpg?v=2" alt="Trend chart" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Trend chart: 11 weeks of concentration against the target range, with Leadec cleans marked.</figcaption>
+    </figure>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>Ten reports: Weekly Status, Washer Report, Assembly Washer, Chemical Use, Bug and pH, Leadec Weekly, Dust Collectors, Mist Collectors, Skimmers and Trend Charts.</li>
+      <li>Each report has PDF and Excel export and a <strong>Send to managers</strong> button with Toyota’s four lists: Sprint/TRUQ2, TNGA, 103E/V6T and 152E/2.4T.</li>
+    </ul>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">11. Master Data <span style="font-size:14px;font-weight:400;color:var(--color-neutral-700)">· manager</span></h2>
+    <figure style="margin:0 0 12px">
+      <img src="screenshots/sprint/13-alert-contacts.jpg?v=2" alt="Alert Contacts" style="width:100%;display:block;box-shadow:var(--shadow-sm)">
+      <figcaption style="font-size:12px;color:var(--color-neutral-700);margin-top:6px">Alert Contacts: Jeff’s Group Leads for all four areas, with crew and cell phone.</figcaption>
+    </figure>
+    <p style="margin:0 0 12px;text-wrap:pretty">The lists everything else depends on: systems and their limits, products, comment pick lists, report distribution lists, alert contacts, the holiday calendar and users. Changes apply straight away.</p>
+
+    <h2 style="font-size:21px;margin:32px 0 8px">Also built in</h2>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li><strong>Offline mode:</strong> techs keep working without Wi-Fi. Entries wait on the tablet and sync when it reconnects.</li>
+      <li><strong>Feedback:</strong> reviewers can leave a note on any screen.</li>
+      <li><strong>Plant areas:</strong> TNGA, V6T and 24T tabs are in place for the next phases.</li>
+    </ul>
+
+    <div class="keep">
+      <h2 style="font-size:21px;margin:32px 0 8px">About this prototype</h2>
+      <ul style="margin:0 0 12px;padding-left:20px">
+        <li>It shows every screen and rule working, but has no database. Data resets when the page is reloaded.</li>
+        <li>Tech names, Group Leads, phone numbers, report lists and the order and Leadec files are Jeff Davis’s real data. Readings and history are still made up.</li>
+        <li>Still to confirm: when the current crew rotation started, the 2.4T Cam &amp; Crank Green Group Lead, the V6T Head Yellow Group Lead, whether Carrier, Cap, Case, Manual Case and Assembly are split evenly between the two shifts, and 8 machines on Leadec’s sheet that aren’t in the system list.</li>
+        <li>Texts, emails and exports show a preview or confirmation only. Nothing is sent.</li>
+      </ul>
+    </div>
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>
