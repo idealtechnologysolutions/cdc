@@ -1,0 +1,61 @@
+/* Chemico brand layer — Graphic Standards, Edition Q1 2021.
+   Loaded after the Broadsheet sheet; retunes its tokens to the Chemico palette and type.
+   Palette (CMYK/RGB from the standards): Pantone 641 C R0 G106 B152 · Pantone Cool Grey 6 C R169 G168 B169 · White · Black R35 G31 B32.
+   Usage ratio: blue dominant (~70%), cool grey (~20%), white (~10%); black for type.
+   Type: "Regular" by A2 Type — Bold headlines, Semi Bold sub heads, Regular body. Jost stands in until the licensed font files are supplied. */
+@import url('https://fonts.googleapis.com/css2?family=Jost:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap');
+:root {
+  --chemico-blue: #006A98;
+  --chemico-cool-grey: #A9A8A9;
+  --chemico-white: #FFFFFF;
+  --chemico-black: #231F20;
+
+  --color-bg: #FFFFFF;
+  --color-surface: #F5F5F5;
+  --color-text: #231F20;
+  --color-accent: #006A98;
+  --color-accent-2: #A9A8A9;
+  --color-divider: color-mix(in srgb, #231F20 18%, transparent);
+
+  --color-neutral-100: #f8f6f7;
+  --color-neutral-200: #ebe9e9;
+  --color-neutral-300: #d6d3d4;
+  --color-neutral-400: #b7b3b4;
+  --color-neutral-500: #959192;
+  --color-neutral-600: #767273;
+  --color-neutral-700: #5b5758;
+  --color-neutral-800: #423f3f;
+  --color-neutral-900: #2b2829;
+
+  --color-accent-100: #eff8ff;
+  --color-accent-200: #d4eeff;
+  --color-accent-300: #b1dbf6;
+  --color-accent-400: #88bcdd;
+  --color-accent-500: #5b9ac1;
+  --color-accent-600: #2c7ba7;
+  --color-accent-700: #0f5f86;
+  --color-accent-800: #074563;
+  --color-accent-900: #002d43;
+
+  --color-accent-2-100: #f7f6f7;
+  --color-accent-2-200: #eae9ea;
+  --color-accent-2-300: #d4d4d4;
+  --color-accent-2-400: #b4b4b4;
+  --color-accent-2-500: #939293;
+  --color-accent-2-600: #737373;
+  --color-accent-2-700: #585858;
+  --color-accent-2-800: #403f40;
+  --color-accent-2-900: #292929;
+  --color-accent-2-500: #A9A8A9;
+
+  --font-heading: "Regular", "Jost", "Futura", "Century Gothic", sans-serif;
+  --font-heading-weight: 700;
+  --font-body: "Regular", "Jost", "Futura", "Century Gothic", sans-serif;
+
+  --shadow-sm: 0 1px 2px color-mix(in srgb, #231F20 14%, transparent);
+  --shadow-md: 0 3px 10px color-mix(in srgb, #231F20 16%, transparent);
+  --shadow-lg: 0 12px 32px color-mix(in srgb, #231F20 22%, transparent);
+}
+h2, h3, h4, h5, h6 { font-weight: 600; }
+h1 { font-weight: 700; }
+.btn { font-weight: 600; }

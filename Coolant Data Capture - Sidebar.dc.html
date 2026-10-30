@@ -10,6 +10,7 @@
 <helmet>
 <link rel="stylesheet" href="vendor/broadsheet/styles.css">
 <script src="vendor/broadsheet/ds-bundle.js"></script>
+<link rel="stylesheet" href="vendor/chemico/brand.css">
 <link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/duotone/style.css">
 <style>
 body{margin:0;background:var(--color-bg)}
@@ -23,30 +24,30 @@ button:disabled{cursor:default}
   <datalist id="cmt-std"><sc-for list="{{ commentsStd }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
   <datalist id="cmt-pit"><sc-for list="{{ commentsPit }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
 
-  <aside style="position:sticky;top:0;height:100vh;width:{{ sideW }};flex:none;display:flex;flex-direction:column;gap:18px;padding:22px {{ sidePad }} 18px;box-sizing:border-box;background:var(--color-neutral-100);box-shadow:var(--shadow-sm);overflow-y:auto;overflow-x:hidden;z-index:25;transition:width .18s ease">
+  <aside style="position:sticky;top:0;height:100vh;width:{{ sideW }};flex:none;display:flex;flex-direction:column;gap:18px;padding:22px {{ sidePad }} 18px;box-sizing:border-box;background:var(--chemico-blue);color:var(--chemico-white);box-shadow:var(--shadow-sm);overflow-y:auto;overflow-x:hidden;z-index:25;transition:width .18s ease">
     <sc-if value="{{ notMini }}" hint-placeholder-val="{{ true }}">
-      <div style="display:flex;flex-direction:column;gap:14px;padding:0 6px;flex:none">
-        <img src="assets/chemico-logo.png" alt="The Chemico Group" style="height:58px;width:auto;max-width:100%;object-fit:contain;object-position:left;display:block">
+      <div style="display:flex;flex-direction:column;gap:30px;padding:16px 24px 0;flex:none">
+        <img src="assets/chemico-logo-reversed.png" alt="Chemico" style="width:148px;height:auto;display:block">
         <div style="display:flex;flex-direction:column;gap:2px">
-          <span style="font-family:var(--font-heading);font-weight:600;font-size:21px;line-height:1.15;letter-spacing:-0.015em">Coolant Data Capture</span>
-          <span style="font-size:13px;color:var(--color-neutral-700)">CMIS · TMMAL plant</span>
+          <span style="font-family:var(--font-heading);font-weight:700;font-size:21px;line-height:1.15;color:var(--chemico-white)">Coolant Data Capture</span>
+          <span style="font-size:13px;color:var(--color-accent-200)">CMIS · TMMAL plant</span>
         </div>
       </div>
-      <div class="seg" title="Plant area" style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr))">
+      <div title="Plant area" style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;border-radius:var(--radius-lg);background:var(--color-accent-800)">
         <sc-for list="{{ areas }}" as="ar" hint-placeholder-count="4">
-          <label class="seg-opt" style="min-height:36px;padding:0 4px;font-size:13px;justify-content:center;white-space:nowrap"><input type="radio" name="area" checked="{{ ar.on }}" onChange="{{ ar.pick }}">{{ ar.k }}</label>
+          <button onClick="{{ ar.pick }}" aria-pressed="{{ ar.on }}" style="min-height:36px;padding:0 4px;border:0;border-radius:var(--radius-md);background:{{ ar.bg }};color:{{ ar.fg }};font:inherit;font-size:13px;font-weight:{{ ar.weight }};white-space:nowrap;cursor:pointer" style-hover="box-shadow:inset 0 0 0 1px var(--chemico-white)">{{ ar.k }}</button>
         </sc-for>
       </div>
     </sc-if>
     <sc-if value="{{ mini }}" hint-placeholder-val="{{ false }}">
-      <div title="The Chemico Group · Coolant Data Capture" style="flex:none;width:40px;height:48px;overflow:hidden;margin:0 auto">
-        <img src="assets/chemico-logo.png" alt="The Chemico Group" style="height:48px;width:auto;display:block;max-width:none">
+      <div title="Chemico · Coolant Data Capture" style="flex:none;padding:6px 0;margin:0 auto">
+        <img src="assets/chemico-icon-reversed.png" alt="Chemico" style="width:38px;height:auto;display:block">
       </div>
     </sc-if>
 
     <nav style="flex:none;display:flex;flex-direction:column;gap:2px">
       <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="9">
-        <button onClick="{{ n.onClick }}" title="{{ n.label }}" style="display:flex;align-items:center;justify-content:{{ navJustify }};gap:12px;min-height:46px;padding:0 12px;border:0;background:{{ n.bg }};color:{{ n.fg }};box-shadow:{{ n.bar }};font:inherit;font-size:15px;font-weight:{{ n.weight }};text-align:left;white-space:nowrap;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-accent-100)">
+        <button onClick="{{ n.onClick }}" title="{{ n.label }}" style="display:flex;align-items:center;justify-content:{{ navJustify }};gap:12px;min-height:46px;padding:0 12px;border:0;background:{{ n.bg }};color:{{ n.fg }};box-shadow:{{ n.bar }};font:inherit;font-size:15px;font-weight:{{ n.weight }};text-align:left;white-space:nowrap;cursor:pointer;border-radius:var(--radius-md)" style-hover="box-shadow:inset 0 0 0 1px var(--chemico-white)">
           <i class="ph-duotone {{ n.icon }}" style="font-size:22px;flex:none"></i><sc-if value="{{ notMini }}" hint-placeholder-val="{{ true }}"><span style="overflow:hidden;text-overflow:ellipsis">{{ n.label }}</span></sc-if>
         </button>
       </sc-for>
@@ -56,19 +57,15 @@ button:disabled{cursor:default}
       <sc-if value="{{ notMini }}" hint-placeholder-val="{{ true }}">
         <div style="display:flex;flex-direction:column;gap:14px;padding:0 6px">
           <div style="display:flex;align-items:center;gap:12px">
-            <img src="assets/toyota-logo.png" alt="Toyota" style="height:46px;width:auto;display:block;flex:none">
-            <span style="font-size:12px;line-height:1.35;color:var(--color-neutral-700)">Toyota · TMMAL</span>
-          </div>
-          <div style="display:flex;flex-direction:column;gap:6px">
-            <span style="font-size:11px;letter-spacing:0.08em;text-transform:uppercase;color:var(--color-neutral-700)">Built by</span>
-            <img src="assets/ideal-logo.png" alt="Ideal Technology Solutions" style="height:34px;width:auto;max-width:100%;object-fit:contain;object-position:left;display:block">
+            <img src="assets/toyota-logo.png" alt="Toyota" style="height:46px;width:auto;display:block;flex:none;filter:brightness(0) invert(1)">
+            <span style="font-size:12px;line-height:1.35;color:var(--color-accent-200)">Toyota · TMMAL</span>
           </div>
         </div>
       </sc-if>
       <sc-if value="{{ mini }}" hint-placeholder-val="{{ false }}">
-        <img src="assets/toyota-logo.png" alt="Toyota" title="Toyota · TMMAL" style="height:34px;width:auto;display:block;margin:0 auto">
+        <img src="assets/toyota-logo.png" alt="Toyota" title="Toyota · TMMAL" style="height:34px;width:auto;display:block;margin:0 auto;filter:brightness(0) invert(1)">
       </sc-if>
-      <button onClick="{{ toggleMini }}" title="{{ miniLabel }}" style="display:flex;align-items:center;justify-content:{{ navJustify }};gap:10px;min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--color-neutral-700);font:inherit;font-size:13px;cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-accent-100);color:var(--color-accent-800)">
+      <button onClick="{{ toggleMini }}" title="{{ miniLabel }}" style="display:flex;align-items:center;justify-content:{{ navJustify }};gap:10px;min-height:44px;padding:0 12px;border:0;background:transparent;color:var(--color-accent-200);font:inherit;font-size:13px;cursor:pointer;border-radius:var(--radius-md)" style-hover="box-shadow:inset 0 0 0 1px var(--chemico-white);color:var(--chemico-white)">
         <i class="ph-duotone {{ miniIcon }}" style="font-size:20px;flex:none"></i><sc-if value="{{ notMini }}" hint-placeholder-val="{{ true }}"><span>{{ miniLabel }}</span></sc-if>
       </button>
     </div>
@@ -398,7 +395,7 @@ button:disabled{cursor:default}
               <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;border-radius:50%;background:var(--color-text)"></span>In-range reading</span>
               <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:oklch(0.55 0.19 25)"></span>Low (red square)</span>
               <span style="display:flex;align-items:center;gap:6px"><span style="width:9px;height:9px;background:oklch(0.78 0.15 98);box-shadow:inset 0 0 0 1px var(--color-text)"></span>High (yellow square)</span>
-              <span style="display:flex;align-items:center;gap:6px"><span style="width:2px;height:14px;background:var(--color-accent-2)"></span>Leadec clean &amp; recharge</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:2px;height:14px;background:var(--color-accent-2-600)"></span>Leadec clean &amp; recharge</span>
             </div>
             <div style="background:var(--color-neutral-100);padding:20px 16px 8px;box-shadow:var(--shadow-sm)">{{ tr.chart }}</div>
           </div>
@@ -1443,7 +1440,7 @@ const TECHS = {
   RR: { short: 'RR', name: 'Ruben Robinson', shift: 2, bg: 'var(--color-accent-100)', fg: 'var(--color-accent-800)', bar: 'var(--color-accent)' },
   EG: { short: 'EG', name: 'Earl Grigsby', shift: 2, bg: 'var(--color-accent-2-100)', fg: 'var(--color-accent-2-800)', bar: 'var(--color-accent-2)' },
   JR: { short: 'JR', name: 'Justin Reed', shift: 2, bg: 'oklch(0.94 0.07 95)', fg: 'oklch(0.4 0.08 80)', bar: 'oklch(0.8 0.15 90)' },
-  MW: { short: 'MW', name: 'Michael Ward (Yushiro)', shift: 0, ext: true, bg: 'var(--color-neutral-200)', fg: 'var(--color-neutral-800)', bar: 'var(--color-neutral-600)' }
+  MW: { short: 'MW', name: 'Michael Ward (Yushiro)', shift: 0, ext: true, bg: 'var(--color-neutral-800)', fg: 'var(--chemico-white)', bar: 'var(--color-neutral-800)' }
 };
 const GLS = [
   ['Sprint', 'Shaft', 'Green', 'Melisha Martin', '938-261-4959'], ['Sprint', 'Shaft', 'Yellow', 'Moises Rodriguez', '256-603-7236'],
@@ -1984,7 +1981,7 @@ class Component extends DCLogic {
     for (let v = ymin; v <= ymax; v++) k.push(e('g', { key: 'y' + v }, e('line', { x1: L, x2: W - R, y1: Y(v), y2: Y(v), style: { stroke: 'var(--color-divider)' } }), e('text', { x: L - 8, y: Y(v) + 4, textAnchor: 'end', style: { fontSize: 12, fill: 'var(--color-neutral-700)' } }, v + '%')));
     k.push(e('line', { key: 'tgt', x1: L, x2: W - R, y1: Y(s.target), y2: Y(s.target), style: { stroke: ST.ok.fg, strokeDasharray: '2 4' } }));
     for (let d = mondayOf(pts[0].d); d <= TODAY; d = addD(d, 7)) if (pD(d).getTime() >= t0) k.push(e('text', { key: 'x' + d, x: X(d), y: H - 10, textAnchor: 'middle', style: { fontSize: 12, fill: 'var(--color-neutral-700)' } }, md(d)));
-    cleans.forEach((c, i) => k.push(e('g', { key: 'c' + i }, e('line', { x1: X(c), x2: X(c), y1: T, y2: H - B, style: { stroke: 'var(--color-accent-2)', strokeWidth: 2, strokeDasharray: '5 4' } }), e('text', { x: X(c) + 5, y: T + 12, style: { fontSize: 12, fill: 'var(--color-accent-2-700)' } }, `Leadec clean ${md(c)}`))));
+    cleans.forEach((c, i) => k.push(e('g', { key: 'c' + i }, e('line', { x1: X(c), x2: X(c), y1: T, y2: H - B, style: { stroke: 'var(--color-accent-2-600)', strokeWidth: 2, strokeDasharray: '5 4' } }), e('text', { x: X(c) + 5, y: T + 12, style: { fontSize: 12, fill: 'var(--color-accent-2-700)' } }, `Leadec clean ${md(c)}`))));
     k.push(e('path', { key: 'p', d: pts.map((p, i) => `${i ? 'L' : 'M'}${X(p.d).toFixed(1)},${Y(p.p).toFixed(1)}`).join(''), style: { fill: 'none', stroke: 'var(--color-text)', strokeWidth: 1.5 } }));
     pts.forEach((p, i) => {
       const ok = inRange(s, p.p), x = X(p.d), y = Y(p.p);
@@ -2495,7 +2492,7 @@ class Component extends DCLogic {
     const screen = okNav(NAV.find(n => n[0] === st.screen) || []) ? st.screen : 'round';
     const navItems = NAV.filter(okNav).map(([key, label, icon]) => {
       const a = key === screen;
-      return { label, icon, bg: a ? 'var(--color-accent-100)' : 'transparent', fg: a ? 'var(--color-accent-800)' : 'var(--color-text)', weight: a ? 600 : 400, bar: a ? 'inset 3px 0 0 var(--color-accent)' : 'none', onClick: () => this.setState({ screen: key }) };
+      return { label, icon, bg: a ? 'var(--chemico-white)' : 'transparent', fg: a ? 'var(--chemico-blue)' : 'var(--chemico-white)', weight: a ? 600 : 400, bar: a ? 'inset 3px 0 0 var(--color-accent)' : 'none', onClick: () => this.setState({ screen: key }) };
     });
     const net = !st.online
       ? { bg: ST.warn.bg, fg: ST.warn.fg, icon: 'ph-wifi-slash', label: 'Offline', showBadge: st.pending > 0, badge: `${st.pending} ${st.pending === 1 ? 'entry' : 'entries'} waiting to sync`, hint: 'Tap to reconnect' }
@@ -2530,7 +2527,7 @@ class Component extends DCLogic {
       canSend: mgr, rep, wk, tr, gen: screen === 'reports' && rep.isGen ? this.vGen(st.report) : { figs: [], sections: [] }, drawer: this.vDrawer(), dlg: this.vDialog(),
       hasToast: !!st.toast, toast: st.toast || '',
       fb: this.vFb((NAV.find(n => n[0] === screen) || [, 'App'])[1]),
-      areas: AREAS.map(([k]) => ({ k, on: st.area === k, pick: () => this.setState({ area: k }) })),
+      areas: AREAS.map(([k]) => ({ k, on: st.area === k, bg: st.area === k ? 'var(--chemico-white)' : 'transparent', fg: st.area === k ? 'var(--chemico-blue)' : 'var(--chemico-white)', weight: st.area === k ? 600 : 400, pick: () => this.setState({ area: k }) })),
       isAssign: screen === 'assign', asg: screen === 'assign' ? this.vAssign() : { cats: [], techs: [], groups: [] },
       isImports: screen === 'imports', imp: this.vImports(), sms: this.vSms(),
       lineOpts: LINES.filter(l => ROUND.some(s => s.line === l)),

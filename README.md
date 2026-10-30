@@ -4,12 +4,15 @@ Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, 
 
 ## Files
 - `index.html` — start page with links
-- `Coolant Data Capture.dc.html` — the prototype (Sprint / TRUQ2 by default)
+- `Coolant Data Capture.dc.html` — the prototype, top menu (Sprint / TRUQ2 by default)
+- `Coolant Data Capture - Sidebar.dc.html` — side-menu layout, Chemico Systems brand (blue menu)
+- `Coolant Data Capture - Header - Sidebar.dc.html` — top bar + white side menu, Chemico Systems brand (Michael's layout)
+- `Sprint Pilot - Prototype Features.dc.html` / `… - Side Menu.dc.html` — feature walkthroughs with screenshots
 - `Coolant Data Capture (TNGA).dc.html` — earlier TNGA version
 - `Sprint Pilot - Questions for Jeff.dc.html` — open questions for the pilot
 - `Coolant Data Capture - Functional Overview.dc.html` — walkthrough with screenshots
 - `Coolant Data Capture - Requirements Sign-off.dc.html` — sign-off sheet
-- `support.js`, `doc-page.js`, `vendor/`, `assets/`, `screenshots/` — required, keep them next to the pages
+- `support.js`, `doc-page.js`, `vendor/` (incl. `vendor/chemico/brand.css` — Chemico Graphic Standards colors and type), `assets/`, `screenshots/` — required, keep them next to the pages
 
 ## Publish on GitHub Pages
 1. Upload **every file and folder above**, including the hidden `.nojekyll` file, to the repository root.
