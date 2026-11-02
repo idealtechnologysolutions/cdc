@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="vendor/broadsheet/styles.css">
+<script src="vendor/broadsheet/ds-bundle.js"></script>
+<link rel="stylesheet" href="vendor/chemico/brand.css">
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+.keep{break-inside:avoid}
+</style>
+</helmet>
+<doc-page size="letter" margin="0.55in">
+  <div style="font-family:var(--font-body);color:var(--color-text);font-size:13.5px;line-height:1.55">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 12px">
+      <img src="assets/chemico-logo-primary.png" alt="Chemico" style="height:44px;width:auto;display:block;margin:12px 0">
+      <span style="font-size:12px;color:var(--color-neutral-700);text-align:right">Prepared by Ideal Technology Solutions</span>
+    </div>
+    <h1 style="margin:0 0 2px;font-size:28px;line-height:1.15">Coolant Data Capture — Open Questions Before Development</h1>
+    <p style="margin:0 0 10px;font-size:13px;color:var(--color-neutral-700)">Sprint / TRUQ2 pilot · Round 4 · 2 November 2026 · For Michael Ward to raise</p>
+    <p style="margin:0 0 6px">Jeff’s round-three answers are now in the prototype. These are the last items we need before development can start.</p>
+    <ul style="margin:0 0 14px;padding-left:20px;font-size:12.5px">
+      <li><strong>Part 1</strong> is for Jeff and Chemico: business rules.</li>
+      <li><strong>Part 2</strong> is for Chemico IT and TMMAL: the technical checklist.</li>
+      <li>Tick <strong>Confirm</strong> where the prototype is right, or write the answer. Return the completed copy to Shabaz.</li>
+    </ul>
+
+    <h2 style="font-size:22px;margin:0 0 4px">Part 1 · Business questions</h2>
+    <p style="margin:0 0 10px;font-size:12.5px;color:var(--color-neutral-700)">Ask: Jeff Davis (Chemico)</p>
+
+    <h3 style="font-size:17px;margin:0 0 6px">A. Washer titration</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 20px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">What the prototype does now</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A1</td><td style="padding:8px 6px;vertical-align:top"><strong>I-42 range</strong></td><td style="padding:8px 6px;vertical-align:top">I-42 keeps G-2200TU’s range of <strong>0.8–1.5%</strong>, so the dose target is 1.15% (mid range).</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">Range ______ %</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A2</td><td style="padding:8px 6px;vertical-align:top"><strong>Counts between chart rows</strong></td><td style="padding:8px 6px;vertical-align:top">When the drop count isn’t on the chart, the % is estimated from the rows either side. For example, 7 drops of I-42 sits between 6 (0.75%) and 9 (1.0%), so it reads <strong>0.83%</strong>. Or should it use the nearest row below (0.75%)?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">☐ Estimate &nbsp; ☐ Row below</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A3</td><td style="padding:8px 6px;vertical-align:top"><strong>Counts above the chart</strong></td><td style="padding:8px 6px;vertical-align:top">More than 13 drops (I-42) or 11 drops (G-5300ME) shows as “above chart” (&gt; 1.5% or &gt; 2.3%). For I-42 this flags as high. Is there a higher chart, or should the tech dilute and re-test?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">A4</td><td style="padding:8px 6px;vertical-align:top"><strong>Chart changes</strong></td><td style="padding:8px 6px;vertical-align:top">Charts are fixed in setup. Should managers be able to edit a chart or add a new product’s chart in Master Data?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">☐ Yes &nbsp; ☐ No</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:17px;margin:0 0 6px">B. Dust/Mist transfer to the Toyota database</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 20px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">What the prototype does now</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B1</td><td style="padding:8px 6px;vertical-align:top"><strong>What is sent</strong></td><td style="padding:8px 6px;vertical-align:top">Every dust and mist check for the month, each marked PASS or FAIL. Failed systems are also listed on screen.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">☐ All checks &nbsp; ☐ Fails only</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B2</td><td style="padding:8px 6px;vertical-align:top"><strong>Fields per record</strong></td><td style="padding:8px 6px;vertical-align:top">Date, plant, area, line, collector type, PASS/FAIL, checked by, Group Leads texted (yes/no). Does Toyota also need a collector ID/asset number, the reason for the fail, or the corrective action?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B3</td><td style="padding:8px 6px;vertical-align:top"><strong>How often</strong></td><td style="padding:8px 6px;vertical-align:top">A manager sends it when needed. Should it be daily, weekly or monthly, and should it send automatically?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">☐ Daily ☐ Weekly ☐ Monthly<br>☐ Automatic</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B4</td><td style="padding:8px 6px;vertical-align:top"><strong>Closing out a fail</strong></td><td style="padding:8px 6px;vertical-align:top">A fail is recorded and the Group Leads are texted. Nothing records when it was fixed. Do we need a “repaired on / by” step that is also sent to Toyota?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top">☐ Yes &nbsp; ☐ No</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">B5</td><td style="padding:8px 6px;vertical-align:top"><strong>TMMAL contact</strong></td><td style="padding:8px 6px;vertical-align:top">Who at TMMAL owns this data and signs off the format?</td><td style="padding:8px 6px;vertical-align:top"></td><td style="padding:8px 6px;vertical-align:top">Name / email</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:17px;margin:0 0 6px">C. Sign-off</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 26px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">Question</th><th style="padding:6px;width:60px">Confirm</th><th style="padding:6px;width:170px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C1</td><td style="padding:8px 6px;vertical-align:top"><strong>Final layout</strong></td><td style="padding:8px 6px;vertical-align:top">The blue side-menu version is the approved layout to build from.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C2</td><td style="padding:8px 6px;vertical-align:top"><strong>Requirements sheet</strong></td><td style="padding:8px 6px;vertical-align:top">Has the Requirements Sign-off sheet been reviewed? It was written for TNGA. Do the same rules apply to Sprint/TRUQ2?</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">C3</td><td style="padding:8px 6px;vertical-align:top"><strong>Go-live area</strong></td><td style="padding:8px 6px;vertical-align:top">Development starts with Sprint/TRUQ2 only. TNGA, V6T and 2.4T follow once the pilot is proven.</td><td style="padding:8px 6px;vertical-align:top">☐</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:22px;margin:0 0 4px">Part 2 · Technical checklist</h2>
+    <p style="margin:0 0 10px;font-size:12.5px;color:var(--color-neutral-700)">Ask: Chemico IT and TMMAL IT. Write the answer, or “don’t know” and who would know.</p>
+
+    <h3 style="font-size:17px;margin:0 0 6px">D. Hosting, sign-in and devices</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 20px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">Question</th><th style="padding:6px;width:230px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">D1</td><td style="padding:8px 6px;vertical-align:top"><strong>Hosting</strong></td><td style="padding:8px 6px;vertical-align:top">Where should the app run: Chemico’s Microsoft 365 / Azure, Toyota’s network, or hosted by us?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">D2</td><td style="padding:8px 6px;vertical-align:top"><strong>Sign-in</strong></td><td style="padding:8px 6px;vertical-align:top">Do users sign in with Chemico Microsoft accounts, Toyota accounts, or an app login? How does the Yushiro external tech get access?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">D3</td><td style="padding:8px 6px;vertical-align:top"><strong>Devices</strong></td><td style="padding:8px 6px;vertical-align:top">What do techs use on the floor: company tablets, phones, or shared PCs? Are they managed by IT, and which browser?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">D4</td><td style="padding:8px 6px;vertical-align:top"><strong>Wi-Fi on the floor</strong></td><td style="padding:8px 6px;vertical-align:top">Is there reliable Wi-Fi at every line? If not, readings must save offline and sync later. Is that needed?</td><td style="padding:8px 6px;vertical-align:top">☐ Good coverage &nbsp; ☐ Offline needed</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">D5</td><td style="padding:8px 6px;vertical-align:top"><strong>Security review</strong></td><td style="padding:8px 6px;vertical-align:top">Does Toyota or Chemico need a security review, vendor approval or other sign-off before go-live? How long does it take?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:17px;margin:0 0 6px">E. Connections</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 20px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">Question</th><th style="padding:6px;width:230px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">E1</td><td style="padding:8px 6px;vertical-align:top"><strong>Toyota database</strong></td><td style="padding:8px 6px;vertical-align:top">Which system receives the dust/mist data? How do we connect: API, file drop (SFTP / shared folder), or email? Is there a test environment, and who is the IT contact?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">E2</td><td style="padding:8px 6px;vertical-align:top"><strong>Text alerts</strong></td><td style="padding:8px 6px;vertical-align:top">Is there an approved text provider? Which number do texts come from, and who pays for messages? Do Group Leads need to opt in?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">E3</td><td style="padding:8px 6px;vertical-align:top"><strong>Email</strong></td><td style="padding:8px 6px;vertical-align:top">Which mailbox or domain does the Weekly Status come from? Will Toyota’s mail filters accept it?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">E4</td><td style="padding:8px 6px;vertical-align:top"><strong>Power BI</strong></td><td style="padding:8px 6px;vertical-align:top">Which Power BI workspace and licences? Who builds and owns the reports: Chemico or us?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">E5</td><td style="padding:8px 6px;vertical-align:top"><strong>Excel imports</strong></td><td style="padding:8px 6px;vertical-align:top">Do the Leadec sheet and General Stores order file keep the same columns every week? Where do they arrive (email, SharePoint)? Could the app pick them up automatically?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:17px;margin:0 0 6px">F. Data</h3>
+    <table class="keep" style="width:100%;border-collapse:collapse;font-size:12.5px;margin:0 0 26px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 6px 6px 0;width:28px">#</th><th style="padding:6px;width:130px">Item</th><th style="padding:6px">Question</th><th style="padding:6px;width:230px">Answer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">F1</td><td style="padding:8px 6px;vertical-align:top"><strong>Starting data</strong></td><td style="padding:8px 6px;vertical-align:top">Please send the user list with roles and shifts, and Group Lead phone numbers. Send the TNGA, V6T and 2.4T system lists when those areas are ready.</td><td style="padding:8px 6px;vertical-align:top">☐ Received</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">F2</td><td style="padding:8px 6px;vertical-align:top"><strong>History</strong></td><td style="padding:8px 6px;vertical-align:top">Should past readings from the Excel templates be loaded into the app? If so, from what date?</td><td style="padding:8px 6px;vertical-align:top">☐ No &nbsp; ☐ Yes, from ______</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">F3</td><td style="padding:8px 6px;vertical-align:top"><strong>Retention and backup</strong></td><td style="padding:8px 6px;vertical-align:top">How long must readings and the change history be kept? Are there backup or audit rules we must follow?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:8px 6px 8px 0;vertical-align:top">F4</td><td style="padding:8px 6px;vertical-align:top"><strong>Support</strong></td><td style="padding:8px 6px;vertical-align:top">Who do users contact when something goes wrong after go-live? What response time is expected?</td><td style="padding:8px 6px;vertical-align:top"></td></tr>
+      </tbody>
+    </table>
+
+    <div class="keep">
+      <h2 style="font-size:19px;margin:0 0 6px">Already built from Jeff’s round-three answers</h2>
+      <ul style="margin:0 0 22px;padding-left:20px;font-size:12.5px;columns:2;column-gap:28px">
+        <li>G-2200TU replaced by Inhibitor 42 (I-42) on every washer.</li>
+        <li>Drops read from the I-42 and G-5300ME charts. Both charts are shown on the Washers screen.</li>
+        <li>Washer dose target is the middle of the range.</li>
+        <li>Leadec file is uploaded as it comes. Unassigned systems don’t need stripping or a line.</li>
+        <li>Dust/Mist screen lists systems that did not pass, with a file and a send button for Toyota.</li>
+      </ul>
+    </div>
+
+    <div class="keep" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;margin-top:28px;font-size:12.5px">
+      <div style="display:flex;flex-direction:column;gap:4px"><div style="height:32px;border-bottom:1px solid var(--color-text)"></div><span>Answered by · Date</span></div>
+      <div style="display:flex;flex-direction:column;gap:4px"><div style="height:32px;border-bottom:1px solid var(--color-text)"></div><span>Raised by Michael Ward · Date</span></div>
+    </div>
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>

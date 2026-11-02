@@ -20,11 +20,12 @@ input:disabled,select:disabled{opacity:0.6;cursor:not-allowed}
 button:disabled{cursor:default}
 </style>
 </helmet>
-<div style="display:flex;align-items:flex-start;min-height:100vh;background:var(--color-bg);color:var(--color-text);font-family:var(--font-body)">
+<div style="display:flex;align-items:flex-start;min-height:var(--cdc-vh,100vh);background:{{ rootBg }};color:var(--color-text);font-family:var(--font-body)">
   <datalist id="cmt-std"><sc-for list="{{ commentsStd }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
   <datalist id="cmt-pit"><sc-for list="{{ commentsPit }}" as="c" hint-placeholder-count="0"><option value="{{ c }}"></option></sc-for></datalist>
 
-  <aside style="position:sticky;top:0;height:100vh;width:{{ sideW }};flex:none;display:flex;flex-direction:column;gap:18px;padding:22px {{ sidePad }} 18px;box-sizing:border-box;background:var(--chemico-blue);color:var(--chemico-white);box-shadow:var(--shadow-sm);overflow-y:auto;overflow-x:hidden;z-index:25;transition:width .18s ease">
+  <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
+  <aside style="position:sticky;top:0;height:var(--cdc-vh,100vh);width:{{ sideW }};flex:none;display:flex;flex-direction:column;gap:18px;padding:22px {{ sidePad }} 18px;box-sizing:border-box;background:var(--chemico-blue);color:var(--chemico-white);box-shadow:var(--shadow-sm);overflow-y:auto;overflow-x:hidden;z-index:25;transition:width .18s ease">
     <sc-if value="{{ notMini }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;flex-direction:column;gap:30px;padding:16px 24px 0;flex:none">
         <img src="assets/chemico-logo-reversed.png" alt="Chemico" style="width:148px;height:auto;display:block">
@@ -70,8 +71,32 @@ button:disabled{cursor:default}
       </button>
     </div>
   </aside>
+  </sc-if>
 
-  <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:100vh">
+  <div style="flex:1;min-width:0;display:flex;flex-direction:column;min-height:var(--cdc-vh,100vh)">
+  <sc-if value="{{ isMob }}" hint-placeholder-val="{{ false }}">
+    <div style="position:sticky;top:0;z-index:20;display:flex;flex-direction:column">
+      <header style="display:flex;align-items:center;gap:4px;min-height:60px;padding:6px 8px 6px 4px;background:var(--chemico-blue);color:var(--chemico-white)">
+        <button onClick="{{ mNavOpen }}" aria-label="Open menu" style="width:48px;height:48px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--chemico-white);cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-accent-700)"><i class="ph-duotone ph-list" style="font-size:28px"></i></button>
+        <img src="assets/chemico-logo-reversed.png" alt="Chemico" style="width:104px;height:auto;display:block;margin-right:auto">
+        <button onClick="{{ toggleOnline }}" aria-label="{{ net.label }}" title="{{ net.label }}" style="position:relative;width:44px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--chemico-white);cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-accent-700)"><i class="ph-duotone {{ net.icon }}" style="font-size:24px"></i><sc-if value="{{ net.showBadge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:4px;right:2px;min-width:18px;height:18px;padding:0 4px;box-sizing:border-box;display:grid;place-items:center;border-radius:9px;background:var(--chemico-white);color:var(--chemico-blue);font-size:11px;font-weight:700">{{ net.badge }}</span></sc-if></button>
+        <button onClick="{{ fb.onOpen }}" aria-label="Feedback" style="width:44px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--chemico-white);cursor:pointer;border-radius:var(--radius-md)" style-hover="background:var(--color-accent-700)"><i class="ph-duotone ph-chat-centered-text" style="font-size:24px"></i></button>
+        <label title="Demo role — switch user" style="position:relative;width:44px;height:44px;flex:none;display:grid;place-items:center;cursor:pointer">
+          <span style="width:36px;height:36px;display:grid;place-items:center;border-radius:50%;background:var(--chemico-white);color:var(--chemico-blue);font-weight:700;font-size:14px">{{ userInitials }}</span>
+          <select value="{{ role }}" onChange="{{ onRole }}" aria-label="Demo role" style="position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px">
+            <option value="internal">Internal Tech · Harry Woessner</option>
+            <option value="manager">Manager · Jeff Davis</option>
+            <option value="external">External Tech (Yushiro) · Michael Ward</option>
+          </select>
+        </label>
+      </header>
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:8px 16px;background:var(--color-accent-800);color:var(--chemico-white);font-size:13px">
+        <strong style="font-weight:600;white-space:nowrap">Coolant Data Capture · {{ areaShort }}</strong>
+        <span style="white-space:nowrap">{{ todayShort }} · Wk {{ weekNo }}</span>
+      </div>
+    </div>
+  </sc-if>
+  <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
   <header style="position:sticky;top:0;z-index:20;background:var(--color-bg);box-shadow:var(--shadow-sm);padding:10px 24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap">
     <div style="display:flex;align-items:center;gap:10px;margin-right:auto;font-size:15px">
       <i class="ph-duotone ph-calendar-blank" style="font-size:20px;color:var(--color-accent-700)"></i>
@@ -88,19 +113,22 @@ button:disabled{cursor:default}
     <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-neutral-700)">
       <i class="ph-duotone ph-user-switch" style="font-size:20px"></i>Demo role
       <select class="input" value="{{ role }}" onChange="{{ onRole }}" style="width:auto;min-height:44px;font-size:14px;color:var(--color-text)">
-        <option value="manager">Manager · Jeff Davis</option>
         <option value="internal">Internal Tech · Harry Woessner</option>
+        <option value="manager">Manager · Jeff Davis</option>
         <option value="external">External Tech (Yushiro) · Michael Ward</option>
       </select>
     </label>
   </header>
+  </sc-if>
 
-  <main style="flex:1;padding:28px 24px 40px;display:flex;flex-direction:column;gap:24px;min-width:0">
+  <main style="flex:1;padding:{{ mainPad }};display:flex;flex-direction:column;gap:24px;min-width:0">
+    <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
     <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--color-neutral-800)">
       <span class="tag tag-accent-2">Prototype</span>
       <span style="text-wrap:pretty">Sprint/TRUQ2 pilot, built from the SPRINT Master Template (OP Info). Exports, emails and texts are simulated. Production adds Power BI reporting and the other three areas under CMIS.</span>
       <button class="btn btn-ghost" onClick="{{ fb.onOpen }}" style="min-height:40px;font-size:14px;white-space:nowrap;flex:none"><i class="ph-duotone ph-chat-centered-text" style="font-size:18px"></i>Tell us what to change</button>
     </div>
+    </sc-if>
     <sc-if value="{{ notPilot }}" hint-placeholder-val="{{ false }}">
       <div style="display:flex;align-items:flex-start;gap:12px;padding:14px 16px;background:var(--color-accent-100);color:var(--color-accent-900);border-radius:var(--radius-md);font-size:15px">
         <i class="ph-duotone ph-factory" style="font-size:24px;flex:none"></i>
@@ -108,7 +136,103 @@ button:disabled{cursor:default}
       </div>
     </sc-if>
 
-    <sc-if value="{{ isRound }}" hint-placeholder-val="{{ true }}">
+    <sc-if value="{{ isRoundMob }}" hint-placeholder-val="{{ false }}">
+      <section data-screen-label="Daily Round (mobile)" style="display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:12px">
+            <div style="display:flex;flex-direction:column;gap:2px;min-width:0">
+              <h1 style="margin:0;font-size:26px;line-height:1.1">Daily Round</h1>
+              <span style="font-size:13px;color:var(--color-neutral-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ userName }} · {{ userRole }}</span>
+            </div>
+            <div class="seg" style="flex:none;background:var(--chemico-white)">
+              <label class="seg-opt" style="min-height:40px;padding:0 12px;font-size:14px;white-space:nowrap"><input type="radio" name="shift-m" checked="{{ round.s1 }}" onChange="{{ round.onS1 }}">Shift 1</label>
+              <label class="seg-opt" style="min-height:40px;padding:0 12px;font-size:14px;white-space:nowrap"><input type="radio" name="shift-m" checked="{{ round.s2 }}" onChange="{{ round.onS2 }}">Shift 2</label>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:8px;padding:12px 14px;background:var(--chemico-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm)">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;font-size:14px"><span><strong style="font-size:18px">{{ round.done }}</strong> of {{ round.due }} recorded</span><span style="color:var(--color-neutral-700)">{{ round.pctLabel }}</span></div>
+            <div style="height:8px;background:var(--color-neutral-200);border-radius:4px;overflow:hidden"><div style="height:100%;width:{{ round.barW }};background:var(--chemico-blue);border-radius:4px"></div></div>
+          </div>
+          <sc-if value="{{ round.hasLockNote }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:10px;font-size:13px;padding:10px 12px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:18px;flex:none"></i>{{ round.lockNote }}</div>
+          </sc-if>
+        </div>
+        <sc-for list="{{ round.groups }}" as="g" hint-placeholder-count="2">
+          <div style="display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;align-items:baseline;gap:8px;padding:0 2px">
+              <h3 style="margin:0;font-size:19px;margin-right:auto">{{ g.line }}</h3>
+              <sc-if value="{{ g.alt }}" hint-placeholder-val="{{ false }}"><span class="tag tag-accent-2">Alt day</span></sc-if>
+              <span style="font-size:13px;color:var(--color-neutral-700)">{{ g.done }} of {{ g.due }}</span>
+            </div>
+            <div style="display:flex;flex-direction:column;background:var(--chemico-white);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);overflow:hidden">
+              <div style="display:flex;align-items:center;gap:8px;padding:8px 8px 6px 16px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);box-shadow:inset 0 -1px 0 var(--color-divider)">
+                <span style="flex:1">Machine</span><span style="width:76px">Brix</span><span style="width:62px;text-align:right">RI %</span><span style="width:32px"></span>
+              </div>
+              <sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3">
+                <div style="display:flex;flex-direction:column;background:{{ r.mBg }};box-shadow:inset 4px 0 0 {{ r.techBar }}, inset 0 -1px 0 var(--color-divider)">
+                  <div style="display:flex;align-items:center;gap:8px;min-height:62px;padding:6px 8px 6px 16px">
+                    <button onClick="{{ r.onMToggle }}" style="flex:1;min-width:0;display:flex;flex-direction:column;align-items:flex-start;gap:2px;border:0;background:transparent;padding:4px 0;font:inherit;color:inherit;text-align:left;cursor:pointer">
+                      <span style="display:flex;align-items:center;gap:6px;font-weight:700;font-size:16px;line-height:1.15;white-space:nowrap">{{ r.op }}<sc-if value="{{ r.locked }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone ph-lock" style="font-size:14px;color:var(--color-neutral-700)"></i></sc-if><span style="padding:0 5px;border-radius:var(--radius-md);background:{{ r.techBg }};color:{{ r.techFg }};font-size:11px;font-weight:600">{{ r.techShort }}</span></span>
+                      <span style="max-width:100%;font-size:12px;color:var(--color-neutral-700);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.product }} · {{ r.range }}</span>
+                    </button>
+                    <input class="input" inputmode="decimal" aria-label="Refrac (Brix) {{ r.op }}" value="{{ r.brix }}" onChange="{{ r.onBrix }}" disabled="{{ r.locked }}" placeholder="Brix" style="width:76px;flex:none;box-sizing:border-box;min-height:44px;padding:4px 8px;font-size:17px;font-weight:600;background:var(--chemico-white)">
+                    <span style="width:62px;flex:none;display:flex;align-items:center;justify-content:flex-end;gap:3px;font-size:17px;font-weight:700;color:{{ r.pctFg }}"><sc-if value="{{ r.showPill }}" hint-placeholder-val="{{ false }}"><i class="ph-duotone {{ r.st.icon }}" style="font-size:16px"></i></sc-if>{{ r.pctText }}</span>
+                    <button onClick="{{ r.onMToggle }}" aria-label="Details" style="width:32px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--color-neutral-700);cursor:pointer;border-radius:var(--radius-md)"><i class="ph-duotone {{ r.mChevron }}" style="font-size:18px"></i></button>
+                  </div>
+                  <sc-if value="{{ r.mOpen }}" hint-placeholder-val="{{ false }}">
+                    <div style="display:flex;flex-direction:column;gap:10px;padding:2px 12px 14px 16px">
+                      <sc-if value="{{ r.showPrompt }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:var(--chemico-white);border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px {{ r.promptFg }};color:{{ r.promptFg }};font-size:14px;line-height:1.35"><i class="ph-duotone {{ r.promptIcon }}" style="font-size:20px;flex:none"></i><strong>{{ r.promptMain }}</strong></div>
+                      </sc-if>
+                      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+                        <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Tank
+                          <select class="input" value="{{ r.tank }}" onChange="{{ r.onTank }}" disabled="{{ r.locked }}" style="min-height:44px;padding:4px 6px;font-size:15px;background:var(--chemico-white);text-transform:none;letter-spacing:0"><option value="OK">OK</option><option value="Low">Low</option><option value="High">High</option></select>
+                        </label>
+                        <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Skimmer
+                          <select class="input" value="{{ r.skimmer }}" onChange="{{ r.onSkim }}" disabled="{{ r.locked }}" style="min-height:44px;padding:4px 6px;font-size:15px;background:var(--chemico-white);text-transform:none;letter-spacing:0"><option value="OK">OK</option><option value="Not working">Not working</option><option value="N/A">N/A</option></select>
+                        </label>
+                        <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Added (L)
+                          <input class="input" inputmode="decimal" value="{{ r.added }}" onChange="{{ r.onAdded }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:44px;font-size:15px;padding:4px 8px;background:var(--chemico-white)">
+                        </label>
+                      </div>
+                      <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;align-items:end">
+                        <div style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Type
+                          <div class="seg" style="display:grid;grid-template-columns:1fr 1fr;background:var(--chemico-white)">
+                            <label class="seg-opt" title="Virgin" style="justify-content:center;min-height:44px;padding:0;font-size:15px"><input type="radio" name="m-{{ r.typeName }}" checked="{{ r.isV }}" onChange="{{ r.onV }}" disabled="{{ r.locked }}">V</label>
+                            <label class="seg-opt" title="Recycled" style="justify-content:center;min-height:44px;padding:0;font-size:15px"><input type="radio" name="m-{{ r.typeName }}" checked="{{ r.isR }}" onChange="{{ r.onR }}" disabled="{{ r.locked }}">R</label>
+                          </div>
+                        </div>
+                        <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Recycled (L)
+                          <input class="input" inputmode="decimal" value="{{ r.recycled }}" onChange="{{ r.onRec }}" disabled="{{ r.locked }}" placeholder="0" style="min-height:44px;font-size:15px;padding:4px 8px;background:var(--chemico-white)">
+                        </label>
+                        <label style="display:flex;flex-direction:column;gap:3px;font-size:11px;letter-spacing:0.04em;text-transform:uppercase;color:var(--color-neutral-700)">Final RI %
+                          <input class="input" inputmode="decimal" value="{{ r.final }}" onChange="{{ r.onFinal }}" disabled="{{ r.locked }}" placeholder="%" style="min-height:44px;font-size:15px;font-weight:600;padding:4px 8px;color:{{ r.finalFg }};background:var(--chemico-white)">
+                        </label>
+                      </div>
+                      <input class="input" list="{{ r.listId }}" aria-label="Comment" value="{{ r.comment }}" onChange="{{ r.onComment }}" disabled="{{ r.locked }}" placeholder="Comment · {{ r.cmtPh }}" style="min-height:44px;font-size:15px;padding:4px 10px;border-color:{{ r.cmtBorder }};background:var(--chemico-white)">
+                      <sc-if value="{{ r.showErr }}" hint-placeholder-val="{{ false }}">
+                        <div style="display:flex;align-items:flex-start;gap:8px;padding:10px 12px;background:oklch(0.93 0.08 85);color:oklch(0.36 0.08 65);font-size:14px;border-radius:var(--radius-md)"><i class="ph-duotone ph-warning" style="font-size:20px;flex:none"></i><span><strong>Save blocked.</strong> {{ r.err }}</span></div>
+                      </sc-if>
+                      <div style="display:flex;align-items:center;gap:12px">
+                        <sc-if value="{{ r.showMeta }}" hint-placeholder-val="{{ false }}"><button onClick="{{ r.onAudit }}" style="display:flex;align-items:center;gap:6px;min-height:40px;margin-right:auto;border:0;background:transparent;padding:0;font:inherit;font-size:13px;color:var(--color-accent-700);cursor:pointer"><i class="ph-duotone ph-clock-counter-clockwise" style="font-size:16px"></i>{{ r.meta }}</button></sc-if>
+                        <sc-if value="{{ r.showSave }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary" onClick="{{ r.onSave }}" style="flex:1;min-height:46px;font-size:16px">Save {{ r.op }}</button></sc-if>
+                      </div>
+                    </div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+        </sc-for>
+        <sc-if value="{{ round.empty }}" hint-placeholder-val="{{ false }}"><p style="margin:0;font-size:16px">No systems are due for this shift today.</p></sc-if>
+        <div style="position:sticky;bottom:0;z-index:5;margin:0 -16px;padding:10px 16px 22px;background:var(--chemico-white);box-shadow:0 -1px 0 var(--color-divider)">
+          <sc-if value="{{ mHasDirty }}" hint-placeholder-val="{{ false }}"><button class="btn btn-primary btn-block" onClick="{{ round.saveAll }}" style="min-height:50px;font-size:17px"><i class="ph-duotone ph-floppy-disk" style="font-size:22px"></i>{{ round.saveLabel }}</button></sc-if>
+          <sc-if value="{{ mNoDirty }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;justify-content:center;gap:8px;min-height:44px;font-size:14px;color:var(--color-neutral-800)"><i class="ph-duotone ph-check-circle" style="font-size:20px;color:oklch(0.42 0.1 150)"></i>All readings saved</div></sc-if>
+        </div>
+      </section>
+    </sc-if>
+
+    <sc-if value="{{ isRoundDesk }}" hint-placeholder-val="{{ true }}">
       <section data-screen-label="Daily Round" style="display:flex;flex-direction:column;gap:22px">
         <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:10px;margin-right:auto">
@@ -561,14 +685,27 @@ button:disabled{cursor:default}
             </div>
           </div>
           <div style="display:flex;flex-direction:column;gap:6px;width:280px">
-            <div style="display:flex;justify-content:space-between;font-size:14px"><span><strong style="font-size:20px">{{ wash.done }}</strong> of {{ wash.due }} titrated</span><span style="color:var(--color-neutral-700)">{{ wash.pctLabel }}</span></div>
+            <div style="display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:14px;white-space:nowrap"><span><strong style="font-size:20px">{{ wash.done }}</strong> of {{ wash.due }} titrated</span><span style="color:var(--color-neutral-700)">{{ wash.pctLabel }}</span></div>
             <div style="height:10px;background:var(--color-neutral-300);border-radius:var(--radius-md);overflow:hidden"><div style="height:100%;width:{{ wash.barW }};background:var(--color-accent)"></div></div>
           </div>
         </div>
         <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800)">
-          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-eyedropper" style="font-size:18px"></i>Initial RI % = # drops × product drop factor</span>
+          <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-eyedropper" style="font-size:18px"></i>Initial RI % is read from the product’s titration chart</span>
           <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-drop" style="font-size:18px"></i>Below range: add (target − RI) × 0.01 × sump L, then enter the Final RI</span>
           <span style="display:flex;align-items:center;gap:5px"><i class="ph-duotone ph-floppy-disk" style="font-size:18px"></i>Changes save as you enter them</span>
+        </div>
+        <div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+          <sc-for list="{{ wash.charts }}" as="c" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="display:flex;flex-direction:column;gap:2px"><strong style="font-family:var(--font-heading);font-size:18px">{{ c.name }}</strong><span style="font-size:13px;color:var(--color-neutral-700)">{{ c.range }}</span></div>
+              <div style="display:flex;flex-wrap:wrap;gap:4px">
+                <span style="display:flex;flex-direction:column;justify-content:center;gap:2px;padding:4px 6px 4px 0;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Drops</span><span>RI %</span></span>
+                <sc-for list="{{ c.pts }}" as="q" hint-placeholder-count="5">
+                  <span style="display:flex;flex-direction:column;align-items:center;min-width:46px;padding:4px 6px;background:var(--color-neutral-100);border-radius:var(--radius-sm);line-height:1.3"><strong style="font-size:15px">{{ q.d }}</strong><span style="font-size:13px">{{ q.v }}</span></span>
+                </sc-for>
+              </div>
+            </div>
+          </sc-for>
         </div>
         <sc-if value="{{ wash.hasLock }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;align-items:center;gap:10px;font-size:14px;padding:10px 14px;background:var(--color-neutral-200);border-radius:var(--radius-md)"><i class="ph-duotone ph-lock" style="font-size:20px"></i>{{ wash.lockNote }}</div>
@@ -721,6 +858,34 @@ button:disabled{cursor:default}
             </sc-for>
           </div>
         </div>
+        <sc-if value="{{ chk.hasAlertNote }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:14px;padding-top:8px;max-width:1000px">
+            <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+              <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto">
+                <h2 style="margin:0;font-size:26px">Toyota transfer · dust &amp; mist</h2>
+                <span style="font-size:14px;color:var(--color-neutral-700)">{{ chk.tm.summary }}</span>
+              </div>
+              <button class="btn btn-secondary" onClick="{{ chk.tm.onCsv }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-file-csv" style="font-size:20px"></i>Download file</button>
+              <button class="btn btn-primary" onClick="{{ chk.tm.onSend }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-database" style="font-size:20px"></i>Send to Toyota database</button>
+            </div>
+            <span style="display:flex;align-items:center;gap:6px;font-size:14px;color:{{ chk.tm.lastFg }}"><i class="ph-duotone {{ chk.tm.lastIcon }}" style="font-size:18px"></i>{{ chk.tm.last }}</span>
+            <h3 style="margin:0;font-size:20px">Did not pass · {{ chk.tm.nFail }}</h3>
+            <sc-if value="{{ chk.tm.hasFails }}" hint-placeholder-val="{{ true }}">
+              <div style="overflow-x:auto"><div style="min-width:720px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:100px 150px 120px 80px minmax(140px,1fr) 190px;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)"><span>Date</span><span>Collector</span><span>Line</span><span>Result</span><span>Checked by</span><span>Alert</span></div>
+                <sc-for list="{{ chk.tm.fails }}" as="f" hint-placeholder-count="3">
+                  <div style="display:grid;grid-template-columns:100px 150px 120px 80px minmax(140px,1fr) 190px;gap:10px;align-items:center;padding:10px 8px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <strong>{{ f.when }}</strong><span>{{ f.kind }}</span><strong style="font-family:var(--font-heading);font-size:16px">{{ f.line }}</strong>
+                    <span style="display:inline-flex;align-items:center;gap:4px;width:fit-content;padding:2px 8px;border-radius:var(--radius-md);background:oklch(0.92 0.045 25);color:oklch(0.44 0.17 25);font-size:13px;font-weight:600">Fail</span>
+                    <span>{{ f.by }}</span><span style="color:{{ f.alertFg }}">{{ f.alert }}</span>
+                  </div>
+                </sc-for>
+              </div></div>
+            </sc-if>
+            <sc-if value="{{ chk.tm.noFails }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px">Every dust and mist check this month passed.</span></sc-if>
+            <span style="font-size:13px;color:var(--color-neutral-700);text-wrap:pretty">Each record carries date, plant, area, line, collector type, Pass/Fail, checked by and whether the Group Leads were texted. Record layout and connection to the Toyota database to be agreed with TMMAL.</span>
+          </div>
+        </sc-if>
         <sc-if value="{{ chk.hasLog }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:8px">
             <h3 style="margin:0;font-size:22px">Texts sent this month</h3>
@@ -772,21 +937,20 @@ button:disabled{cursor:default}
         </div>
         <div style="display:flex;flex-direction:column;gap:6px;padding-top:8px">
           <h2 style="margin:0;font-size:26px">Leadec-only machines</h2>
-          <span style="font-size:14px;color:var(--color-neutral-700);max-width:760px;text-wrap:pretty">On Leadec’s cleaning sheet but not in the coolant rounds. They’re tracked here only, and a manager can assign each one to a line.</span>
+          <span style="font-size:14px;color:var(--color-neutral-700);max-width:760px;text-wrap:pretty">On Leadec’s cleaning sheet but not in the coolant rounds. They’re tracked here for the cleaning record only and don’t need a line.</span>
         </div>
         <div style="overflow-x:auto">
-          <div style="min-width:1020px;display:flex;flex-direction:column">
-            <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 104px 160px repeat(5, minmax(100px,1fr));gap:6px;align-items:end;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
-              <span>Machine · Leadec area</span><span>Chemical</span><span>Line</span>
+          <div style="min-width:860px;display:flex;flex-direction:column">
+            <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 104px repeat(5, minmax(100px,1fr));gap:6px;align-items:end;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+              <span>Machine · Leadec area</span><span>Chemical</span>
               <sc-for list="{{ ldc.weeks }}" as="w" hint-placeholder-count="5">
                 <span style="display:flex;flex-direction:column;color:{{ w.fg }}"><strong>{{ w.label }}</strong><span style="letter-spacing:0;text-transform:none;font-size:12px">{{ w.sub }}</span></span>
               </sc-for>
             </div>
             <sc-for list="{{ ldc.xrows }}" as="r" hint-placeholder-count="8">
-              <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 104px 160px repeat(5, minmax(100px,1fr));gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+              <div style="display:grid;grid-template-columns:minmax(150px,1.4fr) 104px repeat(5, minmax(100px,1fr));gap:6px;align-items:center;padding:6px 8px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
                 <div style="display:flex;flex-direction:column;line-height:1.2"><strong style="font-size:16px">{{ r.name }}</strong><span style="font-size:12px;color:var(--color-neutral-700)">{{ r.sub }}</span></div>
                 <span style="font-size:13px">{{ r.product }}</span>
-                <select class="input" value="{{ r.line }}" onChange="{{ r.onLine }}" disabled="{{ r.lineOff }}" style="min-height:44px;font-size:14px;padding:4px 8px"><sc-for list="{{ r.lineOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
                 <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="5">
                   <label style="display:flex;align-items:center;gap:8px;min-height:48px;padding:0 8px;border-radius:var(--radius-md);background:{{ c.bg }};cursor:{{ c.cursor }}">
                     <input type="checkbox" checked="{{ c.on }}" disabled="{{ c.disabled }}" onChange="{{ c.toggle }}" style="width:22px;height:22px;accent-color:var(--color-accent);flex:none">
@@ -868,10 +1032,10 @@ button:disabled{cursor:default}
         <div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">
           <h2 style="margin:0;font-size:28px">General Stores fluid orders</h2>
           <p style="margin:0;font-size:15px;text-wrap:pretty">The General Stores order calendar covers every area. Sprint/TRUQ2 rows are compared with the fluid techs recorded as added in CDC this month; other areas are kept for their rollout.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline">Date</span><span class="tag tag-outline">YN #</span><span class="tag tag-outline">Product</span><span class="tag tag-outline">Quantity</span><span class="tag tag-outline">Area</span><span class="tag tag-outline">Chemico rep</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline" style="white-space:nowrap">Date</span><span class="tag tag-outline" style="white-space:nowrap">YN #</span><span class="tag tag-outline" style="white-space:nowrap">Product</span><span class="tag tag-outline" style="white-space:nowrap">Quantity</span><span class="tag tag-outline" style="white-space:nowrap">Area</span><span class="tag tag-outline" style="white-space:nowrap">Chemico rep</span></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.stores.onFile }}" style="display:none"></label>
-            <button class="btn btn-ghost" onClick="{{ imp.stores.onSample }}" style="min-height:46px">Use sample file</button>
+            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.stores.onFile }}" style="display:none"></label>
+            <button class="btn btn-ghost" onClick="{{ imp.stores.onSample }}" style="min-height:46px;white-space:nowrap">Use sample file</button>
           </div>
           <sc-if value="{{ imp.stores.hasPreview }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px">
@@ -901,10 +1065,11 @@ button:disabled{cursor:default}
         <div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">
           <h2 style="margin:0;font-size:28px">Leadec schedule and completions</h2>
           <p style="margin:0;font-size:15px;text-wrap:pretty">Leadec’s weekend schedule and completion sheet. Machine numbers are matched to the CDC system list; completed cleanings are ticked in the Leadec Log and rescheduled ones are flagged.</p>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline">Line/area</span><span class="tag tag-outline">Machine #</span><span class="tag tag-outline">Tank (gal)</span><span class="tag tag-outline">Chemical</span><span class="tag tag-outline">Chemical (gal)</span><span class="tag tag-outline">Status</span></div>
+          <p style="margin:0;font-size:15px;text-wrap:pretty;display:flex;gap:8px;align-items:flex-start"><i class="ph-duotone ph-info" style="font-size:20px;color:var(--color-accent-700);flex:none"></i><span>Upload Leadec’s file as it comes. No need to strip unassigned systems: rows that don’t match a CDC system are kept as Leadec-only and never affect the coolant rounds.</span></p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline" style="white-space:nowrap">Line/area</span><span class="tag tag-outline" style="white-space:nowrap">Machine #</span><span class="tag tag-outline" style="white-space:nowrap">Tank (gal)</span><span class="tag tag-outline" style="white-space:nowrap">Chemical</span><span class="tag tag-outline" style="white-space:nowrap">Chemical (gal)</span><span class="tag tag-outline" style="white-space:nowrap">Status</span></div>
           <div style="display:flex;gap:10px;flex-wrap:wrap">
-            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.leadec.onFile }}" style="display:none"></label>
-            <button class="btn btn-ghost" onClick="{{ imp.leadec.onSample }}" style="min-height:46px">Use sample file</button>
+            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.xls,.xlsm,.csv" onChange="{{ imp.leadec.onFile }}" style="display:none"></label>
+            <button class="btn btn-ghost" onClick="{{ imp.leadec.onSample }}" style="min-height:46px;white-space:nowrap">Use sample file</button>
           </div>
           <sc-if value="{{ imp.leadec.hasPreview }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex;flex-direction:column;gap:10px">
@@ -978,16 +1143,16 @@ button:disabled{cursor:default}
 
         <sc-if value="{{ mst.isProd }}" hint-placeholder-val="{{ false }}">
           <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
-            <p style="margin:0;font-size:15px;text-wrap:pretty">Machining: concentration % = Initial Refrac (Brix) × refractive factor. Washers: Initial RI % = # drops × drop factor. The drop factors below are placeholders until confirmed.</p>
+            <p style="margin:0;font-size:15px;text-wrap:pretty">Machining: concentration % = Initial Refrac (Brix) × refractive factor. Washers: Initial RI % is read from each product’s titration chart (a sliding scale, not a fixed % per drop). Counts between chart rows are interpolated. I-42 replaces G-2200TU.</p>
             <div style="overflow-x:auto">
               <div style="min-width:800px;display:flex;flex-direction:column">
                 <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px 160px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
-                  <span>Product</span><span>Refractive factor</span><span>Example</span><span>Used on</span><span>Systems</span><span>Drop factor (washers)</span>
+                  <span>Product</span><span>Refractive factor</span><span>Example</span><span>Used on</span><span>Systems</span><span>Titration chart</span>
                 </div>
                 <sc-for list="{{ mst.products }}" as="p" hint-placeholder-count="6">
                   <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px 160px;gap:8px;align-items:center;padding:12px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
                     <strong>{{ p.p }}</strong><span>{{ p.f }}</span><span style="color:var(--color-neutral-700)">{{ p.ex }}</span><span>{{ p.uses }}</span><span>{{ p.n }}</span>
-                    <div style="display:flex;align-items:center;gap:6px"><sc-if value="{{ p.hasDrop }}" hint-placeholder-val="{{ false }}"><input class="input" value="{{ p.drop }}" onChange="{{ p.onDrop }}" style="min-height:44px;width:80px;font-size:15px"><span style="font-size:13px;color:var(--color-neutral-700)">% per drop</span></sc-if><sc-if value="{{ p.noDrop }}" hint-placeholder-val="{{ true }}"><span style="color:var(--color-neutral-700)">—</span></sc-if></div>
+                    <div style="display:flex;align-items:center;gap:6px"><sc-if value="{{ p.hasDrop }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px">{{ p.drop }}</span></sc-if><sc-if value="{{ p.noDrop }}" hint-placeholder-val="{{ true }}"><span style="color:var(--color-neutral-700)">—</span></sc-if></div>
                   </div>
                 </sc-for>
               </div>
@@ -1097,11 +1262,40 @@ button:disabled{cursor:default}
 
   </main>
 
+  <sc-if value="{{ isDesk }}" hint-placeholder-val="{{ true }}">
   <footer style="display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;padding:16px 24px;font-size:13px;color:var(--color-neutral-700)">
     <span>Prepared by Ideal Technology Solutions</span>
     <span>Coolant Data Capture · prototype · data held in memory</span>
   </footer>
+  </sc-if>
   </div>
+
+  <sc-if value="{{ mNavShow }}" hint-placeholder-val="{{ false }}">
+    <div onClick="{{ mNavClose }}" style="position:fixed;inset:0;z-index:40;background:color-mix(in srgb, var(--chemico-black) 50%, transparent)"></div>
+    <aside style="position:fixed;top:0;left:0;bottom:0;z-index:41;width:min(300px,84vw);box-sizing:border-box;display:flex;flex-direction:column;gap:18px;padding:20px 12px 16px;overflow-y:auto;background:var(--chemico-blue);color:var(--chemico-white);box-shadow:var(--shadow-lg)">
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:8px;padding:8px 8px 0 12px">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <img src="assets/chemico-logo-reversed.png" alt="Chemico" style="width:128px;height:auto;display:block">
+          <span style="font-family:var(--font-heading);font-weight:700;font-size:19px;line-height:1.15">Coolant Data Capture</span>
+        </div>
+        <button onClick="{{ mNavClose }}" aria-label="Close menu" style="width:44px;height:44px;flex:none;display:grid;place-items:center;border:0;background:transparent;color:var(--chemico-white);cursor:pointer;border-radius:var(--radius-md)"><i class="ph-duotone ph-x" style="font-size:24px"></i></button>
+      </div>
+      <div title="Plant area" style="flex:none;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:4px;border-radius:var(--radius-lg);background:var(--color-accent-800)">
+        <sc-for list="{{ areas }}" as="ar" hint-placeholder-count="4">
+          <button onClick="{{ ar.pick }}" aria-pressed="{{ ar.on }}" style="min-height:40px;padding:0 4px;border:0;border-radius:var(--radius-md);background:{{ ar.bg }};color:{{ ar.fg }};font:inherit;font-size:13px;font-weight:{{ ar.weight }};white-space:nowrap;cursor:pointer">{{ ar.k }}</button>
+        </sc-for>
+      </div>
+      <nav onClickCapture="{{ mNavClose }}" style="flex:none;display:flex;flex-direction:column;gap:2px">
+        <sc-for list="{{ navItems }}" as="n" hint-placeholder-count="9">
+          <button onClick="{{ n.onClick }}" style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 12px;border:0;background:{{ n.bg }};color:{{ n.fg }};font:inherit;font-size:16px;font-weight:{{ n.weight }};text-align:left;cursor:pointer;border-radius:var(--radius-md)"><i class="ph-duotone {{ n.icon }}" style="font-size:22px;flex:none"></i>{{ n.label }}</button>
+        </sc-for>
+      </nav>
+      <div style="margin-top:auto;display:flex;align-items:center;gap:12px;padding:8px 12px 0">
+        <img src="assets/toyota-logo.png" alt="Toyota" style="height:40px;width:auto;display:block;filter:brightness(0) invert(1)">
+        <span style="font-size:12px;color:var(--color-accent-200)">Toyota · TMMAL</span>
+      </div>
+    </aside>
+  </sc-if>
 
   <sc-if value="{{ drawer.open }}" hint-placeholder-val="{{ false }}">
     <div onClick="{{ drawer.onClose }}" style="position:fixed;inset:0;z-index:40;background:color-mix(in srgb, var(--color-neutral-900) 35%, transparent)"></div>
@@ -1206,8 +1400,8 @@ button:disabled{cursor:default}
           </sc-for>
         </div>
         <div class="dialog-actions">
-          <button class="btn btn-secondary" onClick="{{ sms.onClose }}" style="min-height:46px">Not now</button>
-          <button class="btn btn-primary" onClick="{{ sms.onSend }}" disabled="{{ sms.none }}" style="min-height:46px"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:18px"></i>{{ sms.sendLabel }}</button>
+          <button class="btn btn-secondary" onClick="{{ sms.onClose }}" style="min-height:46px;white-space:nowrap">Not now</button>
+          <button class="btn btn-primary" onClick="{{ sms.onSend }}" disabled="{{ sms.none }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-paper-plane-tilt" style="font-size:18px"></i>{{ sms.sendLabel }}</button>
         </div>
       </div>
     </div>
@@ -1260,7 +1454,7 @@ button:disabled{cursor:default}
 <script type="text/x-dc" data-dc-script data-props="{&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;internal&quot;,&quot;external&quot;,&quot;manager&quot;],&quot;default&quot;:&quot;internal&quot;,&quot;tsType&quot;:&quot;'internal'|'external'|'manager'&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;startScreen&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;round&quot;,&quot;dash&quot;,&quot;bug&quot;,&quot;washer&quot;,&quot;mix&quot;,&quot;dust&quot;,&quot;assign&quot;,&quot;imports&quot;,&quot;leadec&quot;,&quot;reports&quot;,&quot;master&quot;],&quot;default&quot;:&quot;round&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Demo&quot;},&quot;holidayMonday&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Schedule rules&quot;}}">
 const TODAY = '2026-10-15';
 const GAL = 0.264172, LPG = 3.785;
-const FACT = { 'GTS-120': 1.29, 'MDS-570': null, 'AQ-YB': 2.0, 'G-2200TU': 1.89, 'G-5300ME': null }; // null = not refracted (Jeff Davis, Oct 2026)
+const FACT = { 'GTS-120': 1.29, 'MDS-570': null, 'AQ-YB': 2.0, 'I-42': null, 'G-5300ME': null }; // null = not refracted (Jeff Davis, Oct 2026)
 const LINES = ['Shaft 1/2', 'Shaft 3/4', 'Shaft 5/6', 'Carrier', 'Cap', 'Case', 'Manual Case', 'Assembly'];
 const RAW = [
   "Shaft 1/2|10-L1|TAMCE-00011|575|GTS-120|5|7|6|MWTH|2|A|TS",
@@ -1353,17 +1547,17 @@ const RAW = [
   "Carrier|20G|TAMMM-00035|875|GTS-120|5|7|6|MWTH|2|B|MC",
   "Carrier|40G|TAMMM-00029|875|GTS-120|5|7|6|TF|2|A|TS",
   "Carrier|50G|TAMMM-00036|875|GTS-120|5|7|6|TF|2|B|MC",
-  "Carrier|CARWB-64|TAMWB-00064|830.49|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
-  "Carrier|CARWB-66|TAMWB-00066|830.49|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
+  "Carrier|CARWB-64|TAMWB-00064|830.49|I-42|0.8|1.5|1.15|WASHER|1|W|JR",
+  "Carrier|CARWB-66|TAMWB-00066|830.49|I-42|0.8|1.5|1.15|WASHER|2|W|TS",
   "Cap|10A|TAMMM-00042|875|GTS-120|5|7|6|MWTH|1|A|JR",
   "Cap|10B|TAMMM-00043|875|GTS-120|5|7|6|TF|1|B|LB",
   "Cap|10C|UAMMM-00018|875|GTS-120|5|7|6|MWTH|1|A|JR",
   "Cap|10D|UAMMM-00019|875|GTS-120|5|7|6|MWTH|2|A|TS",
   "Cap|10E|TAMMM-00044|875|GTS-120|5|7|6|MWTH|2|B|MC",
   "Cap|10F|TAMMM-00045|875|GTS-120|5|7|6|TF|2|A|TS",
-  "Cap|CAPWB-67|TAMWB-00067|590|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
-  "Cap|CAPWB-68|TAMWB-00068|590|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
-  "Cap|CAPWB-51|UAMWB-00051|590|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
+  "Cap|CAPWB-67|TAMWB-00067|590|I-42|0.8|1.5|1.15|WASHER|1|W|LB",
+  "Cap|CAPWB-68|TAMWB-00068|590|I-42|0.8|1.5|1.15|WASHER|2|W|MC",
+  "Cap|CAPWB-51|UAMWB-00051|590|I-42|0.8|1.5|1.15|WASHER|2|W|TS",
   "Case|10-1|TAMLA-00055|1010|GTS-120|5|7|6|MWTH|1|A|JR",
   "Case|20-1|TAMLA-00056|1010|GTS-120|5|7|6|MWTH|1|B|LB",
   "Case|30-1|TAMLA-00057|1010|GTS-120|5|7|6|MWTH|1|A|JR",
@@ -1378,8 +1572,8 @@ const RAW = [
   "Case|50-2|TAMSP-00376|925|GTS-120|5|7|6|MWTH|2|A|TS",
   "Case|60-2|TAMSP-00377|925|GTS-120|5|7|6|MWTH|2|B|MC",
   "Case|70-2|TAMSP-00378|925|GTS-120|5|7|6|MWTH|2|A|TS",
-  "Case|CASWB-61|TAMWB-00061|600|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
-  "Case|CASWB-62|TAMWB-00062|600|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
+  "Case|CASWB-61|TAMWB-00061|600|I-42|0.8|1.5|1.15|WASHER|1|W|LB",
+  "Case|CASWB-62|TAMWB-00062|600|I-42|0.8|1.5|1.15|WASHER|2|W|MC",
   "Manual Case|110|UKMMM-00012|680|GTS-120|5|7|6|TF|1|A|JR",
   "Manual Case|120|UKMLA-00022|205|GTS-120|5|7|6|MWTH|1|B|LB",
   "Manual Case|125|UKMLA-00023|205|GTS-120|5|7|6|MWTH|1|A|JR",
@@ -1387,14 +1581,14 @@ const RAW = [
   "Manual Case|140|UAMSP-00265|585|GTS-120|5|7|6|MWTH|1|A|JR",
   "Manual Case|150|UKMLA-00024|205|GTS-120|5|7|6|TF|1|B|LB",
   "Manual Case|160|UKMMM-00014|680|GTS-120|5|7|6|TF|1|A|JR",
-  "Manual Case|MANWB-62|UKMWB-00062|450|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
-  "Assembly|CSAWB-65|TAMWB-00065|860|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
-  "Assembly|CSAWB-63|TAMWB-00063|860|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS",
-  "Assembly|DSAWB-69|TAMWB-00069|692|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
-  "Assembly|DSAWB-70|TAMWB-00070|692|G-2200TU|0.8|1.5|1.2|WASHER|2|W|MC",
-  "Assembly|DSAWB-73|TAMWB-00073|692|G-2200TU|0.8|1.5|1.2|WASHER|1|W|JR",
-  "Assembly|GKAWB-71|TAMWB-00071|1000|G-2200TU|0.8|1.5|1.2|WASHER|1|W|LB",
-  "Assembly|GKAWB-72|TAMWB-00072|1000|G-2200TU|0.8|1.5|1.2|WASHER|2|W|TS"
+  "Manual Case|MANWB-62|UKMWB-00062|450|I-42|0.8|1.5|1.15|WASHER|1|W|LB",
+  "Assembly|CSAWB-65|TAMWB-00065|860|I-42|0.8|1.5|1.15|WASHER|1|W|JR",
+  "Assembly|CSAWB-63|TAMWB-00063|860|I-42|0.8|1.5|1.15|WASHER|2|W|TS",
+  "Assembly|DSAWB-69|TAMWB-00069|692|I-42|0.8|1.5|1.15|WASHER|1|W|LB",
+  "Assembly|DSAWB-70|TAMWB-00070|692|I-42|0.8|1.5|1.15|WASHER|2|W|MC",
+  "Assembly|DSAWB-73|TAMWB-00073|692|I-42|0.8|1.5|1.15|WASHER|1|W|JR",
+  "Assembly|GKAWB-71|TAMWB-00071|1000|I-42|0.8|1.5|1.15|WASHER|1|W|LB",
+  "Assembly|GKAWB-72|TAMWB-00072|1000|I-42|0.8|1.5|1.15|WASHER|2|W|TS"
 ];
 const SYS = RAW.map(r => {
   const [line, op, mach, L, product, low, high, target, group, shift, bug, tech] = r.split('|');
@@ -1423,7 +1617,18 @@ const ROLE_USER = { manager: 'JD', internal: 'HW', external: 'MW' };
 const COMMENTS = ['+H2O-', '+H2O EVERY DAY', '+PREMIX-', '+PREMIX & H2O-', 'TOO FULL TO ADD H2O-', 'TOO FULL TO ADD H2O ALL WEEK', 'TOO FULL TO ADD COOLANT-', 'SPILL OBSERVED-', 'LARGE SPILL OBSERVED-', 'SYSTEM NOT RUNNING-', 'SYSTEM DOWN ALL WEEK', 'SYSTEM OBSTRUCTED; COULD NOT ACCESS-', 'NO PRODUCT AVAILABLE TO ADD-', 'SYSTEM OVERFLOWING-', 'MIXING TANK DOWN-', 'MIXING TANK DOWN ALL WEEK', 'COULD NOT TREAT - LINE DOWN']; // Jeff Davis, Oct 2026 · items ending in '-' get the date
 const stampCmt = (v, list) => list.includes(v) && v.endsWith('-') ? v + md(TODAY) : v;
 const CHEM_F = { grotan: 0.0015, la33: 0.0002, wr90: 0.001 }; // L of chemical per L of sump (Jeff Davis)
-const DROP_F = { 'G-2200TU': '0.1', 'G-5300ME': '0.15' }; // washer RI % per titration drop — placeholder, to confirm
+const DROP_CHART = { 'I-42': [[4, 0.5], [6, 0.75], [9, 1.0], [11, 1.25], [13, 1.5]], 'G-5300ME': [[1, 0.1], [2, 0.3], [3, 0.5], [4, 0.8], [5, 1.0], [6, 1.2], [7, 1.4], [8, 1.6], [9, 1.8], [10, 2.0], [11, 2.3]] }; // titration charts (Jeff Davis, Nov 2026)
+const PNAME = { 'I-42': 'Inhibitor 42 (I-42) · replaces G-2200TU', 'G-5300ME': 'G-5300ME' };
+const pv = v => v % 1 ? String(v) : v.toFixed(1);
+const dropLook = (p, n) => {
+  const c = DROP_CHART[p]; if (!c || n == null) return null;
+  const ex = c.find(r => r[0] === n); if (ex) return { pct: ex[1], how: 'on chart' };
+  const hi = c.find(r => r[0] > n), last = c[c.length - 1];
+  if (!hi) return { pct: last[1], over: true, how: `above chart (max ${last[0]})` };
+  const lo = n < c[0][0] ? [0, 0] : [...c].reverse().find(r => r[0] < n);
+  return { pct: lo[1] + (hi[1] - lo[1]) * (n - lo[0]) / (hi[0] - lo[0]), how: `between ${lo[0]}–${hi[0]}` };
+};
+const DROP_VIEW = Object.entries(DROP_CHART).map(([p, c]) => ({ name: PNAME[p] || p, range: (WASH0 => WASH0 ? `Range ${WASH0.low}–${WASH0.high}% · target ${WASH0.target}%` : '')(null), pts: c.map(([d, v]) => ({ d: String(d), v: pv(v) + '%' })) }));
 const r2 = x => Math.round(x * 100) / 100;
 const PIT_WATER = Array.from({ length: 15 }, (_, i) => `+${((i + 1) * 1000).toLocaleString('en-US')} L WATER`);
 const DIST = [
@@ -1641,11 +1846,11 @@ function seedBugs() {
 function seedWashers() {
   const y = addD(TODAY, -1);
   return {
-    'Shaft 1/2-SHAWB-58': { drops: '14', ph: '9.2', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'RR', at: `${y}T15:40` },
+    'Shaft 1/2-SHAWB-58': { drops: '10', ph: '9.2', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'RR', at: `${y}T15:40` },
     'Carrier-CARWB-64': { drops: '11', ph: '9.3', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'HW', at: `${y}T08:05` },
-    'Case-CASWB-61': { drops: '6', ph: '8.7', oil: 'Heavy', tank: 'Low', skimmer: 'Not working', wr90: '', comment: '', by: 'KH', at: `${TODAY}T07:15` },
+    'Case-CASWB-61': { drops: '4', ph: '8.7', oil: 'Heavy', tank: 'Low', skimmer: 'Not working', wr90: '', comment: '', by: 'KH', at: `${TODAY}T07:15` },
     'Cap-CAPWB-67': { drops: '12', ph: '9.0', oil: 'Light', tank: 'OK', skimmer: 'OK', wr90: '', comment: '', by: 'EW', at: `${y}T09:20` },
-    'Assembly-CSAWB-65': { drops: '17', ph: '9.2', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '2', comment: '', by: 'NL', at: `${y}T10:50` }
+    'Assembly-CSAWB-65': { drops: '9', ph: '9.2', oil: 'None', tank: 'OK', skimmer: 'OK', wr90: '2', comment: '', by: 'NL', at: `${y}T10:50` }
   };
 }
 function seedMix() {
@@ -1666,6 +1871,11 @@ function seedChecks() {
     }
   }
   return out;
+}
+function seedSms() {
+  const C = seedChecks(), out = [];
+  ['dust', 'mist'].forEach(k => CHK_LINES.forEach(l => Object.entries(C[k][l] || {}).forEach(([d, c]) => { if (c.v === 'X' && d <= TODAY) out.push({ kind: k, line: l, d, at: `${d}T07:${String(10 + (hash(k + l + d) % 40)).padStart(2, '0')}`, to: [...new Set(GLS.filter(g => glFor(l, g)).map(g => g.name))] }); })));
+  return out.sort((a, b) => a.at < b.at ? -1 : 1);
 }
 function seedAssign() {
   const conc = {}, wash = {}, dust = {};
@@ -1709,11 +1919,11 @@ class Component extends DCLogic {
     mdTab: 'sys', comStd: [...COMMENTS], newCmt: '', newHol: '', holErr: null, ver: 0,
     auditId: null, confirmDel: false, drawerCmt: null,
     fLine: 'All', fShift: 'All', fGroup: 'All', report: 'weekly', chkOpen: true,
-    sendOpen: false, sendSel: DIST.map((d, i) => i === 0), sentLog: null, trendSys: CONC[0].id, toast: null, area: 'Sprint', assign: seedAssign(), assignCat: 'conc', myOnly: false, sms: null, smsLog: [], glOn: GLS.map(g => !!g.phone), gl: GLS.map(g => ({ name: g.name, phone: g.phone })), dropF: { ...DROP_F }, ldcLine: Object.fromEntries(LEXTRA.map(x => [x.id, LX_LINE[x.sheetLine] || ''])), imp: { stores: {}, leadec: {} }, sendWhat: 'Weekly Status', showAlt: false, fbOpen: false, fbText: '', fbType: 'Change needed', fbList: []
+    sendOpen: false, sendSel: DIST.map((d, i) => i === 0), sentLog: null, trendSys: CONC[0].id, toast: null, area: 'Sprint', assign: seedAssign(), assignCat: 'conc', myOnly: false, sms: null, smsLog: seedSms(), glOn: GLS.map(g => !!g.phone), gl: GLS.map(g => ({ name: g.name, phone: g.phone })), tmTx: null, ldcLine: Object.fromEntries(LEXTRA.map(x => [x.id, LX_LINE[x.sheetLine] || ''])), imp: { stores: {}, leadec: {} }, sendWhat: 'Weekly Status', showAlt: false, fbOpen: false, fbText: '', fbType: 'Change needed', fbList: []
   };
-  componentDidMount() { this.applyHoliday(); }
+  componentDidMount() { this.applyHoliday(); if (this.props.demoBrix) { const [op, v] = String(this.props.demoBrix).split(':'); const sy = ROUND.find(x => x.op === op); if (sy) this.setDraft(sy.id, { brix: v }); } this._rs = () => this.setState({ vw: window.innerWidth }); window.addEventListener('resize', this._rs); }
   componentDidUpdate(pp) { if (pp.holidayMonday !== this.props.holidayMonday) this.applyHoliday(true); }
-  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._s); }
+  componentWillUnmount() { clearTimeout(this._t); clearTimeout(this._s); window.removeEventListener('resize', this._rs); }
   applyHoliday(force) {
     const want = !!this.props.holidayMonday;
     const has = HOL.has(MON);
@@ -1804,7 +2014,7 @@ class Component extends DCLogic {
       recycled: c.v.recycled, comment: c.v.comment, listId: isPit ? 'cmt-pit' : 'cmt-std', cmtPh: isPit ? 'Water add or note' : 'Pick or type',
       final: c.finalStr, finalFg: !c.has || isNaN(c.fin) ? 'var(--color-text)' : ST[oorK(s, c.fin)].fg,
       locked, lockWhy: locked ? this.lockWhy(c.e, s) : '',
-      rowBg: c.has ? ROW_BG[oorK(s, c.pct)] : 'transparent',
+      rowBg: c.has ? ROW_BG[oorK(s, c.pct)] : 'transparent', mBg: c.has ? ROW_BG[oorK(s, c.pct)] : 'var(--chemico-white)', mOpen: st.mOpen === s.id || c.dirty, mChevron: (st.mOpen === s.id || c.dirty) ? 'ph-caret-up' : 'ph-caret-down', onMToggle: () => this.setState(z => ({ mOpen: z.mOpen === s.id ? null : s.id })),
       showPrompt: low || high, promptIcon: low ? 'ph-drop' : 'ph-arrow-up', promptFg: low ? ST.bad.fg : ST.high.fg,
       promptMain: low ? `Add ${fx(c.prompt)} L (${fx(c.prompt * GAL)} gal) of ${s.product}` : `High at ${fx(c.pct)}% · non-critical`,
       promptSub: low ? `Reading ${fx(c.pct)}% is below the ${s.low}% low limit — this brings it to the ${s.target}% target.` : `High limit is ${s.high}%. Don't add product — record the reason in Comment.`,
@@ -2228,8 +2438,8 @@ class Component extends DCLogic {
     const u = this.user, st = this.state;
     const rows = WASH.map(s => {
       const w = st.washers[s.id] || {}, locked = this.locksFor(s);
-      const drops = num(w.drops), ph = num(w.ph), df = num(st.dropF[s.product]);
-      const pct = drops == null || df == null ? null : drops * df, ik = pct == null ? null : oorK(s, pct), add = ik === 'bad' ? toAdd(s, pct) : 0;
+      const drops = num(w.drops), ph = num(w.ph), lk = dropLook(s.product, drops);
+      const pct = lk ? lk.pct : null, ik = pct == null ? null : oorK(s, pct), add = ik === 'bad' ? toAdd(s, pct) : 0;
       const fin = num(w.final) ?? (ik === 'ok' ? pct : null), fk = fin == null ? null : oorK(s, fin), finOk = fk === 'ok', out = !!ik && ik !== 'ok';
       const pk = ph == null ? 'ok' : phK(ph), oil = w.oil || 'None';
       const issues = [];
@@ -2248,12 +2458,12 @@ class Component extends DCLogic {
       const bgK = !entered ? null : out && !finOk ? (fk && fk !== 'ok' ? fk : ik) : oil === 'Heavy' || pk === 'bad' ? 'bad' : pk === 'high' ? 'high' : null;
       return {
         sys: s, flags: { pk: ik, fk, ph: pk },
-        name: `${s.line} ${s.op}`, mach: s.mach, product: s.product, range: `${s.low}–${s.high}%`, sump: fx(s.sumpL, 0), factor: df == null ? 'set drop factor' : `${drops == null ? '#' : drops} × ${df}`,
+        name: `${s.line} ${s.op}`, mach: s.mach, product: s.product, range: `${s.low}–${s.high}%`, sump: fx(s.sumpL, 0), factor: !DROP_CHART[s.product] ? 'no chart set' : lk ? lk.how : 'from chart',
         locked, lockWhy: locked ? this.lockWhy(null, s) : '', entered,
         drops: w.drops || '', ph: w.ph || '', oil, tank: w.tank || 'OK', skimmer: w.skimmer || 'OK', wr90: w.wr90 || '', comment: w.comment || '',
-        pct: pct == null ? '—' : fx(pct) + '%', pctFg: ik == null ? 'var(--color-neutral-600)' : ST[ik].fg,
+        pct: pct == null ? '—' : (lk.over ? '> ' : '') + fx(pct, 2) + '%', pctFg: ik == null ? 'var(--color-neutral-600)' : ST[ik].fg,
         addL: add > 0 ? fx(add) + ' L' : '—', addG: add > 0 ? fx(add * GAL) + ' gal' : pct != null ? 'none' : '', addFg: add > 0 ? ST.bad.fg : 'var(--color-neutral-700)',
-        final: w.final != null ? w.final : ik === 'ok' ? String(r1(pct)) : '', finPh: out ? 'after add' : '%', finTxt: fin == null ? '' : fx(fin) + '%',
+        final: w.final != null ? w.final : ik === 'ok' ? String(r2(pct)) : '', finPh: out ? 'after add' : '%', finTxt: fin == null ? '' : fx(fin) + '%',
         finalFg: fk == null ? 'var(--color-text)' : ST[fk].fg, finBorder: out && fin == null ? 'oklch(0.7 0.15 75)' : 'var(--color-divider)',
         phFg: pk === 'ok' ? 'var(--color-text)' : ST[pk].fg, oilFg: oil === 'Heavy' ? ST.bad.fg : 'var(--color-text)',
         issues, hasIssues: issues.length > 0, rowBg: bgK ? ROW_BG[bgK] : 'transparent',
@@ -2263,7 +2473,7 @@ class Component extends DCLogic {
       };
     });
     const done = rows.filter(r => r.entered).length;
-    return { rows, done, due: rows.length, barW: this.pctOf(done, rows.length), pctLabel: this.pctOf(done, rows.length), week: `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))} · titrated once a week`, hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} washers are read only for Shift ${u.shift} techs.` };
+    return { charts: DROP_VIEW.map(c => { const s0 = WASH.find(s => (PNAME[s.product] || s.product) === c.name); return { ...c, range: s0 ? `Range ${s0.low}–${s0.high}% · dose target ${s0.target}% (mid range)` : '' }; }), rows, done, due: rows.length, barW: this.pctOf(done, rows.length), pctLabel: this.pctOf(done, rows.length), week: `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))} · titrated once a week`, hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} washers are read only for Shift ${u.shift} techs.` };
   }
   vMix() {
     const st = this.state, d = st.mixDraft, saved = st.mix.find(m => m.date === TODAY);
@@ -2323,7 +2533,28 @@ class Component extends DCLogic {
       onDust: () => this.setState({ checkKind: 'dust' }), onMist: () => this.setState({ checkKind: 'mist' }), onSkim: () => this.setState({ checkKind: 'skim' }),
       hasAlertNote: kind !== 'skim', alertNote: 'Marking X (Not Good) texts both Group Leads for that area.',
       log: st.smsLog.slice().reverse().map(x => ({ text: `${md(x.d)} ${hhmm(x.at)} · ${CHK_KINDS[x.kind]} · ${x.line} · Not Good`, to: `Texted ${x.to.join(', ')}` })), hasLog: st.smsLog.length > 0,
-      summary: `today ${todayDone} of ${CHK_LINES.length} lines checked`
+      summary: `today ${todayDone} of ${CHK_LINES.length} lines checked`,
+      tm: this.vToyota()
+    };
+  }
+  vToyota() {
+    const st = this.state, recs = [];
+    ['dust', 'mist'].forEach(k => CHK_LINES.forEach(l => Object.entries(st.checks[k][l] || {}).forEach(([d, c]) => {
+      const sent = st.smsLog.some(x => x.kind === k && x.line === l && x.d === d);
+      recs.push({ k, l, d, c, sent });
+    })));
+    recs.sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : a.l < b.l ? -1 : 1);
+    const fails = recs.filter(r => r.c.v === 'X').reverse(), tx = st.tmTx, mon = MONTHS[+TODAY.slice(5, 7) - 1];
+    const fresh = tx && tx.n === recs.length && tx.f === fails.length;
+    const csv = () => [['Date', 'Plant', 'Area', 'Line', 'Collector', 'Result', 'Checked by', 'Group Leads texted'].join(','), ...recs.map(r => [r.d, 'TMMAL', 'Sprint/TRUQ2', r.l, CHK_KINDS[r.k], r.c.v === 'X' ? 'FAIL' : 'PASS', (USERS[r.c.by] || {}).name || r.c.by, r.c.v === 'X' ? (r.sent ? 'Yes' : 'No') : ''].map(v => `"${v}"`).join(','))].join('\n');
+    return {
+      summary: `${mon}: ${recs.length} checks recorded · ${fails.length} did not pass`,
+      nFail: String(fails.length), hasFails: fails.length > 0, noFails: !fails.length,
+      fails: fails.map(r => ({ when: `${DAYN[dow(r.d)]} ${md(r.d)}`, kind: CHK_KINDS[r.k], line: r.l, by: (USERS[r.c.by] || {}).name || r.c.by, alert: r.sent ? 'Group Leads texted' : 'Text not logged', alertFg: r.sent ? 'var(--color-text)' : ST.warn.fg })),
+      last: !tx ? 'Not yet sent to Toyota this month' : fresh ? `Sent to Toyota ${md(tx.d)} at ${hhmm(tx.at)} · ${tx.n} records, ${tx.f} failed` : `Last sent ${md(tx.d)} at ${hhmm(tx.at)} · new checks since then, send again`,
+      lastFg: fresh ? 'oklch(0.38 0.1 150)' : 'var(--color-neutral-800)', lastIcon: fresh ? 'ph-check-circle' : 'ph-clock',
+      onCsv: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = `CDC Dust-Mist ${TODAY.slice(0, 7)} for Toyota.csv`; document.body.appendChild(a); a.click(); a.remove(); this.say(`Downloaded ${recs.length} dust and mist records`); },
+      onSend: () => { this.setState({ tmTx: { d: TODAY, at: nowStamp(), n: recs.length, f: fails.length } }); this.say(`Simulated transfer of ${recs.length} records (${fails.length} failed) to the Toyota database`); }
     };
   }
   cycleCheck(kind, l, d) {
@@ -2463,7 +2694,7 @@ class Component extends DCLogic {
         group: s.group, canMove: s.type === 'Machining', fixed: s.type !== 'Machining', groupLabel: s.type === 'Pit' ? 'Daily' : 'Weekly', shift: 'S' + s.shift, shiftV: String(s.shift), onShift: ev => this.setShift(s.id, +ev.target.value), bug: s.bug,
         onGroup: ev => { const v = ev.target.value; s.group = v; this.setState({ ver: st.ver + 1 }); this.say(`${s.line} ${s.op} moved to ${v} — due ${v === 'MWTH' ? 'Mon, Wed, Thu' : 'Tue, Fri'} from now on`); }
       })),
-      products: Object.entries(FACT).map(([p, f]) => { const us = SYS.filter(s => s.product === p); return { p, f: f == null ? 'Not refracted' : `× ${f}`, n: String(us.length), uses: [...new Set(us.map(s => s.type))].join(', ') || '—', ex: f == null ? '—' : `4.0 Brix → ${fx(4 * f)}%`, hasDrop: p in st.dropF, noDrop: !(p in st.dropF), drop: st.dropF[p] ?? '', onDrop: ev => { const v = ev.target.value; this.setState(s2 => ({ dropF: { ...s2.dropF, [p]: v } })); } }; }),
+      products: Object.entries(FACT).map(([p, f]) => { const us = SYS.filter(s => s.product === p); return { p, f: f == null ? 'Not refracted' : `× ${f}`, n: String(us.length), uses: [...new Set(us.map(s => s.type))].join(', ') || '—', ex: f == null ? '—' : `4.0 Brix → ${fx(4 * f)}%`, hasDrop: !!DROP_CHART[p], noDrop: !DROP_CHART[p], drop: DROP_CHART[p] ? `${DROP_CHART[p].length} rows · ${DROP_CHART[p][0][0]}–${DROP_CHART[p][DROP_CHART[p].length - 1][0]} drops` : '' }; }),
       pick: st.comStd.map((c, i) => ({ c, dated: c.endsWith('-'), onEdit: ev => { const v = ev.target.value.toUpperCase(); this.setState(s2 => ({ comStd: s2.comStd.map((x, j) => j === i ? v : x) })); }, onRemove: () => this.setState(s2 => ({ comStd: s2.comStd.filter((_, j) => j !== i) })) })),
       newCmt: st.newCmt, onNewCmt: ev => this.setState({ newCmt: ev.target.value }),
       addCmt: () => { const v = st.newCmt.trim().toUpperCase(); if (!v || st.comStd.includes(v)) return; this.setState({ comStd: [...st.comStd, v], newCmt: '' }); this.say(`Added “${v}” to standard comments`); },
@@ -2514,7 +2745,13 @@ class Component extends DCLogic {
         chart: this.buildChart(s)
       };
     }
+    const rnd = this.vRound();
+    const isMob = this.props.forceMobile ?? ((st.vw ?? window.innerWidth) < 760);
     return {
+      isMob, isDesk: !isMob, rootBg: isMob ? 'var(--color-surface)' : 'var(--color-bg)', mHasDirty: isMob && !rnd.noDirty, mNoDirty: isMob && rnd.noDirty, mainPad: isMob ? '18px 16px 0' : '28px 24px 40px', areaShort: st.area,
+      mNavShow: isMob && !!st.mNav, mNavOpen: () => this.setState({ mNav: true }), mNavClose: () => this.setState({ mNav: false }),
+      userInitials: u.name.replace(/\(.*?\)/g, '').trim().split(/\s+/).map(w => w[0]).slice(0, 2).join('').toUpperCase(),
+      isRoundDesk: screen === 'round' && !isMob, isRoundMob: screen === 'round' && isMob,
       todayShort: `${DAYN[dow(TODAY)]} ${+TODAY.slice(8)} ${MONTHS[+TODAY.slice(5, 7) - 1].slice(0, 3)} ${TODAY.slice(0, 4)}`, weekNo: WEEKNO,
       sideW: st.navMini ? '76px' : '264px', sidePad: st.navMini ? '10px' : '14px', mini: st.navMini, notMini: !st.navMini, navJustify: st.navMini ? 'center' : 'flex-start', miniIcon: st.navMini ? 'ph-caret-double-right' : 'ph-caret-double-left', miniLabel: st.navMini ? 'Expand menu' : 'Collapse menu', toggleMini: () => this.setState(s2 => ({ navMini: !s2.navMini })),
       role: st.role, onRole: ev => this.setState({ role: ev.target.value, drafts: {}, errors: {}, auditId: null }),
@@ -2523,7 +2760,7 @@ class Component extends DCLogic {
       commentsStd: st.comStd, commentsPit: [...PIT_WATER, ...st.comStd],
       isBug: screen === 'bug', isWash: screen === 'washer', isMix: screen === 'mix', isDust: screen === 'dust', isLeadec: screen === 'leadec', isMaster: screen === 'master',
       bug: this.vBug(), wash: this.vWash(), mix: this.vMix(), chk: this.vChecks(), ldc: this.vLeadec(), mst: mgr ? this.vMaster() : { tabs: [] },
-      isRound: screen === 'round', isDash: screen === 'dash', isReports: screen === 'reports',       round: this.vRound(), dash: screen === 'dash' ? this.vDash() : { tiles: [], latest: [], warnings: [] },
+      isRound: screen === 'round', isDash: screen === 'dash', isReports: screen === 'reports',       round: rnd, dash: screen === 'dash' ? this.vDash() : { tiles: [], latest: [], warnings: [] },
       canSend: mgr, rep, wk, tr, gen: screen === 'reports' && rep.isGen ? this.vGen(st.report) : { figs: [], sections: [] }, drawer: this.vDrawer(), dlg: this.vDialog(),
       hasToast: !!st.toast, toast: st.toast || '',
       fb: this.vFb((NAV.find(n => n[0] === screen) || [, 'App'])[1]),
