@@ -3,9 +3,12 @@
 Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, V6T and 24T to follow). Prepared by Ideal Technology Solutions.
 
 ## Files
-- `index.html` — start page with links
-- `Coolant Data Capture.dc.html` — the prototype, top menu (Sprint / TRUQ2 by default)
-- `Coolant Data Capture - Sidebar.dc.html` — side-menu layout, Chemico Systems brand (blue menu)
+- `index.html` — start page; **Open the prototype** goes to the current design
+- `Coolant Data Capture - Sidebar v2.dc.html` — **current design**: side menu with sign-in, per-site roles, Users & Access and sign-out
+- `Sprint Pilot - Prototype Features v2.dc.html` — feature walkthrough of the current design, with screenshots (`screenshots/v2/`)
+- `Sprint Pilot - Open Questions for Michael.dc.html` — business and technical questions before development
+- `Coolant Data Capture.dc.html` — earlier version, top menu
+- `Coolant Data Capture - Sidebar.dc.html` — earlier side-menu version, before sign-in and roles
 - `Coolant Data Capture - Header - Sidebar.dc.html` — top bar + white side menu, Chemico Systems brand (Michael's layout)
 - `Sprint Pilot - Prototype Features.dc.html` / `… - Side Menu.dc.html` — feature walkthroughs with screenshots
 - `Coolant Data Capture (TNGA).dc.html` — earlier TNGA version
