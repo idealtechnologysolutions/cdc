@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="vendor/broadsheet/styles.css">
+<script src="vendor/broadsheet/ds-bundle.js"></script>
+<link rel="stylesheet" href="vendor/chemico/brand.css">
+<script src="./doc-page.js"></script>
+<style>
+doc-page:not(:defined){visibility:hidden}
+body{margin:0}
+a{color:var(--color-accent-700)}
+a:hover{color:var(--color-accent-800)}
+table,figure,.keep{break-inside:auto}
+tr,.keep{break-inside:avoid}
+h2,h3{break-after:avoid}
+</style>
+</helmet>
+<doc-page size="letter" margin="0.65in">
+  <div style="font-family:var(--font-body);color:var(--color-text);font-size:13px;line-height:1.55">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;margin:0 0 20px">
+      <img src="assets/chemico-logo-primary.png?v=4" alt="Chemico" style="height:44px;width:auto;display:block;margin:12px 0">
+      <span style="font-size:12px;color:var(--color-neutral-700);text-align:right">Prepared by Ideal Technology Solutions</span>
+    </div>
+    <h1 style="margin:0 0 6px;font-size:30px;line-height:1.15;text-wrap:pretty">Coolant Data Capture — Functional Specification and Requirements</h1>
+    <p style="margin:0 0 18px;font-size:14px;color:var(--color-neutral-700)">Sprint / TRUQ2 pilot · TMMAL · Release 1 · Version 1.0 · 9 November 2026</p>
+
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 26px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;width:130px;color:var(--color-neutral-700)">Status</td><td style="padding:6px 0">For sign-off before development</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;color:var(--color-neutral-700)">Client</td><td style="padding:6px 0">Chemico, for Toyota Motor Manufacturing Alabama (TMMAL)</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;color:var(--color-neutral-700)">Business owner</td><td style="padding:6px 0">Jeff Davis, Chemico</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;color:var(--color-neutral-700)">Prepared by</td><td style="padding:6px 0">Ideal Technology Solutions</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;color:var(--color-neutral-700)">Built from</td><td style="padding:6px 0">Prototype v3 (side-menu layout), SPRINT Master Template (OP Info, 7 Sep 2026), and Jeff Davis’s answers in rounds one to four</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;color:var(--color-neutral-700)">Companion documents</td><td style="padding:6px 0">Prototype Features v3 (Final) for screen-by-screen screenshots</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:0 0 8px">1. Purpose and scope</h2>
+    <p style="margin:0 0 10px;text-wrap:pretty">Coolant Data Capture (CDC) replaces the paper and Excel coolant round at TMMAL. Fluid techs record each check at the machine on a tablet. The app works out concentration and dosing, flags anything out of range, texts Group Leads when a collector fails, and builds the reports managers send to Toyota. This document states what Release 1 must do. Where a rule was confirmed by Jeff Davis it is stated as a requirement; anything not yet confirmed is listed in section 10.</p>
+    <h3 style="font-size:15px;margin:14px 0 6px">In scope for Release 1</h3>
+    <ul style="margin:0 0 10px;padding-left:20px">
+      <li>Sprint / TRUQ2: 132 systems across Shaft 1/2, 3/4 and 5/6, Carrier, Cap, Case, Manual Case and Assembly, plus 18 parts washers.</li>
+      <li>Every screen in prototype v3: Dashboard, Daily Round, Assignments, Bug &amp; pH, Washers, Mix Tank, Dust, Mist &amp; Skimmer, Leadec Log, Imports, Reports, Master Data, Users &amp; Access.</li>
+      <li>Dust collector Forms export upload for all five Forms links: Sprint/TRUQ2, TNGA, V6T, 2.4T and Tool Regrind.</li>
+      <li>Text alerts to Group Leads, report email to Toyota distribution lists, the Toyota dust/mist file, and Power BI publishing.</li>
+    </ul>
+    <h3 style="font-size:15px;margin:14px 0 6px">Out of scope for Release 1</h3>
+    <ul style="margin:0 0 10px;padding-left:20px">
+      <li>Coolant rounds for TNGA, V6T and 2.4T. They are adapted from the pilot after plant walks. The site switch and per-site access are built now so they can be added without rework.</li>
+      <li>In-line concentration and pH sensors (shown as Future in the prototype).</li>
+      <li>The prototype’s reviewer feedback button.</li>
+    </ul>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">2. Users and roles</h2>
+    <p style="margin:0 0 10px;text-wrap:pretty">Each person has one role on each site they work on, or no access. The same person can be a Tech at Sprint and have no access at TNGA.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:110px">Role</th><th style="padding:6px 0">Who and what</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Tech</strong></td><td style="padding:7px 0">Chemico fluid techs. Rounds and checks for their own shift; view and export reports. Shift 1: Harry Woessner, Keith Hamby, Emily Womack, Nick Loftin. Shift 2: Ruben Robinson, Earl Grigsby, Justin Reed.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Contractor</strong></td><td style="padding:7px 0">External techs, e.g. Michael Ward (Yushiro). Enters readings and edits only their own entries for 5 days. Access ends on a set date.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Site Manager</strong></td><td style="padding:7px 0">Everything a Tech can do, plus assignments, imports, Leadec, sending reports, the Toyota transfer and Master Data, for their site.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Plant Admin</strong></td><td style="padding:7px 0">Everything on every site they are given, including Users &amp; Access. Jeff Davis in the prototype.</td></tr>
+        <tr><td style="padding:7px 10px 7px 0;vertical-align:top"><strong>Viewer</strong></td><td style="padding:7px 0">Read and export reports only, e.g. Toyota Group Leads such as Melisha Martin.</td></tr>
+      </tbody>
+    </table>
+    <h3 style="font-size:15px;margin:14px 0 6px">Permission matrix (defaults)</h3>
+    <p style="margin:0 0 8px;text-wrap:pretty">A Plant Admin can change these ticks; a change applies to everyone with that role. Plant Admin always keeps every permission.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0">Permission</th><th style="padding:6px 4px;text-align:center;width:62px">Tech</th><th style="padding:6px 4px;text-align:center;width:70px">Contractor</th><th style="padding:6px 4px;text-align:center;width:70px">Site Manager</th><th style="padding:6px 4px;text-align:center;width:62px">Plant Admin</th><th style="padding:6px 4px;text-align:center;width:56px">Viewer</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Enter readings</td><td style="text-align:center">●</td><td style="text-align:center">●</td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Edit own shift’s entries</td><td style="text-align:center">●</td><td></td><td></td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Edit own entries for 5 days</td><td></td><td style="text-align:center">●</td><td></td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Edit any entry</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Delete entries</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Assignments</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Record Leadec cleans</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Imports, including Forms uploads</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">View and export reports</td><td style="text-align:center">●</td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td style="text-align:center">●</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Send reports</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Send to Toyota database</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:5px 10px 5px 0">Master Data</td><td></td><td></td><td style="text-align:center">●</td><td style="text-align:center">●</td><td></td></tr>
+        <tr><td style="padding:5px 10px 5px 0">Users and access</td><td></td><td></td><td></td><td style="text-align:center">●</td><td></td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">3. Functional requirements</h2>
+    <p style="margin:0 0 12px;text-wrap:pretty">Each requirement has an ID for test cases and change control. The prototype screen of the same name shows the intended behaviour.</p>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.1 Sign-in and navigation</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>SI-1</strong></td><td style="padding:6px 0">Sign-in is two steps: choose the site, then the person. Only people with access to that site are listed, with their role there.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>SI-2</strong></td><td style="padding:6px 0">After sign-in, a welcome banner on the Dashboard shows site, role, shift and today’s assigned systems, with a Start my round button.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>SI-3</strong></td><td style="padding:6px 0">Sign-out is blocked while entries are waiting to sync. After sign-out the tablet returns to the sign-in screen.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>SI-4</strong></td><td style="padding:6px 0">Production sign-in uses the method agreed in open item T2. Contractor access stops automatically on its end date.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NV-1</strong></td><td style="padding:6px 0">Navigation is a left side menu that collapses to icons. It lists only the screens the user’s role allows on the current site.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NV-2</strong></td><td style="padding:6px 0">The site switch shows only the sites the user has access to.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NV-3</strong></td><td style="padding:6px 0">On a phone the menu folds behind a menu button and the Daily Round shows one compact card per machine; tapping a card opens its details. One Save button saves every changed row.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.2 Dashboard</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>DB-1</strong></td><td style="padding:6px 0">Four counts for today: systems due, completed, out of range, and missing comments.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DB-2</strong></td><td style="padding:6px 0">Latest reading per system, filterable by line, shift and schedule group, 40 systems to a page.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DB-3</strong></td><td style="padding:6px 0">Today’s warnings list each missing reading or uncommented problem, with a link straight to the row.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.3 Daily Round</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>DR-1</strong></td><td style="padding:6px 0">Lists the systems due today (BR-7) for the chosen shift, grouped by line, with the assigned tech’s color on each row and shift progress at the top.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-2</strong></td><td style="padding:6px 0">The tech enters the refractometer reading (Brix); the app shows concentration % (BR-1).</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-3</strong></td><td style="padding:6px 0">Below range the row turns red and shows litres and gallons to add (BR-2). Above range it turns yellow: non-critical, no product added. These colors are used on every screen and report.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-4</strong></td><td style="padding:6px 0">Each row also records tank level, skimmer, product added, virgin or recycled, and the final reading.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-5</strong></td><td style="padding:6px 0">Comments are picked from the standard list or typed. A row still out of range after dosing can’t be saved without a comment (BR-3).</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-6</strong></td><td style="padding:6px 0">Systems on a product with no refractive factor (MDS-570) are listed under the round heading and left off the round.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DR-7</strong></td><td style="padding:6px 0">Rows the user can’t edit show a lock with the reason (other shift, entered by someone else, or older than 5 days).</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.4 Assignments</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>AS-1</strong></td><td style="padding:6px 0">Separate assignment lists for concentration rounds, bug slides and pH, dust and mist collectors, and washers.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AS-2</strong></td><td style="padding:6px 0">Assign one system, or a whole line or shift in one step.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AS-3</strong></td><td style="padding:6px 0">Move any system between Shift 1 and Shift 2. The round, dashboard and reports follow straight away.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AS-4</strong></td><td style="padding:6px 0">Each tech has a color that carries through to the Daily Round and check sheets.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.5 Bug &amp; pH</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>BP-1</strong></td><td style="padding:6px 0">Every system shows each week. Systems not in this week’s slide group show NT for bacteria and fungus; pH is still checked (BR-9).</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BP-2</strong></td><td style="padding:6px 0">Records bacteria, fungus, action taken, and pH before and after.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BP-3</strong></td><td style="padding:6px 0">Grotan, LA-33 and WR-90 doses are calculated from sump size (BR-5). Tap to record the dose added. A treated system has its Grotan dose filled in; a pH below range fills in the LA-33 dose.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BP-4</strong></td><td style="padding:6px 0">Counts at limit or pH out of range are flagged with a short instruction, red for critical and yellow for high pH (BR-4, BR-6).</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.6 Washers</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>WA-1</strong></td><td style="padding:6px 0">Weekly titration for all 18 Sprint washers. Inhibitor 42 (I-42) replaces G-2200TU on every washer.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>WA-2</strong></td><td style="padding:6px 0">The titration chart for each product in use is shown above the table, read from Master Data.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>WA-3</strong></td><td style="padding:6px 0">The tech enters the number of drops; Initial RI % is read from the chart (BR-10). The row notes when a between-rows count used the row below, and flags counts above the chart.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>WA-4</strong></td><td style="padding:6px 0">Below range the row turns red with the dose to add (BR-11). The tech re-titrates and enters the Final RI.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>WA-5</strong></td><td style="padding:6px 0">pH, free oil, tank level, skimmer, WR-90 and a comment are recorded on the same row. Low pH and heavy free oil are flagged; heavy oil with a broken skimmer prompts a work order note.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.7 Mix Tank</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>MT-1</strong></td><td style="padding:6px 0">Records today’s batch in litres: raw fluid, water, mix sent to line, and two Brix readings.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MT-2</strong></td><td style="padding:6px 0">Shows each reading’s concentration beside the strength expected from the mix ratio and highlights any that don’t match (BR-8). The week’s log is shown below.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.8 Dust, Mist &amp; Skimmer checks</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>DM-1</strong></td><td style="padding:6px 0">For now, dust collector checks come from TMMAL’s Microsoft Forms. The screen opens on a Forms upload tab.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-2</strong></td><td style="padding:6px 0">The tab lists each Forms link (Sprint/TRUQ2, TNGA, V6T, 2.4T, Tool Regrind) with its line dropdown, last upload, next due date and status: Up to date, Due today, Overdue or Not uploaded.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-3</strong></td><td style="padding:6px 0">Upload frequency is Weekly or Monthly, set by the manager. It starts Weekly and changes every due date when switched. The Plant Admin gets a reminder when an area is due.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-4</strong></td><td style="padding:6px 0">The upload reads the Forms Excel export as downloaded (section 7.3). The area comes from the file name or the Department column. Uploading marks that area as uploaded today.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-5</strong></td><td style="padding:6px 0">After upload, CDC shows for the chosen month: checks submitted, Not Good count, workdays with no check, a day-by-day sheet per line with the initials of who filled in the form, and every Not Good with equipment, details and actions taken, and reporter.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-6</strong></td><td style="padding:6px 0"><strong>Open report</strong> opens the Dust Collectors report; <strong>Download for Toyota</strong> gives the PASS / FAIL file (section 7.4).</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-7</strong></td><td style="padding:6px 0">Sprint’s line dropdown uses its own product lines. Tool Regrind has one choice, and its export doesn’t need a Line column.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-8</strong></td><td style="padding:6px 0">In-app check sheets stay available for Dust, Mist and Skimmer: a monthly sheet of workdays by area, one tap cycling blank → O → X, with the tech’s initials. Missed days show amber. Dust and mist collectors are kept separate, each with its own report.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>DM-9</strong></td><td style="padding:6px 0">The Toyota transfer lists every check for the month, with failures first, showing date, line, who checked it and whether the Group Leads were texted. It records when it was sent and prompts again when new checks arrive.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.9 Text alerts</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>AL-1</strong></td><td style="padding:6px 0">Marking a dust or mist collector X in the app texts both Group Leads for that area, and nobody else. The tech sees a message preview before it sends.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AL-2</strong></td><td style="padding:6px 0">Shaft collectors go to the Shaft Group Leads; Carrier, Case and Cap go to the Carrier/Diff Group Leads. Where an area has one lead, that person covers both crews.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AL-3</strong></td><td style="padding:6px 0">Green and Yellow crews rotate every two weeks (BR-12); each lead’s crew and shift show on the alert.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AL-4</strong></td><td style="padding:6px 0">Every text sent is logged with time, recipient and collector.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.10 Leadec Log</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>LD-1</strong></td><td style="padding:6px 0">Every machine in Leadec’s scope, with a box for each week of the month. Ticking a week records the clean and recharge with initials and date. Future weeks are locked.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>LD-2</strong></td><td style="padding:6px 0">Rescheduled cleanings show amber with the reason.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>LD-3</strong></td><td style="padding:6px 0">Machines on Leadec’s sheet that aren’t in the coolant rounds are kept as Leadec-only for the cleaning record. They don’t need a line and never affect the rounds.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>LD-4</strong></td><td style="padding:6px 0">Cleanings show as markers on the trend charts.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.11 Imports</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>IM-1</strong></td><td style="padding:6px 0">Three Excel imports: General Stores fluid orders, Leadec schedule and completions, and the dust collector Forms export (section 7). Columns are matched by heading, so files don’t need a fixed layout.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>IM-2</strong></td><td style="padding:6px 0">Each import shows a preview of the rows found before it is applied, and can be cancelled.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>IM-3</strong></td><td style="padding:6px 0">General Stores: reads the all-area order calendar and compares Sprint/TRUQ2 orders with what techs recorded adding this month. Other areas are kept for their rollout.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>IM-4</strong></td><td style="padding:6px 0">Leadec: uploaded as it comes. Machine numbers are matched to the CDC system list, including known typos. Completed cleanings are ticked in the Leadec Log and rescheduled ones flagged.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.12 Reports</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>RP-1</strong></td><td style="padding:6px 0">Ten reports: Weekly Status, Washer Report, Assembly Washer, Chemical Use, Bug and pH, Leadec Weekly, Dust Collectors, Mist Collectors, Skimmers and Trend Charts.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>RP-2</strong></td><td style="padding:6px 0">Weekly Status: one page per line with daily concentration, virgin and recycled gallons added, bacteria, fungus, action, pH 8.9–9.6 and comments, and a checklist of open items to fix before sending.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>RP-3</strong></td><td style="padding:6px 0">Dust Collectors: from the in-app sheet or the uploaded Forms export, a line-by-line summary for the month (checked, OK, Not Good, no check, Not Good days, last check) and the Not Good details with actions taken.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>RP-4</strong></td><td style="padding:6px 0">Trend Charts: 11 weeks of concentration per system against its target range, with Leadec cleans marked.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>RP-5</strong></td><td style="padding:6px 0">Every report exports to PDF and Excel. Managers can send any report to one or more of Toyota’s four distribution lists: Sprint/TRUQ2, TNGA, 103E/V6T and 152E/2.4T. Sending is manual, never automatic.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>RP-6</strong></td><td style="padding:6px 0">Reports also publish to Power BI (open item T6).</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.13 Master Data</h3>
+    <p style="margin:0 0 8px;text-wrap:pretty">Site Managers and Plant Admins can change all master data themselves. Nothing is fixed in setup, and changes apply straight away to the round, dashboard and reports.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>MD-1</strong></td><td style="padding:6px 0"><strong>Systems:</strong> edit OP #, machine #, product, range and target in place; move a system between MWTH and TF or between shifts. Summary counts by schedule group and shift.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-2</strong></td><td style="padding:6px 0"><strong>Products:</strong> add products, set or clear the refractive factor (blank = not refracted), with a worked example and the number of systems using each.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-3</strong></td><td style="padding:6px 0"><strong>Titration charts:</strong> edit any drops → RI % row, add or delete rows, and start a chart for a new product.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-4</strong></td><td style="padding:6px 0"><strong>Pick Lists:</strong> standard comments and pit water additions; edit, add or remove. Items ending in “-” get the date added when picked.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-5</strong></td><td style="padding:6px 0"><strong>Distribution List:</strong> the four Toyota lists with names and emails.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-6</strong></td><td style="padding:6px 0"><strong>Alert Contacts:</strong> Group Leads per area and crew, with phone numbers; each can be switched on or off.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>MD-7</strong></td><td style="padding:6px 0"><strong>Holiday Calendar:</strong> add and remove plant holidays (BR-7).</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.14 Users &amp; Access</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>UA-1</strong></td><td style="padding:6px 0">One role per person per site, or no access. The site switch and sign-in list follow straight away.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>UA-2</strong></td><td style="padding:6px 0">An optional end date per person; access stops on that date.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>UA-3</strong></td><td style="padding:6px 0">The permission matrix in section 2 is editable by a Plant Admin.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>UA-4</strong></td><td style="padding:6px 0">A Plant Admin can’t remove their own admin access, so a site is never left without one.</td></tr>
+      </tbody>
+    </table>
+
+    <h3 style="font-size:15px;margin:14px 0 6px">3.15 Offline working and audit</h3>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>AU-1</strong></td><td style="padding:6px 0">Techs keep working without Wi-Fi. Entries wait on the device and sync when it reconnects; the header shows Online/Offline and how many entries are waiting.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AU-2</strong></td><td style="padding:6px 0">Every saved entry records who made it and when. Every edit records who changed what, from and to; the history opens from the row.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>AU-3</strong></td><td style="padding:6px 0">Deleting always asks for confirmation and is logged.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">4. Business rules and calculations</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:52px">ID</th><th style="padding:6px 10px 6px 0;width:130px">Rule</th><th style="padding:6px 0">Definition</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-1</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Concentration</td><td style="padding:6px 0">Conc. % = Brix × product refractive factor. GTS-120 1.29, AQ-YB 2.0. MDS-570, I-42 and G-5300ME are not refracted. In range if within low–high, allowing 0.05 for rounding.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-2</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Coolant dose</td><td style="padding:6px 0">Below low limit only: add (L) = (target − reading) × 0.01 × sump L. Gallons = L × 0.264172. Above high: no product.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-3</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Comment rule</td><td style="padding:6px 0">A reading still out of range after dosing, a high reading, a pH out of range or a Not Good check needs a comment before it is complete.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-4</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Bug limits</td><td style="padding:6px 0">Bacteria 3 or more, or fungus 2 or more, needs treatment. Same limits on every system.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-5</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemical doses</td><td style="padding:6px 0">Grotan = sump L × 0.0015; LA-33 = sump L × 0.0002; WR-90 = sump L × 0.001. All in litres.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-6</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">pH range</td><td style="padding:6px 0">8.9–9.6 for every system and washer. Below 8.9 is critical and prompts LA-33 (coolant) or WR-90 (washer). Above 9.6 is non-critical: note the reason.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-7</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Schedules and holidays</td><td style="padding:6px 0">MWTH: Monday, Wednesday, Thursday. TF: Tuesday, Friday. Washers: weekly. Dust/mist/skimmer: every workday. Nothing is due on a plant holiday. When Monday is a holiday, the MWTH Monday check moves to Tuesday.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-8</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Mix tank</td><td style="padding:6px 0">Mix conc. = Brix × 1.29. Expected = raw ÷ (raw + water) × 100. Flagged if more than 0.5 points from expected.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-9</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Bug slide groups</td><td style="padding:6px 0">Groups A and B alternate by week; W systems are tested every week. Slides are dipped Monday and read Wednesday.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-10</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Washer chart reading</td><td style="padding:6px 0">Initial RI % = the chart value for the drop count. A count between two rows uses the row below (e.g. I-42, 12 drops → 11-drop row, 1.25%). Below the first row reads 0 and is flagged; above the last row shows “above chart”.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-11</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Washer dose</td><td style="padding:6px 0">Below range: add (L) = (target − RI) × 0.01 × sump L, where target is mid range. I-42 0.8–1.5%, target 1.15%. G-5300ME 1.5–2.5%, target 2%.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-12</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Crew rotation</td><td style="padding:6px 0">Green and Yellow crews swap days and nights every two weeks. Green moved to days on 2 November 2026.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-13</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Edit windows</td><td style="padding:6px 0">Techs edit their own shift’s entries. Contractors edit only their own entries, for 5 days after saving, and can’t delete. Site Managers and Plant Admins edit and delete any entry.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>BR-14</strong></td><td style="padding:6px 10px 6px 0;vertical-align:top">Forms upload due</td><td style="padding:6px 0">Next due = last upload + 7 days (Weekly) or + 30 days (Monthly). Overdue after the due date; Not uploaded if never.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">5. Data</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:130px">Record</th><th style="padding:6px 0">Key fields</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Site</td><td style="padding:6px 0">Sprint/TRUQ2, TNGA, V6T, 2.4T</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">System</td><td style="padding:6px 0">Site, line, OP #, machine #, type (machining / washer), sump L, product, low, high, target, schedule group, shift, bug group, active</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Product</td><td style="padding:6px 0">Code, name, refractive factor (or none), titration chart rows (drops, RI %)</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Round entry</td><td style="padding:6px 0">System, date, shift, Brix, conc. %, tank, skimmer, product added L, virgin/recycled, final reading, comment, entered by and at</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Bug &amp; pH entry</td><td style="padding:6px 0">System, week, bacteria, fungus, action, pH before and after, Grotan / LA-33 / WR-90 added</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Washer entry</td><td style="padding:6px 0">Washer, week, drops, initial RI %, dose added, final RI %, pH, free oil, tank, skimmer, WR-90, comment</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Mix batch</td><td style="padding:6px 0">Date, raw L, water L, to line L, Brix 1 and 2</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Check</td><td style="padding:6px 0">Type (dust / mist / skimmer), site, line, date, O or X, NG equipment, details and actions, checked by, source (app / Forms file), Group Leads texted</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Forms upload</td><td style="padding:6px 0">Forms link (area), file name, uploaded by and at, rows read; the frequency setting</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Leadec clean</td><td style="padding:6px 0">Machine, week, done / rescheduled, reason, by, date; Leadec-only machines</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">People</td><td style="padding:6px 0">Name, organisation, shift, color, role per site, end date; Group Leads with area, crew, phone</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top">Logs</td><td style="padding:6px 0">Edit history, texts sent, reports sent, Toyota transfers</td></tr>
+      </tbody>
+    </table>
+    <p style="margin:0 0 10px;text-wrap:pretty">Starting data for Sprint/TRUQ2 comes from the SPRINT Master Template and Jeff Davis’s lists already in the prototype: systems, products, factors, titration charts, techs, Group Leads, distribution lists, standard comments and holidays.</p>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">6. Non-functional requirements</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top;width:52px"><strong>NF-1</strong></td><td style="padding:6px 0">Runs in a current browser on tablets (primary, for the round), phones and desktop (managers and reports). No app-store install.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NF-2</strong></td><td style="padding:6px 0">Touch targets at least 44 px; readable on the floor; low and high states use the same red and yellow everywhere.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NF-3</strong></td><td style="padding:6px 0">Chemico branding, as in the prototype.</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NF-4</strong></td><td style="padding:6px 0">No reading is lost: offline entries persist on the device until synced (AU-1).</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NF-5</strong></td><td style="padding:6px 0">Access is enforced on the server, not only hidden in the screen.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>NF-6</strong></td><td style="padding:6px 0">Hosting, retention, backup and security review follow the answers to open items T1, T7 and T8.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">7. File interfaces</h2>
+    <p style="margin:0 0 10px;text-wrap:pretty">Imports match columns by heading. Extra columns are ignored. A file missing a required column is rejected with a message naming the column.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:150px">File</th><th style="padding:6px 0">Columns used</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>7.1</strong> General Stores order calendar</td><td style="padding:6px 0">Date, YN #, Product, Quantity, Area, Chemico rep</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>7.2</strong> Leadec schedule / completions</td><td style="padding:6px 0">Line/area, Machine #, Tank (gal), Chemical, Chemical (gal), Status</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>7.3</strong> Dust collector Forms export</td><td style="padding:6px 0">Required: Date (or Completion time), Line (or Product line / Area; not needed for Tool Regrind), Line Dust Collector Condition (O / X…). Used if present: Name / Name2 (whichever is filled), Department, Please select the NG Equipment (semicolon-separated), Provide NG condition details and actions taken. Excel dates and text dates are both accepted.</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top"><strong>7.4</strong> Toyota dust/mist file (export)</td><td style="padding:6px 0">Date, Plant, Area, Line, Collector, Result (PASS / FAIL), NG equipment, NG details and actions, Checked by. CSV. Final layout per open item B1.</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">8. Integrations</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:130px">Integration</th><th style="padding:6px 10px 6px 0">Used for</th><th style="padding:6px 0;width:90px">Status</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Sign-in</td><td style="padding:6px 10px 6px 0">Chemico Microsoft accounts proposed; contractor access to be agreed</td><td style="padding:6px 0">Open · T2</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Email</td><td style="padding:6px 10px 6px 0">Sending reports to distribution lists</td><td style="padding:6px 0">Open · T5</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Text messages</td><td style="padding:6px 10px 6px 0">Group Lead alerts (AL-1)</td><td style="padding:6px 0">Open · T4</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">Toyota database</td><td style="padding:6px 10px 6px 0">Dust/mist check records (DM-9)</td><td style="padding:6px 0">Open · B1–B4</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top">Power BI</td><td style="padding:6px 10px 6px 0">Report publishing (RP-6)</td><td style="padding:6px 0">Open · T6</td></tr>
+      </tbody>
+    </table>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">9. Decisions confirmed</h2>
+    <ul style="margin:0 0 12px;padding-left:20px">
+      <li>The blue side-menu layout (prototype v3) is the layout to build from.</li>
+      <li>G-2200TU is replaced by Inhibitor 42 (I-42) on every washer; washer dose target is mid range.</li>
+      <li>A drop count between chart rows uses the row below.</li>
+      <li>Managers edit all master data, including product names, refractive factors, ranges, targets, machine IDs, operations, schedules and titration charts.</li>
+      <li>Leadec’s file is uploaded as it comes; unassigned systems are kept as Leadec-only.</li>
+      <li>Dust collector checks come from TMMAL’s Microsoft Forms for now. Each line has its own Forms link; Sprint’s product lines differ; Tool Regrind stands alone with one dropdown choice. In-app entry stays ready for later.</li>
+      <li>Forms exports are uploaded weekly until the process is accepted, then possibly monthly.</li>
+      <li>Development starts with Sprint/TRUQ2 only.</li>
+    </ul>
+
+    <h2 style="font-size:20px;margin:28px 0 8px">10. Open items</h2>
+    <p style="margin:0 0 8px;text-wrap:pretty">These don’t block starting the build, but each must be closed before the feature it affects is finished.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;margin:0 0 14px">
+      <thead><tr style="text-align:left;border-bottom:1.5px solid var(--color-text)"><th style="padding:6px 10px 6px 0;width:40px">#</th><th style="padding:6px 10px 6px 0">Item</th><th style="padding:6px 10px 6px 0;width:110px">Owner</th><th style="padding:6px 0;width:70px">Affects</th></tr></thead>
+      <tbody>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">J1</td><td style="padding:6px 10px 6px 0">Sprint’s Forms export columns. Our sample assumes the 2.4T layout; a screenshot of the form or one exported row confirms it.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Jeff Davis</td><td style="padding:6px 0;vertical-align:top">DM-4, 7.3</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">J2</td><td style="padding:6px 10px 6px 0">I-42 range: 0.8–1.5% (kept from G-2200TU) to be confirmed.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Jeff Davis</td><td style="padding:6px 0;vertical-align:top">BR-11</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">J3</td><td style="padding:6px 10px 6px 0">Counts above the chart: add a chart row, or dilute and re-test.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Jeff Davis</td><td style="padding:6px 0;vertical-align:top">BR-10</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">J4</td><td style="padding:6px 10px 6px 0">Holidays on Tuesday to Friday: skip, or move to another day.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Jeff Davis</td><td style="padding:6px 0;vertical-align:top">BR-7</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">J5</td><td style="padding:6px 10px 6px 0">Approval of the roles model and who is Plant Admin.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Jeff Davis / Chemico</td><td style="padding:6px 0;vertical-align:top">Section 2</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">B1</td><td style="padding:6px 10px 6px 0">Toyota transfer: all checks or fails only, and the fields per record.</td><td style="padding:6px 10px 6px 0;vertical-align:top">TMMAL</td><td style="padding:6px 0;vertical-align:top">DM-9, 7.4</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">B2</td><td style="padding:6px 10px 6px 0">Toyota transfer: how often, and whether it sends automatically.</td><td style="padding:6px 10px 6px 0;vertical-align:top">TMMAL</td><td style="padding:6px 0;vertical-align:top">DM-9</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">B3</td><td style="padding:6px 10px 6px 0">Closing out a fail: is a “repaired on / by” step needed?</td><td style="padding:6px 10px 6px 0;vertical-align:top">TMMAL</td><td style="padding:6px 0;vertical-align:top">DM-9</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">B4</td><td style="padding:6px 10px 6px 0">Which Toyota system receives the data, how we connect, and the TMMAL data owner.</td><td style="padding:6px 10px 6px 0;vertical-align:top">TMMAL IT</td><td style="padding:6px 0;vertical-align:top">Section 8</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T1</td><td style="padding:6px 10px 6px 0">Hosting: Chemico Microsoft 365 / Azure, Toyota network, or hosted by us.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico IT / TMMAL IT</td><td style="padding:6px 0;vertical-align:top">NF-6</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T2</td><td style="padding:6px 10px 6px 0">Sign-in method, and how contractors get access.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico IT</td><td style="padding:6px 0;vertical-align:top">SI-4</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T3</td><td style="padding:6px 10px 6px 0">Devices on the floor, browser, and Wi-Fi coverage at each line.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico / TMMAL</td><td style="padding:6px 0;vertical-align:top">NF-1, AU-1</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T4</td><td style="padding:6px 10px 6px 0">Text provider, sending number, cost, and opt-in for Group Leads.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico IT</td><td style="padding:6px 0;vertical-align:top">AL-1</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T5</td><td style="padding:6px 10px 6px 0">Sending mailbox or domain for reports, and Toyota mail filter approval.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico IT</td><td style="padding:6px 0;vertical-align:top">RP-5</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T6</td><td style="padding:6px 10px 6px 0">Power BI workspace, licences, and who builds and owns the reports.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico</td><td style="padding:6px 0;vertical-align:top">RP-6</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T7</td><td style="padding:6px 10px 6px 0">Data retention, backup and audit rules; whether past readings are loaded, and from what date.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico / TMMAL</td><td style="padding:6px 0;vertical-align:top">NF-6</td></tr>
+        <tr style="border-bottom:1px solid var(--color-neutral-300)"><td style="padding:6px 10px 6px 0;vertical-align:top">T8</td><td style="padding:6px 10px 6px 0">Security review or vendor approval needed before go-live, and how long it takes.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico / TMMAL</td><td style="padding:6px 0;vertical-align:top">Go-live</td></tr>
+        <tr><td style="padding:6px 10px 6px 0;vertical-align:top">T9</td><td style="padding:6px 10px 6px 0">Support contact and expected response time after go-live.</td><td style="padding:6px 10px 6px 0;vertical-align:top">Chemico</td><td style="padding:6px 0;vertical-align:top">Go-live</td></tr>
+      </tbody>
+    </table>
+
+    <div class="keep" style="padding-top:10px">
+      <h2 style="font-size:20px;margin:18px 0 6px">11. Sign-off</h2>
+      <p style="margin:0 0 24px;text-wrap:pretty">By signing, the parties agree this document is the requirement for the Release 1 build. Answers to the open items are added as a revision. Changes after sign-off go through change control.</p>
+      <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:34px 40px;font-size:12px">
+        <div style="display:flex;flex-direction:column;gap:4px"><div style="height:32px;border-bottom:1px solid var(--color-text)"></div><span>Jeff Davis, Chemico · Date</span></div>
+        <div style="display:flex;flex-direction:column;gap:4px"><div style="height:32px;border-bottom:1px solid var(--color-text)"></div><span>Michael Collins, CEO, Ideal Technology Solutions · Date</span></div>
+      </div>
+    </div>
+  </div>
+</doc-page>
+</x-dc>
+</body>
+</html>

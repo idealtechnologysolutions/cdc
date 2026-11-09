@@ -8,8 +8,11 @@ Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, 
 - `Coolant Data Capture - Sidebar v3.dc.html` — the current design under its working name
 - `Coolant Data Capture - Sidebar v2.dc.html` — previous version, before Jeff’s round-four answers
 - `assets/dust-collector-checks-2.4T-example.xlsx` — Jeff’s 2.4T Forms export, used by “Use Jeff’s 2.4T example”
-- `Sprint Pilot - Prototype Features v2.dc.html` — feature walkthrough of the current design, with screenshots (`screenshots/v2/`)
-- `Sprint Pilot - Open Questions for Michael.dc.html` — business and technical questions before development
+- `assets/dust-collector-checks-Sprint-sample.xlsx`, `…-Tool-Regrind-sample.xlsx` — sample Forms exports in the 2.4T layout (made-up checks)
+- `Coolant Data Capture - Functional Specification.dc.html` — **functional specification and requirements for sign-off** (Release 1)
+- `Sprint Pilot - Prototype Features v3 Final.dc.html` — final feature walkthrough with screenshots (`screenshots/v3/`, plus `screenshots/v2/` for unchanged screens)
+- `Sprint Pilot - Prototype Features v2.dc.html` — previous walkthrough, before Jeff’s round-four answers
+- `Sprint Pilot - Open Questions for Michael.dc.html` — round-four business and technical questions
 - `Coolant Data Capture.dc.html` — earlier version, top menu
 - `Coolant Data Capture - Sidebar.dc.html` — earlier side-menu version, before sign-in and roles
 - `Coolant Data Capture - Header - Sidebar.dc.html` — top bar + white side menu, Chemico Systems brand (Michael's layout)
@@ -17,7 +20,7 @@ Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, 
 - `Coolant Data Capture (TNGA).dc.html` — earlier TNGA version
 - `Sprint Pilot - Questions for Jeff.dc.html` — open questions for the pilot
 - `Coolant Data Capture - Functional Overview.dc.html` — walkthrough with screenshots
-- `Coolant Data Capture - Requirements Sign-off.dc.html` — sign-off sheet
+- `Coolant Data Capture - Requirements Sign-off.dc.html` — earlier TNGA sign-off sheet (replaced by the Functional Specification)
 - `support.js`, `doc-page.js`, `vendor/` (incl. `vendor/chemico/brand.css` — Chemico Graphic Standards colors and type), `assets/`, `screenshots/` — required, keep them next to the pages
 
 ## Publish on GitHub Pages

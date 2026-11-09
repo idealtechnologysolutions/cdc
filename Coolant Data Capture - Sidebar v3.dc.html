@@ -899,11 +899,34 @@ button:disabled{cursor:default}
         <sc-if value="{{ chk.isForms }}" hint-placeholder-val="{{ true }}">
           <div style="display:flex;flex-direction:column;gap:30px">
             <div style="display:flex;flex-direction:column;gap:14px;max-width:860px">
-              <p style="margin:0;font-size:16px;line-height:1.55;text-wrap:pretty">For now TMMAL keeps the Microsoft Forms links for dust collector checks: one link per area, with a dropdown for the line. A Not Good (X) flags the machine / op and needs a comment. Upload the Forms Excel export to get the CDC report.</p>
+              <p style="margin:0;font-size:16px;line-height:1.55;text-wrap:pretty">For now TMMAL keeps the Microsoft Forms links for dust collector checks: one link per area, with a dropdown for the line. A Not Good (X) flags the machine / op and needs a comment. Upload each area’s Forms Excel export to get the CDC report.</p>
+              <div style="display:flex;flex-direction:column;gap:10px">
+                <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+                  <h3 style="margin:0;font-size:22px;margin-right:auto">Forms links · upload {{ chk.fm.cadLabel }}</h3>
+                  <div class="seg">
+                    <label class="seg-opt" style="min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap"><input type="radio" name="fmcad" checked="{{ chk.fm.isWeekly }}" onChange="{{ chk.fm.onWeekly }}">Weekly</label>
+                    <label class="seg-opt" style="min-height:44px;padding:0 16px;font-size:14px;white-space:nowrap"><input type="radio" name="fmcad" checked="{{ chk.fm.isMonthly }}" onChange="{{ chk.fm.onMonthly }}">Monthly</label>
+                  </div>
+                </div>
+                <span style="font-size:14px;color:var(--color-neutral-700);text-wrap:pretty">Weekly while the process beds in, then monthly once it’s accepted. The Plant Admin gets a reminder when an area is due.</span>
+                <div style="overflow-x:auto"><div style="min-width:700px;display:flex;flex-direction:column">
+                  <div style="display:grid;grid-template-columns:150px minmax(200px,1fr) 130px 130px 110px;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)"><span>Area</span><span>Line dropdown</span><span>Last upload</span><span>Next due</span><span>Status</span></div>
+                  <sc-for list="{{ chk.fm.srcs }}" as="s" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:150px minmax(200px,1fr) 130px 130px 110px;gap:10px;align-items:center;padding:8px;min-height:44px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                      <strong style="font-family:var(--font-heading);font-size:16px">{{ s.name }}</strong>
+                      <span style="text-wrap:pretty">{{ s.lines }}</span>
+                      <span>{{ s.last }}</span><span>{{ s.due }}</span>
+                      <span style="width:fit-content;padding:2px 8px;border-radius:var(--radius-md);background:{{ s.bg }};color:{{ s.fg }};font-size:13px;font-weight:600;white-space:nowrap">{{ s.status }}</span>
+                    </div>
+                  </sc-for>
+                </div></div>
+              </div>
               <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline" style="white-space:nowrap">Date</span><span class="tag tag-outline" style="white-space:nowrap">Name</span><span class="tag tag-outline" style="white-space:nowrap">Line</span><span class="tag tag-outline" style="white-space:nowrap">Condition O / X</span><span class="tag tag-outline" style="white-space:nowrap">NG equipment</span><span class="tag tag-outline" style="white-space:nowrap">NG details and actions</span></div>
               <div style="display:flex;gap:10px;flex-wrap:wrap">
                 <label class="btn btn-primary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Upload Forms export<input type="file" accept=".xlsx,.csv" onChange="{{ chk.fm.onFile }}" style="display:none"></label>
                 <button class="btn btn-secondary" onClick="{{ chk.fm.onSample }}" style="min-height:46px;white-space:nowrap">Use Jeff’s 2.4T example</button>
+                <button class="btn btn-secondary" onClick="{{ chk.fm.onSampleSprint }}" style="min-height:46px;white-space:nowrap">Sprint sample</button>
+                <button class="btn btn-secondary" onClick="{{ chk.fm.onSampleRegrind }}" style="min-height:46px;white-space:nowrap">Tool Regrind sample</button>
                 <sc-if value="{{ chk.fm.has }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ chk.fm.onClear }}" style="min-height:46px;white-space:nowrap">Clear</button></sc-if>
               </div>
               <sc-if value="{{ chk.fm.hasErr }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.08 65)"><i class="ph-duotone ph-warning" style="font-size:20px"></i>{{ chk.fm.err }}</span></sc-if>
@@ -1242,6 +1265,8 @@ button:disabled{cursor:default}
           <div style="display:flex;gap:10px;flex-wrap:wrap">
             <label class="btn btn-secondary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.csv" onChange="{{ chk.fm.onFile }}" style="display:none"></label>
             <button class="btn btn-ghost" onClick="{{ chk.fm.onSample }}" style="min-height:46px;white-space:nowrap">Use Jeff’s 2.4T example</button>
+            <button class="btn btn-ghost" onClick="{{ chk.fm.onSampleSprint }}" style="min-height:46px;white-space:nowrap">Sprint sample</button>
+            <button class="btn btn-ghost" onClick="{{ chk.fm.onSampleRegrind }}" style="min-height:46px;white-space:nowrap">Tool Regrind sample</button>
           </div>
           <sc-if value="{{ chk.fm.hasErr }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.08 65)"><i class="ph-duotone ph-warning" style="font-size:20px"></i>{{ chk.fm.err }}</span></sc-if>
           <sc-if value="{{ chk.fm.has }}" hint-placeholder-val="{{ false }}">
@@ -1915,15 +1940,23 @@ const formsParse = (rows, file) => {
   const H = (rows[0] || []).map(h => String(h || '').trim()), col = re => H.findIndex(h => re.test(h));
   const body = rows.slice(1).filter(r => r && r.some(v => v !== '' && v != null));
   const nameC = H.map((h, i) => /^name\d*$/i.test(h) ? i : -1).filter(i => i >= 0).sort((a, b) => body.filter(r => r[b]).length - body.filter(r => r[a]).length)[0];
-  const c = { date: col(/^date$/i) >= 0 ? col(/^date$/i) : col(/completion time/i), line: col(/^line$/i), cond: col(/condition/i), eq: col(/NG Equipment/i), note: col(/details|comment/i), dept: col(/department/i) };
-  const missing = [['date', 'Date'], ['line', 'Line'], ['cond', 'Condition']].filter(([k]) => c[k] < 0).map(x => x[1]);
+  const c = { date: col(/^date$/i) >= 0 ? col(/^date$/i) : col(/completion time/i), line: [/^line$/i, /product line/i, /^area$/i, /line/i].map(col).find(i => i >= 0) ?? -1, cond: col(/condition/i), eq: col(/NG Equipment/i), note: col(/details|comment/i), dept: col(/department/i) };
+  const regrind = /regrind/i.test(file);
+  const missing = [['date', 'Date'], ...(regrind ? [] : [['line', 'Line']]), ['cond', 'Condition']].filter(([k]) => c[k] < 0).map(x => x[1]);
   if (missing.length) return { err: `Couldn’t find the ${missing.join(', ')} column in ${file}. Upload the Forms Excel export as downloaded.` };
   const cell = (r, i) => i == null || i < 0 ? '' : String(r[i] ?? '').trim();
-  const recs = body.map(r => ({ d: xlDate(r[c.date]), line: cell(r, c.line) || 'Not set', ng: /^x/i.test(cell(r, c.cond)), equip: cell(r, c.eq).split(/[;,]/).map(s => s.trim()).filter(Boolean), note: cell(r, c.note), by: cell(r, nameC) || '—', dept: cell(r, c.dept) })).filter(r => r.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+  const recs = body.map(r => ({ d: xlDate(r[c.date]), line: cell(r, c.line) || (regrind ? 'Tool Regrind' : 'Not set'), ng: /^x/i.test(cell(r, c.cond)), equip: cell(r, c.eq).split(/[;,]/).map(s => s.trim()).filter(Boolean), note: cell(r, c.note), by: cell(r, nameC) || '—', dept: cell(r, c.dept) })).filter(r => r.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
   if (!recs.length) return { err: `No dated checks found in ${file}.` };
-  const am = file.match(/2\.4T|TNGA|V6T|Sprint/i);
-  return { file, area: am ? (/sprint/i.test(am[0]) ? 'Sprint/TRUQ2' : am[0].toUpperCase()) : (recs.find(r => r.dept) || {}).dept || 'Area not set', recs };
+  const am = file.match(/2\.4T|TNGA|V6T|Sprint|Regrind/i);
+  return { file, area: am ? (/sprint/i.test(am[0]) ? 'Sprint/TRUQ2' : /regrind/i.test(am[0]) ? 'Tool Regrind' : am[0].toUpperCase()) : (recs.find(r => r.dept) || {}).dept || 'Area not set', recs };
 };
+const FORMS_SRC = [
+  ['Sprint/TRUQ2', 'Sprint product lines (differ from the other areas)', -9],
+  ['TNGA', 'TNGA lines', -3],
+  ['V6T', 'V6T lines', -5],
+  ['2.4T', '2.4T lines', null],
+  ['Tool Regrind', 'One choice: Tool Regrind', -12]
+];
 const initials = n => n === '—' ? '' : n.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 3).toUpperCase();
 const r2 = x => Math.round(x * 100) / 100;
 const PIT_WATER = Array.from({ length: 15 }, (_, i) => `+${((i + 1) * 1000).toLocaleString('en-US')} L WATER`);
@@ -2869,7 +2902,7 @@ class Component extends DCLogic {
         const r = formsParse(/\.csv$/i.test(file) ? csvRows(new TextDecoder().decode(buf)) : await xlsxRows(buf), file);
         if (r.err) return this.setState({ fm: { err: r.err } });
         const months = [...new Set(r.recs.map(x => x.d.slice(0, 7)))];
-        this.setState({ fm: { ...r, month: months[months.length - 1] } });
+        this.setState(s => ({ fm: { ...r, month: months[months.length - 1] }, fmUp: { ...(s.fmUp || {}), [r.area]: TODAY } }));
         this.say(`${r.recs.length} dust collector checks read from ${file}`);
       } catch (e) { this.setState({ fm: { err: `Couldn’t read ${file}. Save it as .xlsx or .csv and try again.` } }); }
     })();
@@ -2883,12 +2916,22 @@ class Component extends DCLogic {
     const per = lines.map(l => { const m = by[l], done = days.filter(d => m[d]), ng = done.filter(d => m[d].ng), miss = days.filter(d => !m[d]); return { l, m, done, ng, miss, last: done[done.length - 1] }; });
     return { recs, days, per, ngList: recs.filter(r => r.ng), label: `${MONTHS[+F.month.slice(5, 7) - 1]} ${F.month.slice(0, 4)}` };
   }
+  fmSample(path, name) { fetch('assets/' + path).then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(b => this.loadForms(name, b)).catch(() => this.setState({ fm: { err: 'Sample file not found.' } })); }
   vForms() {
-    const st = this.state, F = st.fm || {}, has = !!F.recs;
+    const st = this.state, F = st.fm || {}, has = !!F.recs, cad = st.fmCad || 'weekly', every = cad === 'weekly' ? 7 : 30;
+    const up = st.fmUp || {}, fmtD = d => { const x = new Date(d + 'T12:00:00'); return `${MONTHS[x.getMonth()].slice(0, 3)} ${x.getDate()}`; };
+    const srcs = FORMS_SRC.map(([name, lines, off]) => {
+      const last = up[name] || (off == null ? null : addD(TODAY, off)), due = last ? addD(last, every) : TODAY, late = due < TODAY, now = due === TODAY;
+      const t = !last || late ? ST.bad : now ? ST.warn : ST.ok;
+      return { name, lines, last: last ? fmtD(last) : 'Never', due: fmtD(due), status: !last ? 'Not uploaded' : late ? 'Overdue' : now ? 'Due today' : 'Up to date', bg: t.bg, fg: t.fg };
+    });
     const base = {
-      has, hasErr: !!F.err, err: F.err || '',
+      has, hasErr: !!F.err, err: F.err || '', srcs, cadLabel: cad, isWeekly: cad === 'weekly', isMonthly: cad === 'monthly',
+      onWeekly: () => this.setState({ fmCad: 'weekly' }), onMonthly: () => this.setState({ fmCad: 'monthly' }),
       onFile: ev => { const f = ev.target.files && ev.target.files[0]; if (!f) return; ev.target.value = ''; f.arrayBuffer().then(b => this.loadForms(f.name, b)); },
-      onSample: () => fetch('assets/dust-collector-checks-2.4T-example.xlsx').then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(b => this.loadForms('2.4T Daily Dust Collector Checks EXAMPLE FILE.xlsx', b)).catch(() => this.setState({ fm: { err: 'Example file not found.' } })),
+      onSample: () => this.fmSample('dust-collector-checks-2.4T-example.xlsx', '2.4T Daily Dust Collector Checks EXAMPLE FILE.xlsx'),
+      onSampleSprint: () => this.fmSample('dust-collector-checks-Sprint-sample.xlsx', 'Sprint Daily Dust Collector Checks SAMPLE.xlsx'),
+      onSampleRegrind: () => this.fmSample('dust-collector-checks-Tool-Regrind-sample.xlsx', 'Tool Regrind Daily Dust Collector Checks SAMPLE.xlsx'),
       onClear: () => this.setState({ fm: null }), onView: () => this.setState({ screen: 'dust', checkKind: 'forms' }), onReport: () => this.setState({ screen: 'reports', report: 'dust' })
     };
     if (!has) return { ...base, monthOpts: [], hdrs: [], rows: [], ng: [], figs: [] };
