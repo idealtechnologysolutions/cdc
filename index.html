@@ -616,7 +616,7 @@ button:disabled{cursor:default}
               <article data-screen-label="Report page" style="display:flex;flex-direction:column;gap:14px;background:var(--color-neutral-100);box-shadow:var(--shadow-md);padding:28px 32px 20px;overflow-x:auto">
                 <div style="display:flex;align-items:flex-end;gap:20px">
                   <div style="display:flex;flex-direction:column;gap:2px;margin-right:auto">
-                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">Sprint/TRUQ2 · {{ gen.title }} · Week {{ weekNo }}</span>
+                    <span style="font-size:11px;letter-spacing:0.1em;text-transform:uppercase;color:var(--color-accent-700)">{{ gen.kicker }}</span>
                     <h2 style="margin:0;font-size:28px">{{ sec.title }}</h2>
                   </div>
                   <span style="font-size:13px;color:var(--color-neutral-700);text-align:right">{{ sec.sub }}</span>
@@ -887,14 +887,91 @@ button:disabled{cursor:default}
         <div style="display:flex;align-items:flex-end;gap:28px;flex-wrap:wrap">
           <div style="display:flex;flex-direction:column;gap:6px;margin-right:auto">
             <h1 style="margin:0;font-size:38px">Dust, Mist &amp; Skimmer Checks</h1>
-            <span style="font-size:15px;color:var(--color-neutral-700)">{{ chk.month }} · workdays · {{ chk.summary }}</span>
+            <span style="font-size:15px;color:var(--color-neutral-700)">{{ chk.headSub }}</span>
           </div>
           <div class="seg">
+            <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isForms }}" onChange="{{ chk.onForms }}">Forms upload</label>
             <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isDust }}" onChange="{{ chk.onDust }}">Dust</label>
             <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isMist }}" onChange="{{ chk.onMist }}">Mist</label>
             <label class="seg-opt" style="min-height:46px;padding:0 18px;font-size:15px;white-space:nowrap"><input type="radio" name="chkkind" checked="{{ chk.isSkim }}" onChange="{{ chk.onSkim }}">Skimmer</label>
           </div>
         </div>
+        <sc-if value="{{ chk.isForms }}" hint-placeholder-val="{{ true }}">
+          <div style="display:flex;flex-direction:column;gap:30px">
+            <div style="display:flex;flex-direction:column;gap:14px;max-width:860px">
+              <p style="margin:0;font-size:16px;line-height:1.55;text-wrap:pretty">For now TMMAL keeps the Microsoft Forms links for dust collector checks: one link per area, with a dropdown for the line. A Not Good (X) flags the machine / op and needs a comment. Upload the Forms Excel export to get the CDC report.</p>
+              <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline" style="white-space:nowrap">Date</span><span class="tag tag-outline" style="white-space:nowrap">Name</span><span class="tag tag-outline" style="white-space:nowrap">Line</span><span class="tag tag-outline" style="white-space:nowrap">Condition O / X</span><span class="tag tag-outline" style="white-space:nowrap">NG equipment</span><span class="tag tag-outline" style="white-space:nowrap">NG details and actions</span></div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap">
+                <label class="btn btn-primary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Upload Forms export<input type="file" accept=".xlsx,.csv" onChange="{{ chk.fm.onFile }}" style="display:none"></label>
+                <button class="btn btn-secondary" onClick="{{ chk.fm.onSample }}" style="min-height:46px;white-space:nowrap">Use Jeff’s 2.4T example</button>
+                <sc-if value="{{ chk.fm.has }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ chk.fm.onClear }}" style="min-height:46px;white-space:nowrap">Clear</button></sc-if>
+              </div>
+              <sc-if value="{{ chk.fm.hasErr }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.08 65)"><i class="ph-duotone ph-warning" style="font-size:20px"></i>{{ chk.fm.err }}</span></sc-if>
+            </div>
+            <sc-if value="{{ chk.fm.has }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:26px">
+                <div style="display:flex;align-items:flex-end;gap:12px;flex-wrap:wrap">
+                  <div style="display:flex;flex-direction:column;gap:4px;margin-right:auto">
+                    <h2 style="margin:0;font-size:30px">Dust collectors · {{ chk.fm.area }}</h2>
+                    <span style="font-size:14px;color:var(--color-neutral-700)">{{ chk.fm.file }}</span>
+                  </div>
+                  <select class="input" value="{{ chk.fm.month }}" onChange="{{ chk.fm.onMonth }}" aria-label="Month" style="min-height:46px;width:auto;font-size:15px"><sc-for list="{{ chk.fm.monthOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o.v }}">{{ o.label }}</option></sc-for></select>
+                  <button class="btn btn-secondary" onClick="{{ chk.fm.onReport }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-file-text" style="font-size:20px"></i>Open report</button>
+                  <button class="btn btn-secondary" onClick="{{ chk.fm.onCsv }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-file-csv" style="font-size:20px"></i>Download for Toyota</button>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:28px;max-width:900px">
+                  <sc-for list="{{ chk.fm.figs }}" as="f" hint-placeholder-count="3">
+                    <div style="display:flex;flex-direction:column;gap:6px">
+                      <span style="font-family:var(--font-heading);font-weight:600;font-size:52px;line-height:1;letter-spacing:-0.02em;color:{{ f.fg }}">{{ f.value }}</span>
+                      <span style="font-size:16px;font-weight:600">{{ f.label }}</span>
+                      <span style="font-size:13px;color:var(--color-neutral-700)">{{ f.sub }}</span>
+                    </div>
+                  </sc-for>
+                </div>
+                <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800);align-items:center">
+                  <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.05 150);color:oklch(0.38 0.1 150);border-radius:var(--radius-sm)">O</strong>OK</span>
+                  <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.92 0.045 25);color:oklch(0.44 0.17 25);border-radius:var(--radius-sm)">X</strong>Not Good</span>
+                  <span style="display:flex;align-items:center;gap:6px"><strong style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:oklch(0.93 0.08 85);color:oklch(0.38 0.08 65);border-radius:var(--radius-sm)">–</strong>No check submitted</span>
+                  <span>Initials are the person who filled in the form.</span>
+                </div>
+                <div style="overflow-x:auto">
+                  <div style="display:flex;flex-direction:column;gap:4px;width:max-content">
+                    <div style="display:grid;grid-template-columns:{{ chk.fm.cols }};gap:4px;align-items:end;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);padding-bottom:4px">
+                      <span>Line</span>
+                      <sc-for list="{{ chk.fm.hdrs }}" as="h" hint-placeholder-count="20"><span style="display:flex;flex-direction:column;align-items:center;padding:4px 0"><span>{{ h.w }}</span><strong style="font-size:15px;letter-spacing:0">{{ h.n }}</strong></span></sc-for>
+                      <span style="text-align:center">X</span><span style="text-align:center">No check</span>
+                    </div>
+                    <sc-for list="{{ chk.fm.rows }}" as="r" hint-placeholder-count="2">
+                      <div style="display:grid;grid-template-columns:{{ chk.fm.cols }};gap:4px;align-items:center">
+                        <strong style="font-family:var(--font-heading);font-size:18px">{{ r.line }}</strong>
+                        <sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="20"><span title="{{ c.title }}" style="display:flex;flex-direction:column;align-items:center;justify-content:center;width:46px;height:50px;box-sizing:border-box;border:1px solid color-mix(in srgb, var(--color-text) 10%, transparent);border-radius:var(--radius-sm);background:{{ c.bg }};color:{{ c.fg }}"><strong style="font-size:17px;line-height:1">{{ c.v }}</strong><span style="font-size:10px;line-height:1.3">{{ c.by }}</span></span></sc-for>
+                        <span style="text-align:center;font-weight:600;font-size:16px;color:{{ r.xsFg }}">{{ r.xs }}</span>
+                        <span style="text-align:center;font-weight:600;font-size:16px;color:{{ r.missFg }}">{{ r.miss }}</span>
+                      </div>
+                    </sc-for>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:10px;max-width:1100px">
+                  <h3 style="margin:0;font-size:22px">Not Good · {{ chk.fm.nNg }}</h3>
+                  <sc-if value="{{ chk.fm.hasNg }}" hint-placeholder-val="{{ true }}">
+                    <div style="overflow-x:auto"><div style="min-width:820px;display:flex;flex-direction:column">
+                      <div style="display:grid;grid-template-columns:110px 90px minmax(150px,1fr) minmax(240px,2fr) 140px;gap:10px;padding:6px 8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)"><span>Date</span><span>Line</span><span>NG equipment</span><span>Details and actions taken</span><span>Reported by</span></div>
+                      <sc-for list="{{ chk.fm.ng }}" as="f" hint-placeholder-count="2">
+                        <div style="display:grid;grid-template-columns:110px 90px minmax(150px,1fr) minmax(240px,2fr) 140px;gap:10px;align-items:start;padding:10px 8px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                          <strong>{{ f.when }}</strong><strong style="font-family:var(--font-heading);font-size:16px">{{ f.line }}</strong>
+                          <span style="width:fit-content;padding:2px 8px;border-radius:var(--radius-md);background:oklch(0.92 0.045 25);color:oklch(0.44 0.17 25);font-size:13px;font-weight:600">{{ f.equip }}</span>
+                          <span style="color:{{ f.noteFg }};text-wrap:pretty">{{ f.note }}</span><span>{{ f.by }}</span>
+                        </div>
+                      </sc-for>
+                    </div></div>
+                  </sc-if>
+                  <sc-if value="{{ chk.fm.noNg }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px">Every dust collector check this month was OK.</span></sc-if>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </sc-if>
+        <sc-if value="{{ chk.notForms }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:22px">
         <div style="display:flex;gap:22px;flex-wrap:wrap;font-size:13px;color:var(--color-neutral-800);align-items:center">
           <span>Tap a cell: blank → O → X → blank. Your initials are added.</span>
           <sc-if value="{{ chk.hasAlertNote }}" hint-placeholder-val="{{ true }}"><span style="display:flex;align-items:center;gap:6px;color:var(--color-accent-2-800)"><i class="ph-duotone ph-device-mobile" style="font-size:18px"></i>{{ chk.alertNote }}</span></sc-if>
@@ -961,6 +1038,7 @@ button:disabled{cursor:default}
             </sc-for>
           </div>
         </sc-if>
+        </div></sc-if>
       </section>
     </sc-if>
 
@@ -1157,6 +1235,22 @@ button:disabled{cursor:default}
             </div>
           </sc-if>
         </div>
+        <div style="display:flex;flex-direction:column;gap:14px;max-width:1000px">
+          <h2 style="margin:0;font-size:28px">Dust collector checks · Microsoft Forms</h2>
+          <p style="margin:0;font-size:15px;text-wrap:pretty">The Excel export from each area’s Forms link. Columns are matched by header name. Checks show on Dust, Mist &amp; Skimmer and in the Dust Collector report.</p>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;font-size:13px"><span class="tag tag-outline" style="white-space:nowrap">Date</span><span class="tag tag-outline" style="white-space:nowrap">Name</span><span class="tag tag-outline" style="white-space:nowrap">Line</span><span class="tag tag-outline" style="white-space:nowrap">Condition O / X</span><span class="tag tag-outline" style="white-space:nowrap">NG equipment</span><span class="tag tag-outline" style="white-space:nowrap">NG details and actions</span></div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap">
+            <label class="btn btn-secondary" style="min-height:46px;cursor:pointer;white-space:nowrap"><i class="ph-duotone ph-file-xls" style="font-size:20px"></i>Choose Excel file<input type="file" accept=".xlsx,.csv" onChange="{{ chk.fm.onFile }}" style="display:none"></label>
+            <button class="btn btn-ghost" onClick="{{ chk.fm.onSample }}" style="min-height:46px;white-space:nowrap">Use Jeff’s 2.4T example</button>
+          </div>
+          <sc-if value="{{ chk.fm.hasErr }}" hint-placeholder-val="{{ false }}"><span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.08 65)"><i class="ph-duotone ph-warning" style="font-size:20px"></i>{{ chk.fm.err }}</span></sc-if>
+          <sc-if value="{{ chk.fm.has }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+              <span style="display:flex;align-items:center;gap:8px;font-size:14px;color:oklch(0.38 0.1 150)"><i class="ph-duotone ph-check-circle" style="font-size:20px"></i>{{ chk.fm.file }} · {{ chk.fm.summary }}</span>
+              <button class="btn btn-ghost" onClick="{{ chk.fm.onView }}" style="min-height:44px;white-space:nowrap">View checks</button>
+            </div>
+          </sc-if>
+        </div>
         <div style="display:flex;flex-direction:column;gap:10px;max-width:760px">
           <div style="display:flex;align-items:center;gap:10px"><h2 style="margin:0;font-size:28px">In-line data capture</h2><span class="tag tag-accent">Future</span></div>
           <p style="margin:0;font-size:15px;text-wrap:pretty">In-line concentration and pH sensors on the sumps could send readings straight into CDC. Techs would confirm or correct each value instead of typing it, and the same rules for adding product, comments and reports would apply. Which sensors and data feeds are available would be confirmed with the plant.</p>
@@ -1187,15 +1281,22 @@ button:disabled{cursor:default}
                 </div>
               </sc-for>
             </div>
-            <p style="margin:0;font-size:15px;max-width:720px;text-wrap:pretty">Move a machining system between MWTH and TF, or any system between shifts, to balance each round. Shifts follow the OP Info sheet; Manual Case is all Shift 1. Washers are titrated once a week.</p>
+            <p style="margin:0;font-size:15px;max-width:720px;text-wrap:pretty">Edit OP #, machine #, product, range and target in place. Move a machining system between MWTH and TF, or any system between shifts, to balance each round. Shifts follow the OP Info sheet; Manual Case is all Shift 1. Washers are titrated once a week.</p>
             <div style="overflow-x:auto">
-              <div style="min-width:940px;display:flex;flex-direction:column">
-                <div style="display:grid;grid-template-columns:70px 64px 118px 84px 80px 70px 64px 56px 120px 90px 40px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
-                  <span>Line</span><span>OP #</span><span>Machine #</span><span>Type</span><span>Product</span><span>Sump (gal)</span><span>Range</span><span>Target</span><span>Schedule</span><span>Shift</span><span>Bug</span>
+              <div style="min-width:1100px;display:flex;flex-direction:column">
+                <div style="display:grid;grid-template-columns:70px 84px 136px 84px 112px 64px 150px 70px 120px 90px 40px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
+                  <span>Line</span><span>OP #</span><span>Machine #</span><span>Type</span><span>Product</span><span>Sump (gal)</span><span>Range %</span><span>Target %</span><span>Schedule</span><span>Shift</span><span>Bug</span>
                 </div>
                 <sc-for list="{{ mst.systems }}" as="s" hint-placeholder-count="10">
-                  <div style="display:grid;grid-template-columns:70px 64px 118px 84px 80px 70px 64px 56px 120px 90px 40px;gap:8px;align-items:center;padding:6px 8px;min-height:52px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
-                    <span>{{ s.line }}</span><strong>{{ s.op }}</strong><span style="font-size:13px">{{ s.mach }}</span><span>{{ s.type }}</span><span style="font-size:13px">{{ s.product }}</span><span>{{ s.gal }}</span><span>{{ s.range }}</span><span>{{ s.target }}</span>
+                  <div style="display:grid;grid-template-columns:70px 84px 136px 84px 112px 64px 150px 70px 120px 90px 40px;gap:8px;align-items:center;padding:6px 8px;min-height:52px;font-size:14px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
+                    <span>{{ s.line }}</span>
+                    <input class="input" value="{{ s.op }}" onChange="{{ s.onOp }}" aria-label="OP #" style="min-height:44px;padding:4px 8px;font-size:14px;font-weight:600">
+                    <input class="input" value="{{ s.mach }}" onChange="{{ s.onMach }}" aria-label="Machine #" style="min-height:44px;padding:4px 8px;font-size:13px">
+                    <span>{{ s.type }}</span>
+                    <select class="input" value="{{ s.product }}" onChange="{{ s.onProd }}" aria-label="Product" style="min-height:44px;padding:4px 6px;font-size:13px"><sc-for list="{{ mst.prodOpts }}" as="o" hint-placeholder-count="0"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+                    <span>{{ s.gal }}</span>
+                    <div style="display:flex;align-items:center;gap:4px"><input class="input" inputmode="decimal" value="{{ s.lowRaw }}" onChange="{{ s.onLow }}" aria-label="Range low %" style="min-height:44px;padding:4px 6px;font-size:14px;min-width:0"><span>–</span><input class="input" inputmode="decimal" value="{{ s.highRaw }}" onChange="{{ s.onHigh }}" aria-label="Range high %" style="min-height:44px;padding:4px 6px;font-size:14px;min-width:0"></div>
+                    <input class="input" inputmode="decimal" value="{{ s.tgtRaw }}" onChange="{{ s.onTgt }}" aria-label="Target %" style="min-height:44px;padding:4px 6px;font-size:14px">
                     <sc-if value="{{ s.canMove }}" hint-placeholder-val="{{ false }}">
                       <select class="input" value="{{ s.group }}" onChange="{{ s.onGroup }}" style="min-height:44px;padding:4px 8px;font-size:14px"><option value="MWTH">MWTH</option><option value="TF">TF</option></select>
                     </sc-if>
@@ -1209,8 +1310,9 @@ button:disabled{cursor:default}
         </sc-if>
 
         <sc-if value="{{ mst.isProd }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:40px;max-width:1100px">
           <div style="display:flex;flex-direction:column;gap:14px;max-width:900px">
-            <p style="margin:0;font-size:15px;text-wrap:pretty">Machining: concentration % = Initial Refrac (Brix) × refractive factor. Washers: Initial RI % is read from each product’s titration chart (a sliding scale, not a fixed % per drop). Counts between chart rows are interpolated. I-42 replaces G-2200TU.</p>
+            <p style="margin:0;font-size:15px;text-wrap:pretty">Machining: concentration % = Initial Refrac (Brix) × refractive factor. Leave the factor blank for a product that isn’t refracted. Washers: Initial RI % is read from the product’s titration chart; a count between two rows uses the row below. Nothing here is fixed: change it and it applies straight away.</p>
             <div style="overflow-x:auto">
               <div style="min-width:800px;display:flex;flex-direction:column">
                 <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px 160px;gap:8px;padding:8px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700);border-bottom:1px solid var(--color-divider)">
@@ -1218,12 +1320,44 @@ button:disabled{cursor:default}
                 </div>
                 <sc-for list="{{ mst.products }}" as="p" hint-placeholder-count="6">
                   <div style="display:grid;grid-template-columns:120px 130px 150px minmax(160px,1fr) 80px 160px;gap:8px;align-items:center;padding:12px 8px;font-size:15px;border-bottom:1px solid color-mix(in srgb, var(--color-text) 8%, transparent)">
-                    <strong>{{ p.p }}</strong><span>{{ p.f }}</span><span style="color:var(--color-neutral-700)">{{ p.ex }}</span><span>{{ p.uses }}</span><span>{{ p.n }}</span>
+                    <strong>{{ p.p }}</strong><input class="input" inputmode="decimal" value="{{ p.fRaw }}" onChange="{{ p.onF }}" placeholder="Not refracted" aria-label="Refractive factor {{ p.p }}" style="min-height:44px;padding:4px 8px;font-size:14px;width:120px"><span style="color:var(--color-neutral-700)">{{ p.ex }}</span><span>{{ p.uses }}</span><span>{{ p.n }}</span>
                     <div style="display:flex;align-items:center;gap:6px"><sc-if value="{{ p.hasDrop }}" hint-placeholder-val="{{ false }}"><span style="font-size:14px">{{ p.drop }}</span></sc-if><sc-if value="{{ p.noDrop }}" hint-placeholder-val="{{ true }}"><span style="color:var(--color-neutral-700)">—</span></sc-if></div>
                   </div>
                 </sc-for>
               </div>
             </div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+              <input class="input" value="{{ mst.newProd }}" onChange="{{ mst.onNewProd }}" placeholder="New product" aria-label="New product" style="min-height:46px;width:200px">
+              <input class="input" inputmode="decimal" value="{{ mst.newFact }}" onChange="{{ mst.onNewFact }}" placeholder="Factor (blank = not refracted)" aria-label="Refractive factor" style="min-height:46px;width:240px">
+              <button class="btn btn-primary" onClick="{{ mst.addProd }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-plus" style="font-size:18px"></i>Add product</button>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:16px">
+            <h2 style="margin:0;font-size:26px">Titration charts</h2>
+            <p style="margin:0;font-size:15px;max-width:820px;text-wrap:pretty">Drops of titrant → Initial RI %. Edit any row, add rows when the manufacturer extends a chart, or start a chart for a new product. A count above the last row shows as “above chart” on the Washers screen.</p>
+            <div style="display:flex;gap:56px;flex-wrap:wrap;align-items:flex-start">
+              <sc-for list="{{ mst.charts }}" as="c" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column;gap:8px">
+                  <div style="display:flex;flex-direction:column;gap:2px"><strong style="font-family:var(--font-heading);font-size:20px">{{ c.name }}</strong><span style="font-size:13px;color:var(--color-neutral-700)">{{ c.sub }}</span></div>
+                  <div style="display:grid;grid-template-columns:84px 96px 44px;gap:6px;font-size:11px;letter-spacing:0.06em;text-transform:uppercase;color:var(--color-neutral-700)"><span>Drops</span><span>RI %</span><span></span></div>
+                  <sc-for list="{{ c.rows }}" as="r" hint-placeholder-count="5">
+                    <div style="display:grid;grid-template-columns:84px 96px 44px;gap:6px;align-items:center">
+                      <input class="input" inputmode="numeric" value="{{ r.dRaw }}" onChange="{{ r.onD }}" aria-label="Drops" style="min-height:44px;padding:4px 8px;font-size:15px;font-weight:600">
+                      <input class="input" inputmode="decimal" value="{{ r.vRaw }}" onChange="{{ r.onV }}" aria-label="RI %" style="min-height:44px;padding:4px 8px;font-size:15px">
+                      <button class="btn btn-ghost btn-icon" onClick="{{ r.onDel }}" title="Remove row" style="width:44px;height:44px"><i class="ph-duotone ph-trash" style="font-size:18px"></i></button>
+                    </div>
+                  </sc-for>
+                  <button class="btn btn-ghost" onClick="{{ c.onAdd }}" style="min-height:44px;width:fit-content"><i class="ph-duotone ph-plus" style="font-size:18px"></i>Add row</button>
+                </div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ mst.hasChartable }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+                <select class="input" value="{{ mst.newChartP }}" onChange="{{ mst.onNewChartP }}" aria-label="Product for new chart" style="min-height:46px;width:auto"><sc-for list="{{ mst.chartable }}" as="o" hint-placeholder-count="0"><option value="{{ o }}">{{ o }}</option></sc-for></select>
+                <button class="btn btn-secondary" onClick="{{ mst.addChart }}" style="min-height:46px;white-space:nowrap"><i class="ph-duotone ph-plus" style="font-size:18px"></i>Start a titration chart</button>
+              </div>
+            </sc-if>
+          </div>
           </div>
         </sc-if>
 
@@ -1733,15 +1867,64 @@ const CHEM_F = { grotan: 0.0015, la33: 0.0002, wr90: 0.001 }; // L of chemical p
 const DROP_CHART = { 'I-42': [[4, 0.5], [6, 0.75], [9, 1.0], [11, 1.25], [13, 1.5]], 'G-5300ME': [[1, 0.1], [2, 0.3], [3, 0.5], [4, 0.8], [5, 1.0], [6, 1.2], [7, 1.4], [8, 1.6], [9, 1.8], [10, 2.0], [11, 2.3]] }; // titration charts (Jeff Davis, Nov 2026)
 const PNAME = { 'I-42': 'Inhibitor 42 (I-42) · replaces G-2200TU', 'G-5300ME': 'G-5300ME' };
 const pv = v => v % 1 ? String(v) : v.toFixed(1);
+const chartOf = p => (DROP_CHART[p] || []).filter(r => r[0] != null && r[1] != null).slice().sort((a, b) => a[0] - b[0]);
 const dropLook = (p, n) => {
-  const c = DROP_CHART[p]; if (!c || n == null) return null;
+  const c = chartOf(p); if (!c.length || n == null) return null;
   const ex = c.find(r => r[0] === n); if (ex) return { pct: ex[1], how: 'on chart' };
-  const hi = c.find(r => r[0] > n), last = c[c.length - 1];
-  if (!hi) return { pct: last[1], over: true, how: `above chart (max ${last[0]})` };
-  const lo = n < c[0][0] ? [0, 0] : [...c].reverse().find(r => r[0] < n);
-  return { pct: lo[1] + (hi[1] - lo[1]) * (n - lo[0]) / (hi[0] - lo[0]), how: `between ${lo[0]}–${hi[0]}` };
+  const last = c[c.length - 1];
+  if (n > last[0]) return { pct: last[1], over: true, how: `above chart (max ${last[0]})` };
+  if (n < c[0][0]) return { pct: 0, how: `below chart (min ${c[0][0]})` };
+  const lo = [...c].reverse().find(r => r[0] < n);
+  return { pct: lo[1], how: `between rows · ${lo[0]}-drop row used` };
 };
-const DROP_VIEW = Object.entries(DROP_CHART).map(([p, c]) => ({ name: PNAME[p] || p, range: (WASH0 => WASH0 ? `Range ${WASH0.low}–${WASH0.high}% · target ${WASH0.target}%` : '')(null), pts: c.map(([d, v]) => ({ d: String(d), v: pv(v) + '%' })) }));
+const dropView = () => Object.keys(DROP_CHART).map(p => ({ name: PNAME[p] || p, pts: chartOf(p).map(([d, v]) => ({ d: String(d), v: pv(v) + '%' })) }));
+const unx = s => String(s).replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&apos;/g, "'").replace(/&#(\d+);/g, (m, n) => String.fromCharCode(+n)).replace(/&amp;/g, '&');
+const xlsxRows = async buf => {
+  const u8 = new Uint8Array(buf), dv = new DataView(buf), td = new TextDecoder(), files = {};
+  let e = u8.length - 22; while (e >= 0 && dv.getUint32(e, true) !== 0x06054b50) e--;
+  if (e < 0) throw new Error('not a zip');
+  let p = dv.getUint32(e + 16, true);
+  for (let i = 0, n = dv.getUint16(e + 10, true); i < n; i++) {
+    const nl = dv.getUint16(p + 28, true), name = td.decode(u8.subarray(p + 46, p + 46 + nl));
+    files[name] = { m: dv.getUint16(p + 10, true), size: dv.getUint32(p + 20, true), off: dv.getUint32(p + 42, true) };
+    p += 46 + nl + dv.getUint16(p + 30, true) + dv.getUint16(p + 32, true);
+  }
+  const get = async name => {
+    const f = files[name]; if (!f) return '';
+    const s = f.off + 30 + dv.getUint16(f.off + 26, true) + dv.getUint16(f.off + 28, true), data = u8.subarray(s, s + f.size);
+    if (!f.m) return td.decode(data);
+    return new Response(new Blob([data]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+  };
+  const strs = [...(await get('xl/sharedStrings.xml')).matchAll(/<si>([\s\S]*?)<\/si>/g)].map(m => unx([...m[1].matchAll(/<t[^>]*>([\s\S]*?)<\/t>/g)].map(x => x[1]).join('')));
+  const sheet = Object.keys(files).filter(f => /^xl\/worksheets\/sheet\d+\.xml$/.test(f)).sort()[0];
+  const xml = await get(sheet), out = [];
+  for (const r of xml.matchAll(/<row[^>]*>([\s\S]*?)<\/row>/g)) {
+    const row = [];
+    for (const c of r[1].matchAll(/<c r="([A-Z]+)\d+"([^>]*?)(?:\/>|>([\s\S]*?)<\/c>)/g)) {
+      const ix = [...c[1]].reduce((a, ch) => a * 26 + ch.charCodeAt(0) - 64, 0) - 1, body = c[3] || '', v = (body.match(/<v>([\s\S]*?)<\/v>/) || [])[1];
+      row[ix] = /t="s"/.test(c[2]) ? strs[+v] : /t="inlineStr"/.test(c[2]) ? unx((body.match(/<t[^>]*>([\s\S]*?)<\/t>/) || [, ''])[1]) : v == null ? '' : unx(v);
+    }
+    out.push(Array.from(row, x => x ?? ''));
+  }
+  return out;
+};
+const csvRows = t => t.split(/\r?\n/).filter(l => l.trim()).map(l => { const o = []; let cur = '', q = false; for (const ch of l) { if (ch === '"') q = !q; else if (ch === ',' && !q) { o.push(cur); cur = ''; } else cur += ch; } o.push(cur); return o; });
+const pad2 = n => String(n).padStart(2, '0');
+const xlDate = v => { if (v == null || v === '') return null; const n = Number(v); if (!isNaN(n) && n > 20000 && n < 80000) return new Date(Date.UTC(1899, 11, 30) + Math.floor(n) * 864e5).toISOString().slice(0, 10); const d = new Date(v); return isNaN(d) ? null : `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`; };
+const formsParse = (rows, file) => {
+  const H = (rows[0] || []).map(h => String(h || '').trim()), col = re => H.findIndex(h => re.test(h));
+  const body = rows.slice(1).filter(r => r && r.some(v => v !== '' && v != null));
+  const nameC = H.map((h, i) => /^name\d*$/i.test(h) ? i : -1).filter(i => i >= 0).sort((a, b) => body.filter(r => r[b]).length - body.filter(r => r[a]).length)[0];
+  const c = { date: col(/^date$/i) >= 0 ? col(/^date$/i) : col(/completion time/i), line: col(/^line$/i), cond: col(/condition/i), eq: col(/NG Equipment/i), note: col(/details|comment/i), dept: col(/department/i) };
+  const missing = [['date', 'Date'], ['line', 'Line'], ['cond', 'Condition']].filter(([k]) => c[k] < 0).map(x => x[1]);
+  if (missing.length) return { err: `Couldn’t find the ${missing.join(', ')} column in ${file}. Upload the Forms Excel export as downloaded.` };
+  const cell = (r, i) => i == null || i < 0 ? '' : String(r[i] ?? '').trim();
+  const recs = body.map(r => ({ d: xlDate(r[c.date]), line: cell(r, c.line) || 'Not set', ng: /^x/i.test(cell(r, c.cond)), equip: cell(r, c.eq).split(/[;,]/).map(s => s.trim()).filter(Boolean), note: cell(r, c.note), by: cell(r, nameC) || '—', dept: cell(r, c.dept) })).filter(r => r.d).sort((a, b) => a.d < b.d ? -1 : a.d > b.d ? 1 : 0);
+  if (!recs.length) return { err: `No dated checks found in ${file}.` };
+  const am = file.match(/2\.4T|TNGA|V6T|Sprint/i);
+  return { file, area: am ? (/sprint/i.test(am[0]) ? 'Sprint/TRUQ2' : am[0].toUpperCase()) : (recs.find(r => r.dept) || {}).dept || 'Area not set', recs };
+};
+const initials = n => n === '—' ? '' : n.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 3).toUpperCase();
 const r2 = x => Math.round(x * 100) / 100;
 const PIT_WATER = Array.from({ length: 15 }, (_, i) => `+${((i + 1) * 1000).toLocaleString('en-US')} L WATER`);
 const DIST = [
@@ -2028,7 +2211,7 @@ class Component extends DCLogic {
     signedIn: this.props.startSignedIn ?? false, signOut: null, welcome: false, signSite: 'Sprint', signId: ROLE_USER[this.props.startRole ?? 'internal'] || 'HW', access: ACCESS0(), perm: JSON.parse(JSON.stringify(PERM0)), screen: this.props.startScreen ?? 'round',
     navMini: false, online: true, pending: 0, syncing: false, shift: 1,
     entries: seedEntries(), bugs: seedBugs(), drafts: {}, errors: {},
-    washers: seedWashers(), mix: seedMix(), mixDraft: {}, mixErr: null, checks: seedChecks(), checkKind: 'dust', leadec: seedLeadec(), leadecMiss: seedLeadecMiss(),
+    washers: seedWashers(), mix: seedMix(), mixDraft: {}, mixErr: null, checks: seedChecks(), checkKind: 'forms', fm: null, mdRaw: {}, newProd: '', newFact: '', newChartP: '', leadec: seedLeadec(), leadecMiss: seedLeadecMiss(),
     mdTab: 'sys', comStd: [...COMMENTS], newCmt: '', newHol: '', holErr: null, ver: 0,
     auditId: null, confirmDel: false, drawerCmt: null,
     fLine: 'All', fShift: 'All', fGroup: 'All', report: 'weekly', chkOpen: true,
@@ -2404,7 +2587,7 @@ class Component extends DCLogic {
     const C = (t, k, o) => this.gcell(t, k, o), P = t => this.gcell(t), Bd = t => this.gcell(t, null, { bold: true });
     const MISS = () => C('MISSING', 'warn', { icon: 'ph-warning' }), fig = (value, label, sub, k) => ({ value: String(value), label, sub, fg: k ? ST[k].fg : 'var(--color-text)' });
     const wkSub = `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))}`, month = `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`;
-    let sub = wkSub, figs = [], sections = [], note = 'Red = action needed · Amber = missing or not commented';
+    let kicker = null, sub = wkSub, figs = [], sections = [], note = 'Red = action needed · Amber = missing or not commented';
     if (key === 'washer' || key === 'asm') {
       const f = key === 'asm' ? s => s.line === 'Assembly' : s => s.line !== 'Assembly';
       const all = this.vWash().rows.filter(r => f(r.sys));
@@ -2483,6 +2666,17 @@ class Component extends DCLogic {
       ];
       figs = [fig(thisWk.length, 'Cleaned this week', `Week ${wi + 1} of ${month}`), fig(`${LSCOPE.length - notYet.length}/${LSCOPE.length}`, 'Cleaned this month', 'Clean and recharge'), fig(notYet.length, 'Outstanding', 'Not yet cleaned this month', notYet.length ? 'warn' : 'ok')];
       sub = `${wkSub} · ${month} to date`;
+    } else if (key === 'dust' && st.fm && st.fm.recs) {
+      const F = st.fm, S = this.formsStats(F);
+      let missT = 0;
+      sections = [
+        { title: 'Dust collectors by line', sub: `${S.label} · ${S.days.length} workdays`, minW: '760px', cols: '100px 80px 70px 100px 80px minmax(160px,1fr) 150px', hdrs: ['Line', 'Checked', 'OK (O)', 'Not Good (X)', 'No check', 'Not Good days', 'Last check'],
+          rows: S.per.map(p => { missT += p.miss.length; const lr = p.last ? p.m[p.last].recs[p.m[p.last].recs.length - 1] : null; return { cells: [Bd(p.l), P(p.done.length), C(p.done.length - p.ng.length, 'ok'), C(p.ng.length, p.ng.length ? 'bad' : null), C(p.miss.length, p.miss.length ? 'warn' : null), P(p.ng.map(md).join(', ') || '—'), P(lr ? `${md(p.last)} · ${lr.by}` : '—')] }; }) },
+        { title: 'Not Good details', sub: 'Machine / op flagged, with the required comment', minW: '760px', cols: '80px 80px minmax(140px,1fr) minmax(220px,2fr) 120px', hdrs: ['Date', 'Line', 'NG equipment', 'Details and actions taken', 'Reported by'],
+          rows: S.ngList.map(r => ({ cells: [Bd(md(r.d)), P(r.line), C(r.equip.join(', ') || 'Not given', 'bad'), r.note ? P(r.note) : C('Comment missing', 'warn', { icon: 'ph-warning' }), P(r.by)] })), emptyText: 'Every dust collector check this month was OK.' }
+      ];
+      figs = [fig(S.recs.length, 'Checks submitted', `${S.label} · Microsoft Forms`), fig(S.ngList.length, 'Not Good logged', 'X conditions', S.ngList.length ? 'bad' : 'ok'), fig(missT, 'Days with no check', 'Workdays, all lines', missT ? 'warn' : 'ok')];
+      sub = `${F.area} · ${S.label} · imported from ${F.file}`; kicker = `TMMAL ${F.area} · Dust Collector Checks · ${S.label}`; note = 'Red = Not Good · Amber = no check submitted or comment missing';
     } else if (key === 'dust' || key === 'mist' || key === 'skim') {
       const days = monthDays().filter(d => d <= TODAY);
       let probs = 0, missT = 0;
@@ -2501,7 +2695,7 @@ class Component extends DCLogic {
     }
     const slug = title.replace(/[^A-Za-z]+/g, '_');
     return {
-      title, sub, figs, note, onSend: () => this.setState({ sendOpen: true, sendWhat: title }),
+      title, sub, figs, note, kicker: kicker || `Sprint/TRUQ2 · ${title} · Week ${WEEKNO}`, onSend: () => this.setState({ sendOpen: true, sendWhat: title }),
       sections: sections.map(s => ({ sub: '', minW: '760px', emptyText: '', ...s, hasFoot: !!s.foot, foot: s.foot || { cells: [] }, empty: !s.rows.length })),
       onPdf: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.pdf exports in the production build`), onXls: () => this.say(`Preview only: ${slug}_Wk${WEEKNO}.xlsx exports in the production build`)
     };
@@ -2603,7 +2797,7 @@ class Component extends DCLogic {
       };
     });
     const done = rows.filter(r => r.entered).length;
-    return { charts: DROP_VIEW.map(c => { const s0 = WASH.find(s => (PNAME[s.product] || s.product) === c.name); return { ...c, range: s0 ? `Range ${s0.low}–${s0.high}% · dose target ${s0.target}% (mid range)` : '' }; }), rows, done, due: rows.length, barW: this.pctOf(done, rows.length), pctLabel: this.pctOf(done, rows.length), week: `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))} · titrated once a week`, hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} washers are read only for Shift ${u.shift} techs.` };
+    return { charts: dropView().map(c => { const s0 = WASH.find(s => (PNAME[s.product] || s.product) === c.name); return { ...c, range: s0 ? `Range ${s0.low}–${s0.high}% · dose target ${s0.target}% (mid range)` : '' }; }), rows, done, due: rows.length, barW: this.pctOf(done, rows.length), pctLabel: this.pctOf(done, rows.length), week: `Week ${WEEKNO} · ${md(MON)}–${md(addD(MON, 4))} · titrated once a week`, hasLock: u.role === 'internal', lockNote: `Shift ${u.shift === 1 ? 2 : 1} washers are read only for Shift ${u.shift} techs.` };
   }
   vMix() {
     const st = this.state, d = st.mixDraft, saved = st.mix.find(m => m.date === TODAY);
@@ -2640,7 +2834,7 @@ class Component extends DCLogic {
     };
   }
   vChecks() {
-    const st = this.state, kind = st.checkKind, data = st.checks[kind] || {}, days = monthDays();
+    const st = this.state, isForms = st.checkKind === 'forms', kind = isForms ? 'dust' : st.checkKind, data = st.checks[kind] || {}, days = monthDays();
     let todayDone = 0;
     const rows = CHK_LINES.map(l => {
       const m = data[l] || {}; let xs = 0, miss = 0;
@@ -2659,12 +2853,65 @@ class Component extends DCLogic {
     return {
       month: `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)}`, cols: `150px repeat(${days.length}, 46px) 52px 60px`,
       hdrs: days.map(d => ({ n: +d.slice(8), w: DAYN[dow(d)].slice(0, 2), bg: d === TODAY ? 'var(--color-accent-100)' : 'transparent', fg: d === TODAY ? 'var(--color-accent-800)' : 'var(--color-neutral-700)' })),
-      rows, isDust: kind === 'dust', isMist: kind === 'mist', isSkim: kind === 'skim', title: CHK_KINDS[kind] + 's',
+      rows, isForms, notForms: !isForms, onForms: () => this.setState({ checkKind: 'forms' }), fm: this.vForms(),
+      isDust: !isForms && kind === 'dust', isMist: kind === 'mist', isSkim: kind === 'skim', title: CHK_KINDS[kind] + 's',
       onDust: () => this.setState({ checkKind: 'dust' }), onMist: () => this.setState({ checkKind: 'mist' }), onSkim: () => this.setState({ checkKind: 'skim' }),
       hasAlertNote: kind !== 'skim', alertNote: 'Marking X (Not Good) texts both Group Leads for that area.',
       log: st.smsLog.slice().reverse().map(x => ({ text: `${md(x.d)} ${hhmm(x.at)} · ${CHK_KINDS[x.kind]} · ${x.line} · Not Good`, to: `Texted ${x.to.join(', ')}` })), hasLog: st.smsLog.length > 0,
       summary: `today ${todayDone} of ${CHK_LINES.length} lines checked`,
+      headSub: isForms ? 'Dust collector checks from the Microsoft Forms export · in-app entry is ready for later' : `${MONTHS[+TODAY.slice(5, 7) - 1]} ${TODAY.slice(0, 4)} · workdays · today ${todayDone} of ${CHK_LINES.length} lines checked`,
       tm: this.vToyota()
+    };
+  }
+  loadForms(file, buf) {
+    (async () => {
+      try {
+        const r = formsParse(/\.csv$/i.test(file) ? csvRows(new TextDecoder().decode(buf)) : await xlsxRows(buf), file);
+        if (r.err) return this.setState({ fm: { err: r.err } });
+        const months = [...new Set(r.recs.map(x => x.d.slice(0, 7)))];
+        this.setState({ fm: { ...r, month: months[months.length - 1] } });
+        this.say(`${r.recs.length} dust collector checks read from ${file}`);
+      } catch (e) { this.setState({ fm: { err: `Couldn’t read ${file}. Save it as .xlsx or .csv and try again.` } }); }
+    })();
+  }
+  formsStats(F) {
+    const recs = F.recs.filter(r => r.d.startsWith(F.month)), lastD = recs.length ? recs[recs.length - 1].d : F.month + '-01', days = [];
+    for (let d = F.month + '-01'; d.slice(0, 7) === F.month && d <= lastD; d = addD(d, 1)) { const w = dow(d); if ((w >= 1 && w <= 5 && !HOL.has(d)) || recs.some(r => r.d === d)) days.push(d); }
+    const lines = [...new Set(F.recs.map(r => r.line))], by = {};
+    lines.forEach(l => { by[l] = {}; });
+    recs.forEach(r => { const c = by[r.line][r.d]; by[r.line][r.d] = c ? { ng: c.ng || r.ng, recs: [...c.recs, r] } : { ng: r.ng, recs: [r] }; });
+    const per = lines.map(l => { const m = by[l], done = days.filter(d => m[d]), ng = done.filter(d => m[d].ng), miss = days.filter(d => !m[d]); return { l, m, done, ng, miss, last: done[done.length - 1] }; });
+    return { recs, days, per, ngList: recs.filter(r => r.ng), label: `${MONTHS[+F.month.slice(5, 7) - 1]} ${F.month.slice(0, 4)}` };
+  }
+  vForms() {
+    const st = this.state, F = st.fm || {}, has = !!F.recs;
+    const base = {
+      has, hasErr: !!F.err, err: F.err || '',
+      onFile: ev => { const f = ev.target.files && ev.target.files[0]; if (!f) return; ev.target.value = ''; f.arrayBuffer().then(b => this.loadForms(f.name, b)); },
+      onSample: () => fetch('assets/dust-collector-checks-2.4T-example.xlsx').then(r => { if (!r.ok) throw 0; return r.arrayBuffer(); }).then(b => this.loadForms('2.4T Daily Dust Collector Checks EXAMPLE FILE.xlsx', b)).catch(() => this.setState({ fm: { err: 'Example file not found.' } })),
+      onClear: () => this.setState({ fm: null }), onView: () => this.setState({ screen: 'dust', checkKind: 'forms' }), onReport: () => this.setState({ screen: 'reports', report: 'dust' })
+    };
+    if (!has) return { ...base, monthOpts: [], hdrs: [], rows: [], ng: [], figs: [] };
+    const S = this.formsStats(F), missT = S.per.reduce((a, p) => a + p.miss.length, 0);
+    const csv = () => [['Date', 'Plant', 'Area', 'Line', 'Collector', 'Result', 'NG equipment', 'NG details and actions', 'Checked by'].join(','), ...S.recs.map(r => [r.d, 'TMMAL', F.area, r.line, 'Dust collector', r.ng ? 'FAIL' : 'PASS', r.equip.join('; '), r.note, r.by].map(v => `"${String(v).replace(/"/g, '""')}"`).join(','))].join('\n');
+    return {
+      ...base, file: F.file, area: F.area, month: F.month, summary: `${S.label} · ${S.recs.length} checks · ${S.ngList.length} Not Good`,
+      monthOpts: [...new Set(F.recs.map(r => r.d.slice(0, 7)))].map(m => ({ v: m, label: `${MONTHS[+m.slice(5, 7) - 1]} ${m.slice(0, 4)}` })),
+      onMonth: ev => { const v = ev.target.value; this.setState(s2 => ({ fm: { ...s2.fm, month: v } })); },
+      figs: [
+        { value: String(S.recs.length), label: 'Checks submitted', sub: `${S.label} · ${S.per.length} lines`, fg: 'var(--color-text)' },
+        { value: String(S.ngList.length), label: 'Not Good', sub: 'Machine / op flagged', fg: S.ngList.length ? ST.bad.fg : ST.ok.fg },
+        { value: String(missT), label: 'Days with no check', sub: 'Workdays, all lines', fg: missT ? ST.warn.fg : ST.ok.fg }
+      ],
+      cols: `110px repeat(${S.days.length}, 46px) 52px 70px`,
+      hdrs: S.days.map(d => ({ n: +d.slice(8), w: DAYN[dow(d)].slice(0, 2) })),
+      rows: S.per.map(p => ({
+        line: p.l, xs: String(p.ng.length), miss: String(p.miss.length), xsFg: p.ng.length ? ST.bad.fg : 'var(--color-neutral-700)', missFg: p.miss.length ? ST.warn.fg : 'var(--color-neutral-700)',
+        cells: S.days.map(d => { const c = p.m[d], t = c ? (c.ng ? ST.bad : ST.ok) : ST.warn; return { v: c ? (c.ng ? 'X' : 'O') : '–', by: c ? initials(c.recs[c.recs.length - 1].by) : '', bg: t.bg, fg: t.fg, title: `${p.l} · ${DAYN[dow(d)]} ${md(d)} · ${c ? `${c.ng ? 'Not Good' : 'OK'} · ${c.recs.map(r => r.by).join(', ')}` : 'no check submitted'}` }; })
+      })),
+      nNg: String(S.ngList.length), hasNg: S.ngList.length > 0, noNg: !S.ngList.length,
+      ng: S.ngList.slice().reverse().map(r => ({ when: `${DAYN[dow(r.d)]} ${md(r.d)}`, line: r.line, equip: r.equip.join(', ') || 'Not given', note: r.note || 'Comment missing', noteFg: r.note ? 'var(--color-text)' : ST.warn.fg, by: r.by })),
+      onCsv: () => { const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv()], { type: 'text/csv' })); a.download = `CDC Dust ${F.area} ${F.month} for Toyota.csv`; document.body.appendChild(a); a.click(); a.remove(); this.say(`Downloaded ${S.recs.length} dust collector records`); }
     };
   }
   vToyota() {
@@ -2811,6 +3058,13 @@ class Component extends DCLogic {
     const TABS = [['sys', 'Systems'], ['prod', 'Products'], ['pick', 'Pick Lists'], ['dist', 'Distribution List'], ['alerts', 'Alert Contacts'], ['hol', 'Holiday Calendar'], ['users', 'Users & Access']];
     const mach = SYS.filter(s => s.type === 'Machining');
     const cnt = (g, sh) => mach.filter(s => s.group === g && (!sh || s.shift === sh)).length;
+    const raw = (k, v) => st.mdRaw[k] ?? (v == null ? '' : String(v));
+    const keep = (k, t) => this.setState(s2 => ({ mdRaw: { ...s2.mdRaw, [k]: t }, ver: s2.ver + 1 }));
+    const numSet = (k, apply) => ev => { const t = ev.target.value, n = parseFloat(t); if (!isNaN(n)) apply(n); keep(k, t); };
+    const txtSet = apply => ev => { apply(ev.target.value); this.setState(s2 => ({ ver: s2.ver + 1 })); };
+    const cell = (p, i, j) => ev => { const t = ev.target.value, n = parseFloat(t); DROP_CHART[p][i][j] = t.trim() === '' ? null : isNaN(n) ? DROP_CHART[p][i][j] : n; keep(`c${p}|${i}|${j}`, t); };
+    const dropRaws = p => this.setState(s2 => ({ mdRaw: Object.fromEntries(Object.entries(s2.mdRaw).filter(([k]) => !k.startsWith(`c${p}|`))), ver: s2.ver + 1 }));
+    const chartable = Object.keys(FACT).filter(p => !DROP_CHART[p]), newChartP = chartable.includes(st.newChartP) ? st.newChartP : (chartable[0] || '');
     return {
       tabs: TABS.map(([k, l]) => { const a = k === tab; return { label: l, bg: a ? 'var(--color-accent)' : 'transparent', fg: a ? 'var(--color-bg)' : 'var(--color-text)', border: a ? 'var(--color-accent)' : 'var(--color-divider)', onClick: () => this.setState({ mdTab: k }) }; }),
       isSys: tab === 'sys', isProd: tab === 'prod', isPick: tab === 'pick', isDist: tab === 'dist', isAlerts: tab === 'alerts', isHol: tab === 'hol', isUsers: tab === 'users',
@@ -2822,10 +3076,19 @@ class Component extends DCLogic {
       ],
       systems: SYS.map(s => ({
         line: s.line, op: s.op, mach: s.mach, type: s.type, product: s.product, gal: fx(s.gal, 0), range: `${s.low}–${s.high}%`, target: `${s.target}%`,
+        onOp: txtSet(v => { s.op = v; }), onMach: txtSet(v => { s.mach = v; }), onProd: txtSet(v => { s.product = v; }),
+        lowRaw: raw('lo' + s.id, s.low), highRaw: raw('hi' + s.id, s.high), tgtRaw: raw('tg' + s.id, s.target),
+        onLow: numSet('lo' + s.id, n => { s.low = n; }), onHigh: numSet('hi' + s.id, n => { s.high = n; }), onTgt: numSet('tg' + s.id, n => { s.target = n; }),
         group: s.group, canMove: s.type === 'Machining', fixed: s.type !== 'Machining', groupLabel: s.type === 'Pit' ? 'Daily' : 'Weekly', shift: 'S' + s.shift, shiftV: String(s.shift), onShift: ev => this.setShift(s.id, +ev.target.value), bug: s.bug,
         onGroup: ev => { const v = ev.target.value; s.group = v; this.setState({ ver: st.ver + 1 }); this.say(`${s.line} ${s.op} moved to ${v} — due ${v === 'MWTH' ? 'Mon, Wed, Thu' : 'Tue, Fri'} from now on`); }
       })),
-      products: Object.entries(FACT).map(([p, f]) => { const us = SYS.filter(s => s.product === p); return { p, f: f == null ? 'Not refracted' : `× ${f}`, n: String(us.length), uses: [...new Set(us.map(s => s.type))].join(', ') || '—', ex: f == null ? '—' : `4.0 Brix → ${fx(4 * f)}%`, hasDrop: !!DROP_CHART[p], noDrop: !DROP_CHART[p], drop: DROP_CHART[p] ? `${DROP_CHART[p].length} rows · ${DROP_CHART[p][0][0]}–${DROP_CHART[p][DROP_CHART[p].length - 1][0]} drops` : '' }; }),
+      products: Object.keys(FACT).map(p => { const f = FACT[p], us = SYS.filter(s => s.product === p), ch = chartOf(p); return { p, fRaw: raw('f' + p, f), onF: ev => { const t = ev.target.value, n = parseFloat(t); if (t.trim() === '') FACT[p] = null; else if (!isNaN(n)) FACT[p] = n; keep('f' + p, t); }, n: String(us.length), uses: [...new Set(us.map(s => s.type))].join(', ') || '—', ex: f == null ? '—' : `4.0 Brix → ${fx(4 * f)}%`, hasDrop: ch.length > 0, noDrop: !ch.length, drop: ch.length ? `${ch.length} rows · ${ch[0][0]}–${ch[ch.length - 1][0]} drops` : '' }; }),
+      prodOpts: Object.keys(FACT),
+      newProd: st.newProd, newFact: st.newFact, onNewProd: ev => this.setState({ newProd: ev.target.value }), onNewFact: ev => this.setState({ newFact: ev.target.value }),
+      addProd: () => { const p = st.newProd.trim().toUpperCase(); if (!p) return; if (p in FACT) return this.say(`${p} is already in the list`); const n = parseFloat(st.newFact); FACT[p] = isNaN(n) ? null : n; this.setState(s2 => ({ newProd: '', newFact: '', ver: s2.ver + 1 })); this.say(`Added ${p}. Pick it on a system in the Systems tab`); },
+      charts: Object.keys(DROP_CHART).map(p => { const c = DROP_CHART[p], s = chartOf(p); return { name: PNAME[p] || p, sub: s.length ? `${s.length} rows · ${s[0][0]}–${s[s.length - 1][0]} drops` : 'No rows yet', rows: c.map((r, i) => ({ dRaw: raw(`c${p}|${i}|0`, r[0]), vRaw: raw(`c${p}|${i}|1`, r[1]), onD: cell(p, i, 0), onV: cell(p, i, 1), onDel: () => { c.splice(i, 1); dropRaws(p); } })), onAdd: () => { const l = s[s.length - 1] || [0, 0]; c.push([l[0] + 1, l[1]]); this.setState(s2 => ({ ver: s2.ver + 1 })); } }; }),
+      chartable, hasChartable: chartable.length > 0, newChartP, onNewChartP: ev => this.setState({ newChartP: ev.target.value }),
+      addChart: () => { if (!newChartP) return; DROP_CHART[newChartP] = [[1, 0.1]]; this.setState(s2 => ({ newChartP: '', ver: s2.ver + 1 })); this.say(`Chart started for ${newChartP}. Add its rows`); },
       pick: st.comStd.map((c, i) => ({ c, dated: c.endsWith('-'), onEdit: ev => { const v = ev.target.value.toUpperCase(); this.setState(s2 => ({ comStd: s2.comStd.map((x, j) => j === i ? v : x) })); }, onRemove: () => this.setState(s2 => ({ comStd: s2.comStd.filter((_, j) => j !== i) })) })),
       newCmt: st.newCmt, onNewCmt: ev => this.setState({ newCmt: ev.target.value }),
       addCmt: () => { const v = st.newCmt.trim().toUpperCase(); if (!v || st.comStd.includes(v)) return; this.setState({ comStd: [...st.comStd, v], newCmt: '' }); this.say(`Added “${v}” to standard comments`); },

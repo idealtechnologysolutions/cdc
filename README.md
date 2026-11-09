@@ -3,9 +3,11 @@
 Clickable prototype for coolant data capture. Pilot area: Sprint / TRUQ2 (TNGA, V6T and 24T to follow). Prepared by Ideal Technology Solutions.
 
 ## Files
-- `index.html` — **current design** (same as `Coolant Data Capture - Sidebar v2.dc.html`): side menu with sign-in, per-site roles, Users & Access and sign-out. Opens at the site root.
+- `index.html` — **current design** (same as `Coolant Data Capture - Sidebar v3.dc.html`): side menu with sign-in and per-site roles, plus Jeff’s round-four answers — editable products, ranges, machine IDs and titration charts; dust collector checks uploaded from the Microsoft Forms export. Opens at the site root.
 - `links.html` — start page linking every document and earlier version
-- `Coolant Data Capture - Sidebar v2.dc.html` — the current design under its working name
+- `Coolant Data Capture - Sidebar v3.dc.html` — the current design under its working name
+- `Coolant Data Capture - Sidebar v2.dc.html` — previous version, before Jeff’s round-four answers
+- `assets/dust-collector-checks-2.4T-example.xlsx` — Jeff’s 2.4T Forms export, used by “Use Jeff’s 2.4T example”
 - `Sprint Pilot - Prototype Features v2.dc.html` — feature walkthrough of the current design, with screenshots (`screenshots/v2/`)
 - `Sprint Pilot - Open Questions for Michael.dc.html` — business and technical questions before development
 - `Coolant Data Capture.dc.html` — earlier version, top menu
